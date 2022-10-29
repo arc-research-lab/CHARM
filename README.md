@@ -17,8 +17,9 @@ To play with the CHARM MM Accelerators, following software and hardware dependen
 + Linux System with "tar" installed
 
 ## Environment Setup
-1. To quickly boost and run experiments on the board instead of building the platform and Linux from scratch, users can download the platform package (VCK190 Base 2021.1) and petalinux common image(Versal common image) from the following link:<br/>
-https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/embedded-platforms/2021-1.html
+1. To quickly boost and run experiments on the board instead of building the platform and Linux from scratch, users can download the platform package (VCK190 Base 2021.1) and petalinux common image(Versal common image) from the following link:<br>
+
+https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/embedded-platforms/2021-1.html<br>
 
 2. VCK190 Base 2021.1: It contains the pre-built Versal extensible embedded platform. During compilation users need to specify the platofrm path in the following format.<br/> 
 ```
@@ -60,6 +61,7 @@ AIE is a very-long instruction word (VLIW) processor which can issue upto seven 
 + **One Vector** Operation : Calculating a vector matrix multiplt or add.<br>
 + **One Scalar** Operation
 + **Two Move** Operations: Two move operations that move the data from scalar/vector to scalar/vector.<br>
+
 <img src="https://user-images.githubusercontent.com/77606152/198855601-6c7e307b-d78a-4c98-bd05-b3b6eb3f8902.png" width="600" height="400"><br>
 
 **The key challenge of programming single AIE is how to make back-to-back issued instructions by utilizing the 32KB local memory and 2KB local registers of a single AIE (for integer data type there are additional 3KB accumulator registers).**<br>
