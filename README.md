@@ -1,9 +1,7 @@
 # CHARM
 
 ## Overview
-In this repo, we use general-purpose Matrix-Matrix Multiplication(GEMM) applications as an example and provide a detailed description of how to build a system-level design on AMD Versal VCK190 Platform. By going through this repo, users can get knowledge on how to design a high efficient single AIE kernel, how to sustain 400 AIEs with the limited I/O interfaces between AIE and PL as well as the data transfer methodology from PL/AIE to AIE/PL.
-
-We provide an automatic code generation and compilation flow that users can build the system on Versal step by step by changing the configuration files.
+In this repo, we use general-purpose Matrix-Matrix Multiplication(GEMM) applications as an example and provide a detailed description of how to build a system-level design on AMD Versal VCK190 Platform. By going through this repo, users can get knowledge on how to design a high efficient single AIE kernel, how to sustain 400 AIEs with the limited I/O interfaces between AIE and PL as well as the data transfer methodology from PL/AIE to AIE/PL. We provide an automatic code generation and compilation flow that users can build the system on Versal step by step by changing the configuration files.
 
 ## Dependencies 
 To play with the Charming Accelerators, following software and hardware dependencies are required:
