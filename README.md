@@ -54,17 +54,17 @@ We visualize the on-chip buffer level tiling in the right figure. We refer the M
 ### Single AIE Programming:
 In this part, we demonstrate the coding style of calculating MM with size **TI\*TK\*TJ** in a single AIE which corresponds to the **first level of tiling**.<br>
 
-AIE is a very-long instruction word (VLIW) processor which can issue upto seven operations in parallel using one VLIW word:
-+ **Two Load** Operations: Load upto (the width of data could change) two 256bits data from AIE local memory to AIE register.
-+ **One Store** Operation: Store upto one 256bits data from AIE register to AIE local memory.
-+ **One Vector** Operation : Calculating a vector matrix multiplt or add.
+AIE is a very-long instruction word (VLIW) processor which can issue upto seven operations in parallel using one VLIW word:<br>
++ **Two Load** Operations: Load upto (the width of data could change) two 256bits data from AIE local memory to AIE register.<br>
++ **One Store** Operation: Store upto one 256bits data from AIE register to AIE local memory.<br>
++ **One Vector** Operation : Calculating a vector matrix multiplt or add.<br>
 + **One Scalar** Operation
-+ **Two Move** Operations: Two move operations that move the data from scalar/vector to scalar/vector.
-<img src="https://user-images.githubusercontent.com/77606152/198855601-6c7e307b-d78a-4c98-bd05-b3b6eb3f8902.png" width="600" height="400">
++ **Two Move** Operations: Two move operations that move the data from scalar/vector to scalar/vector.<br>
+<img src="https://user-images.githubusercontent.com/77606152/198855601-6c7e307b-d78a-4c98-bd05-b3b6eb3f8902.png" width="600" height="400"><br>
 
-**The key challenge of programming single AIE is how to make back-to-back issued instructions by utilizing the 32KB local memory and 2KB local registers of a single AIE (for integer data type there are additional 3KB accumulator registers).**
+**The key challenge of programming single AIE is how to make back-to-back issued instructions by utilizing the 32KB local memory and 2KB local registers of a single AIE (for integer data type there are additional 3KB accumulator registers).**<br>
 
-We provide our source code that achieves 95% efficiency when calculating 32\*32\*32 MM in src/aie/mm_kernel0.cc. The visualization of the algorithm is shown below:
+We provide our source code that achieves 95% efficiency when calculating 32\*32\*32 MM in src/aie/mm_kernel0.cc. The visualization of the algorithm is shown below:<br>
 
 **The insights of programming AIE are:**
 + **Mannually unroll the innermost loop to make it fully pipelined**: View the report under "Work/aie/xx_xx/xx_xx.log" (here xx_xx is the position of AIE) after compilation and make sure 1) "Critical cycle of length" equals the number of vector operations. 2) The cycle after folding achieves the cycle due to"Critical cycle of length". The following figure is reported from a cycle accurate simulator (Vitis Analyzer) provided by AMD. In our innermost loop (line 43), we mannually unrolled 16 vector mac operations and after checking we fully pipelined them.<br>
