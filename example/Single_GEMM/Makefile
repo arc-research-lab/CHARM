@@ -23,9 +23,11 @@ XSA	 = vck190_aie_base_graph_${TARGET}.xsa
 XPFM	 = vck190_xpfm
 HOST_EXE = hostexe
 HOST_SRCS := ./host/host.cpp
-SYSROOT = /share/Jinming/Versal/sysroots/cortexa72-cortexa53-xilinx-linux
+SYSROOT_PATH = ./
+SYSROOT = ${SYSROOT_PATH}/sysroots/cortexa72-cortexa53-xilinx-linux
 SDKTARGETSYSROOT = ${SYSROOT}
-EDGE_COMMON_SW=/share/Jinming/xilinx-versal-common-v2021.1
+EDGE_COMMON_SW_PATH = ./
+EDGE_COMMON_SW= ${EDGE_COMMON_SW_PATH}/xilinx-versal-common-v2021.1
 ROOTFS=${EDGE_COMMON_SW}/rootfs.ext4
 IMAGE=${EDGE_COMMON_SW}/Image
 
@@ -53,15 +55,11 @@ RMDIR = rm -rf
 ################################################################################################################################################
 
 CUR_DIR := $(patsubst %/,%,$(dir $(MK_PATH)))
-XFLIB_DIR_REL_PATH :=/share/Jinming/research/vitis_template/Vitis_Libraries/utils
-XFLIB_DIR := $(shell readlink -f $(XFLIB_DIR_REL_PATH))
 
 BINARY_CONTAINERS += $(BUILD_DIR)/${XCLBIN}
 VCC      = v++
 VPP_XO_FLAGS += -c --platform $(PLATFORM) --save-temps --optimize 2 -g
 VPP_XO_FLAGS += --hls.jobs 8
-VPP_XO_FLAGS += -I$(XFLIB_DIR)/L1/include
-VPP_XO_FLAGS += -I$(XFLIB_DIR)/L1/include/hw
 VPP_XO_FLAGS += -I$(CUR_DIR)/kernel
 
 

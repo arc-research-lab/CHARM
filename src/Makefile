@@ -55,15 +55,11 @@ RMDIR = rm -rf
 ################################################################################################################################################
 
 CUR_DIR := $(patsubst %/,%,$(dir $(MK_PATH)))
-XFLIB_DIR_REL_PATH :=/share/Jinming/research/vitis_template/Vitis_Libraries/utils
-XFLIB_DIR := $(shell readlink -f $(XFLIB_DIR_REL_PATH))
 
 BINARY_CONTAINERS += $(BUILD_DIR)/${XCLBIN}
 VCC      = v++
 VPP_XO_FLAGS += -c --platform $(PLATFORM) --save-temps --optimize 2 -g
 VPP_XO_FLAGS += --hls.jobs 8
-VPP_XO_FLAGS += -I$(XFLIB_DIR)/L1/include
-VPP_XO_FLAGS += -I$(XFLIB_DIR)/L1/include/hw
 VPP_XO_FLAGS += -I$(CUR_DIR)/kernel
 
 
