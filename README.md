@@ -39,6 +39,7 @@ unset LD_LIBRARY_PATH (If needed)
 source ${PATH}/environment-setup-cortexa72-cortexa53-xilinx-linux
 ```
 ## Step by step Tutorial
+In this part, we first introduce the overall MM tiling strategy including four levels of tilings. Then in the later parts, we illustrate the methodology of how we handle each of these level of tilings.<br>
 ### Overall MM tiling strategy:
 Given a large Matrix Multiplication(MM) with size (M\*K) * (K\*N) refer as M\*K\*N, the listing bellow shows four level of tilings to handle this MM (from innermost to outermost):<br>
 + Line 16-20: MM calculated on a **single AIE core**. 
@@ -49,3 +50,5 @@ Given a large Matrix Multiplication(MM) with size (M\*K) * (K\*N) refer as M\*K\
 We visualize the on-chip buffer level tiling in the right figure. We refer the MM calculated in single AIE as  **"Tile"**  level and refer the MM unrolled on AIE array level as  **"Batch"**  level. The strtegy of mapping the tiled MM on AIE array will be illustrated later. 
 
 <img src="https://user-images.githubusercontent.com/77606152/198852392-beb5d876-56c7-4486-8b14-f3ea0021ab72.png" width="400" height="300">         <img src="https://user-images.githubusercontent.com/77606152/198853940-ebdd1006-4807-42eb-9595-ce4f6fe2cc18.png" width="500" height="300">
+
+
