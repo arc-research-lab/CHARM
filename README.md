@@ -1,9 +1,9 @@
 # CHARM
 
 ## Overview
-In this repo, we provide multiple heterogeneous Charming accelerators on AMD Versal VCK190 platform for general-purpose Matrix-Matrix Multiplication(GEMM) applications including BERT for natural language processing, NCF for recommendations, ViT for vision classification, MLP for multi-layer perceptron classification or regression.
+In this repo, we use general-purpose Matrix-Matrix Multiplication(GEMM) applications as an example and provide a detailed description of how to build a system-level design on AMD Versal VCK190 Platform. By going through this repo, users can get knowledge on how to design a high efficient single AIE kernel, how to sustain 400 AIEs with the limited I/O interfaces between AIE and PL as well as the data transfer methodology from PL/AIE to AIE/PL.
 
-To resolve the inconsistency of massive computation resources on Versal within one monolithic accelerator and various small sizes MM layers in the aforementioned applications, we propose multiple diverse MM accelerator architectures, namely, one monolithic acc, one specilized acc, eight duplicated accs and two diverse accs.
+We provide an automatic code generation and compilation flow that users can build the system on Versal step by step by changing the configuration files.
 
 ## Dependencies 
 To play with the Charming Accelerators, following software and hardware dependencies are required:
