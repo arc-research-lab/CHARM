@@ -61,7 +61,8 @@ AIE is a very-long instruction word (VLIW) processor which can issue upto seven 
 + **One Vector** Operation : Calculating a vector matrix multiplt or add.<br>
 + **One Scalar** Operation
 + **Two Move** Operations: Two move operations that move the data from scalar/vector to scalar/vector.<br>
-
+<br>
+<br>
 <img src="https://user-images.githubusercontent.com/77606152/198855601-6c7e307b-d78a-4c98-bd05-b3b6eb3f8902.png" width="600" height="400"><br>
 
 **The key challenge of programming single AIE is how to make back-to-back issued instructions by utilizing the 32KB local memory and 2KB local registers of a single AIE (for integer data type there are additional 3KB accumulator registers).**<br>
