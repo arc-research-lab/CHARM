@@ -40,4 +40,4 @@ source ${PATH}/environment-setup-cortexa72-cortexa53-xilinx-linux
 ```
 ## Step by step Tutorial
 ### Overall tiling strategy:
-
+<img src="https://user-images.githubusercontent.com/77606152/198852392-beb5d876-56c7-4486-8b14-f3ea0021ab72.png" width="400" height="300">
