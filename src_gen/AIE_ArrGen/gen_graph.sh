@@ -13,7 +13,7 @@ else
     exit
 fi
 
-for ((n=1;n<=24;n++));
+for ((n=1;n<=21;n++));
 do
 	read -r line
 	if (( ${n} == 2 ))
@@ -74,6 +74,16 @@ do
 		C_BRO="${Value[0]}";
  	fi
 done < "$input"
+
+if [ -f ./${dir_name}/aie/mm_graph_x${B}.h ]
+then
+    echo ""
+    echo "******************************************"
+    echo "File ./${dir_name}/aie/mm_graph_x${B}.h exists." 
+    echo "******************************************"
+    echo ""
+    exit;
+fi
 
 if [ ${B} != 4 ] && [ ${B} != 8 ]
 then

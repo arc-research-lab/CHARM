@@ -13,7 +13,17 @@ else
     exit
 fi
 
-for ((n=1;n<=24;n++));
+if [ -f ./${dir_name}/kernel/dma.cpp ]
+then
+    echo ""
+    echo "******************************************"
+    echo "File ./${dir_name}/kernel/dma.cpp exists." 
+    echo "******************************************"
+    echo ""
+    exit;
+fi
+
+for ((n=1;n<=21;n++));
 do
 	read -r line
 	if (( ${n} == 2 ))
@@ -123,6 +133,7 @@ let port_row_in=${A}*${B}*${C}/${NUM_PACK}/${R_BRO};
 let port_col_in=${C}*${B}*${A}/${NUM_PACK}/${C_BRO};
 let port_out=${A}*${C}/${NUM_PACK};
 let pipe_length=${X}*${Y}*${Z};
+let array_size=${pipe_length}*${NUM_PACK};
 
 declare -A arrA_tile;
 declare -A arrB_tile;
@@ -192,7 +203,7 @@ echo \
 #include \"packet_sender.hpp\"
 ">> ./${dir_name}/kernel/dma.cpp;
 
-echo -n "static const unsigned int tile_A[${pipe_length}]={">> ./${dir_name}/kernel/dma.cpp;
+echo -n "static const unsigned int tile_A[${array_size}]={">> ./${dir_name}/kernel/dma.cpp;
 
 for ((l=0;l<${pipe_length}+${NUM_PACK}-1;l++));
 do  
@@ -202,7 +213,7 @@ do
         let temp2=${pipe_length}+${NUM_PACK}-2;
         if [ ${i} == ${temp1} ] && [ ${l} == ${temp2} ]
         then
-            echo "${arrA_tile[${i},${l}]}">> ./${dir_name}/kernel/dma.cpp;
+            echo "${arrA_tile[${i},${l}]}};">> ./${dir_name}/kernel/dma.cpp;
         elif [ ${arrA_tile[${i},${l}]} != -1 ] 
         then
             echo -n "${arrA_tile[${i},${l}]},">> ./${dir_name}/kernel/dma.cpp;
@@ -210,7 +221,7 @@ do
     done
 done
 
-echo -n "static const unsigned int tile_B[${pipe_length}]={">> ./${dir_name}/kernel/dma.cpp;
+echo -n "static const unsigned int tile_B[${array_size}]={">> ./${dir_name}/kernel/dma.cpp;
 for ((l=0;l<${pipe_length}+${NUM_PACK}-1;l++));
 do  
     for ((i=0;i<${NUM_PACK};i++));
@@ -219,7 +230,7 @@ do
         let temp2=${pipe_length}+${NUM_PACK}-2;
         if [ ${i} == ${temp1} ] && [ ${l} == ${temp2} ]
         then
-            echo "${arrB_tile[${i},${l}]}">> ./${dir_name}/kernel/dma.cpp;
+            echo "${arrB_tile[${i},${l}]}};">> ./${dir_name}/kernel/dma.cpp;
         elif [ ${arrB_tile[${i},${l}]} != -1 ] 
         then
             echo -n "${arrB_tile[${i},${l}]},">> ./${dir_name}/kernel/dma.cpp;
@@ -227,7 +238,7 @@ do
     done
 done
 
-echo -n "static const unsigned int packet_id[${pipe_length}]={">> ./${dir_name}/kernel/dma.cpp;
+echo -n "static const unsigned int packet_id[${array_size}]={">> ./${dir_name}/kernel/dma.cpp;
 for ((l=0;l<${pipe_length}+${NUM_PACK}-1;l++));
 do  
     for ((i=0;i<${NUM_PACK};i++));
@@ -236,7 +247,7 @@ do
         let temp2=${pipe_length}+${NUM_PACK}-2;
         if [ ${i} == ${temp1} ] && [ ${l} == ${temp2} ]
         then
-            echo -n "${i}">> ./${dir_name}/kernel/dma.cpp;
+            echo -n "${i}};">> ./${dir_name}/kernel/dma.cpp;
         elif [ ${arrB_tile[${i},${l}]} != -1 ] 
         then
             echo -n "${i},">> ./${dir_name}/kernel/dma.cpp;
@@ -244,12 +255,31 @@ do
     done
 done
 
-echo "};
-">> ./${dir_name}/kernel/dma.cpp;
-
-
 echo \
-"void address_A_ddr(axis_stream_32& addrA_out,const int TX,const int TY,const int TZ) {
+"
+
+ap_uint<32> generateHeader(unsigned int pktType, unsigned int ID){
+#pragma HLS inline
+    ap_uint<32> header=0;
+    header(4,0)=ID;
+    header(11,5)=0;
+    header(14,12)=pktType;
+    header[15]=0;
+    header(20,16)=-1;//source row
+    header(27,21)=-1;//source column
+    header(30,28)=0;
+    header[31]=header(30,0).xor_reduce()?(ap_uint<1>)0:(ap_uint<1>)1;
+    return header;
+}
+
+unsigned int getPacketId(ap_uint<32> header){
+#pragma HLS inline
+    ap_uint<32> ID=0;
+    ID(4,0)=header(4,0);
+    return ID;
+}
+
+void address_A_ddr(axis_stream_32& addrA_out,const int TX,const int TY,const int TZ) {
 #pragma HLS inline off
     for(ap_uint<32> tx=0;tx<TX;tx++){
         for(ap_uint<32> tz=0;tz<TZ;tz++){
@@ -1112,7 +1142,7 @@ do
             echo -n "            ">> ./${dir_name}/kernel/dma.cpp;
         fi
     else
-        echo -n "rxC_${i})">> ./${dir_name}/kernel/dma.cpp;
+        echo -n "rxC_${i});">> ./${dir_name}/kernel/dma.cpp;
     fi
 done
 

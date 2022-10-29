@@ -13,7 +13,17 @@ else
     exit
 fi
 
-for ((n=1;n<=24;n++));
+if [ -f ./${dir_name}/aie/mm_top.cpp ]
+then
+    echo ""
+    echo "******************************************"
+    echo "File ./${dir_name}/aie/mm_top.cpp exists." 
+    echo "******************************************"
+    echo ""
+    exit;
+fi
+
+for ((n=1;n<=21;n++));
 do
 	read -r line
 	if (( ${n} == 2 ))
@@ -99,19 +109,19 @@ using namespace adf;
 for ((i=0;i<${port_row_in};i++));
 do  
     echo \
-    "PLIO *in_r${i}  = new PLIO(""in_r${i}"",  adf::plio_128_bits, ""data/input0.txt"", 250);">> ./${dir_name}/aie/mm_top.cpp;
+    "PLIO *in_r${i}  = new PLIO(\"in_r${i}\",  adf::plio_128_bits, \"data/input0.txt\", 250);">> ./${dir_name}/aie/mm_top.cpp;
 done
 
 for ((i=0;i<${port_col_in};i++));
 do  
     echo \
-    "PLIO *in_c${i}  = new PLIO(""in_c${i}"",  adf::plio_128_bits, ""data/input1.txt"", 250);">> ./${dir_name}/aie/mm_top.cpp;
+    "PLIO *in_c${i}  = new PLIO(\"in_c${i}\",  adf::plio_128_bits, \"data/input1.txt\", 250);">> ./${dir_name}/aie/mm_top.cpp;
 done
 
 for ((i=0;i<${port_out};i++));
 do  
     echo \
-    "PLIO *out_${i} = new PLIO(""out_${i}"", adf::plio_128_bits, ""./data/output_${i}.txt"", 250);">> ./${dir_name}/aie/mm_top.cpp;
+    "PLIO *out_${i} = new PLIO(\"out_${i}\", adf::plio_128_bits, \"./data/output_${i}.txt\", 250);">> ./${dir_name}/aie/mm_top.cpp;
 done
 
 

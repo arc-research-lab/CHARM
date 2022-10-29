@@ -13,7 +13,17 @@ else
     exit
 fi
 
-for ((n=1;n<=24;n++));
+if [ -f ./${dir_name}/aie/mm_top.h ]
+then
+    echo ""
+    echo "******************************************"
+    echo "File ./${dir_name}/aie/mm_top.h exists." 
+    echo "******************************************"
+    echo ""
+    exit;
+fi
+
+for ((n=1;n<=21;n++));
 do
 	read -r line
 	if (( ${n} == 2 ))
@@ -104,7 +114,7 @@ const int NUM_INSTANCES=ROW*COL;
 const int NUM_OUT_PACK=NUM_INSTANCES/4;
 using namespace adf;
 
-template <int COL_OFFSET>
+template <int COL_OFFSET,int ROW_OFFSET>
 class mm_x${NUM_INSTANCES}_x${B}_graph : public adf::graph {
 
 public:

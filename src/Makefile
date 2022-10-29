@@ -15,7 +15,7 @@ mkfile_dir := $(dir $(mkfile_path))
 TARGET   = hw
 MODE	 = linux
 HOST_ARCH = aarch64
-PRE_BUILT = 1
+PRE_BUILT = 0
 PLATFORM_REPO_PATHS=/opt/xilinx/platforms
 PLATFORM = ${PLATFORM_REPO_PATHS}/xilinx_vck190_base_202110_1/xilinx_vck190_base_202110_1.xpfm
 XCLBIN   = vck190_aie_base_graph_${TARGET}.xclbin
@@ -157,8 +157,8 @@ $(BUILD_DIR)/${XCLBIN}: ${KERNEL_XO} ${LIBADF}
 
 aiehost: $(AIE_HOSTEXE)
 ifneq ($(PRE_BUILT),1)
-$(AIE_HOSTEXE): ./Work/ps/c_rts/aie_control_xrt.cpp
-	$(CXX) $(GCC_FLAGS) $(GCC_INCLUDES) -o'$@' $(+)
+$(AIE_HOSTEXE):
+	$(CXX) $(GCC_FLAGS) $(GCC_INCLUDES) ./Work/ps/c_rts/aie_control_xrt.cpp -o'$@'
 endif
 
 host: guard-CXX guard-SDKTARGETSYSROOT ${HOST_EXE} 
@@ -220,6 +220,6 @@ cleansim:
 cleantemp:
 	-$(RMDIR) ${TEMP_DIR}
 cleanhost:
-	-$(RMDIR) hostexe aie_control_xrt.o
+	-$(RMDIR) hostexe aie_control_xrt.o main.o
 cleanpac:
 	-$(RMDIR) ${FINAL_XCLBIN} mm_${TARGET}.xclbin.package_summary package.${TARGET} ./pre_built/libadf.a

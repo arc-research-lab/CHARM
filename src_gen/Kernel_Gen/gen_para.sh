@@ -13,7 +13,17 @@ else
     exit
 fi
 
-for ((n=1;n<=24;n++));
+if [ -f ./${dir_name}/aie/para.h ]
+then
+    echo ""
+    echo "******************************************"
+    echo "File ./${dir_name}/aie/para.h exists." 
+    echo "******************************************"
+    echo ""
+    exit;
+fi
+
+for ((n=1;n<=21;n++));
 do
 	read -r line
 	if (( ${n} == 2 ))
@@ -57,7 +67,7 @@ do
 		value_temp="${Key[1]}"; 
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
-		IO_Gen="${Value[0]}";
+		AIE_ArrGen="${Value[0]}";
  	elif (( ${n} == 15 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
@@ -83,7 +93,7 @@ then
 	fi
 fi
 
-if (( ${IO_Gen} == 1 )) || (( ${Sys_Gen} == 1 ))
+if (( ${AIE_ArrGen} == 1 )) || (( ${Sys_Gen} == 1 ))
 then
 	kernel_type=1;
 	if [ ${data_type} == "fp32" ] || [ ${data_type} == "int32" ]

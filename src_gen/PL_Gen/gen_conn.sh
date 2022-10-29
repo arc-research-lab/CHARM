@@ -13,7 +13,17 @@ else
     exit
 fi
 
-for ((n=1;n<=24;n++));
+if [ -f ./${dir_name}/conn.cfg ]
+then
+    echo ""
+    echo "******************************************"
+    echo "File ./${dir_name}/conn.cfg exists." 
+    echo "******************************************"
+    echo ""
+    exit;
+fi
+
+for ((n=1;n<=21;n++));
 do
 	read -r line
     if (( ${n} == 9 ))

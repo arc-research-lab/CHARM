@@ -13,7 +13,18 @@ else
     exit
 fi
 
-for ((n=1;n<=24;n++));
+if [ -f ./${dir_name}/aie/aie_graph.cpp ]
+then
+    echo ""
+    echo "******************************************"
+    echo "File ./${dir_name}/aie/aie_graph.cpp exists." 
+    echo "******************************************"
+    echo ""
+    exit;
+fi
+
+
+for ((n=1;n<=21;n++));
 do
 	read -r line
 	if (( ${n} == 2 ))
@@ -30,9 +41,27 @@ do
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
 		kernel_type="${Value[0]}";
+    elif (( ${n} == 8 ))
+	then
+		IFS=':' read -ra Key <<< "$line";
+		value_temp="${Key[1]}"; 
+		unset IFS
+		IFS=';' read -ra Value <<< "$value_temp";
+		AIEArrGen="${Value[0]}";
+    elif (( ${n} == 15 ))
+	then
+		IFS=':' read -ra Key <<< "$line";
+		value_temp="${Key[1]}"; 
+		unset IFS
+		IFS=';' read -ra Value <<< "$value_temp";
+		SysGen="${Value[0]}";
  	fi
 done < "$input"
 
+if (( ${SysGen} == 1 )) || (( ${AIEArrGen} == 1 ))
+then
+    kernel_type=1;
+fi
 
 mkdir -p ${dir_name}/aie
 if [ ${data_type} == "int32" ] && [ ${kernel_type} == 0 ]
