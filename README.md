@@ -39,6 +39,22 @@ source /opt/xilinx/xrt/setup.sh
 unset LD_LIBRARY_PATH (If needed)
 source ${PATH}/environment-setup-cortexa72-cortexa53-xilinx-linux
 ```
+
+5. Project Setup and Compilation
+Users can generate the customized project by setting up the configuration file and directly running the following command:
+```
+./project_setup.sh ./config_files/input.cfg ${Project_DIR}
+cd ${Project_DIR}
+make all EDGE_COMMON_SW_PATH=${PATH} SYSROOT_PATH={PATH}
+```
+5. On Board Execution for MM with Arbitrary Sizes
+After copy the sd card image to micro sd card and boot up the system run the following commands to get the execution results. {M}, {K}, {N} refers to the size of MM. In order to reduce the effect of overhead of calling API when runnning the kernel, users can specify the number of {iteration} of running the MM then it provides the average throughput. To verify the correctness of the MM kernel, {verify} should be assigned to 1, otherwise 0. One example of running MM with 1024\*1024*\1024 for 100 iterations without verify the result can be: **./hostexe mm_hw.xclbin 1024 1024 1024 100 0**
+```
+cd /mnt/sd-mmcblk0p1
+./hostexe mm_hw.xclbin {M} {K} {N} {iteration} {verify}
+```
+
+
 ## Step by Step Tutorial
 In this part, we first introduce the overall MM tiling strategy including four levels of tilings. Then in the later parts, we illustrate the methodology of how we handle each of these level of tilings.<br>
 ### Overall MM Tiling Strategy:<br>
@@ -122,14 +138,6 @@ SysGen:1;
 	RHS_BUFF:0;
 	OUT_BUFF:1;
 ```
-### Project Setup and Compilation
-Users can generate the customized project by setting up the configuration file and directly running the following command:
-```
-./project_setup.sh ./config_files/input.cfg ${Project_DIR}
-cd ${Project_DIR}
-make all EDGE_COMMON_SW_PATH=${PATH} SYSROOT_PATH={PATH}
-```
-
 
 # Applications
 We provide four applications under example folder including BERT for natural language processing, NCF for recommendations, ViT for vision classification, MLP for multi-layer perceptron classification or regression. The expected throughput should be the same as the results shown in the following figure: <br> 
