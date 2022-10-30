@@ -122,6 +122,14 @@ SysGen:1;
 	RHS_BUFF:0;
 	OUT_BUFF:1;
 ```
+### Project Setup and Compilation
+Users can generate the customized project by setting up the configuration file and directly running the following command:
+```
+./project_setup.sh ./config_files/input.cfg ${Project_DIR}
+cd ${Project_DIR}
+make all EDGE_COMMON_SW_PATH=${PATH} SYSROOT_PATH={PATH}
+```
+
 
 # Applications
 We provide four applications under example folder including BERT for natural language processing, NCF for recommendations, ViT for vision classification, MLP for multi-layer perceptron classification or regression. The expected throughput should be the same as the results shown in the following figure: <br> 
