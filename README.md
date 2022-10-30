@@ -39,9 +39,9 @@ source /opt/xilinx/xrt/setup.sh
 unset LD_LIBRARY_PATH (If needed)
 source ${PATH}/environment-setup-cortexa72-cortexa53-xilinx-linux
 ```
-## Step by step Tutorial
+## Step by Step Tutorial
 In this part, we first introduce the overall MM tiling strategy including four levels of tilings. Then in the later parts, we illustrate the methodology of how we handle each of these level of tilings.<br>
-### Overall MM tiling strategy:<br>
+### Overall MM Tiling Strategy:<br>
 Given a large Matrix Multiplication(MM) with size (M\*K) * (K\*N) refer as M\*K\*N, the listing bellow shows four level of tilings to handle this MM (from innermost to outermost):<br>
 + Line 16-20: MM calculated on a **single AIE core**. 
 + Line 12-14: The spatial distribution unrolled across different AIE cores in **AIE Array**.
@@ -121,6 +121,16 @@ SysGen:1;
 	LHS_BUFF:0;
 	RHS_BUFF:0;
 	OUT_BUFF:1;
+```
+
+# Applications
+We provide four applications under example folder including BERT for natural language processing, NCF for recommendations, ViT for vision classification, MLP for multi-layer perceptron classification or regression. The expected throughput should be the same as the results shown in the following figure: <br> 
+
+![image](https://user-images.githubusercontent.com/77606152/197424370-bc03e3f3-cc04-4876-85ec-a59a006b7319.png)<br>
+
+To quickly reproduce the results, we provide the pre-built object files of AIE, PL and ARM CPU in pre_built folder. Users can go to the corresponding folder and run the following command to create the sd card image for on board execution.
+```
+make package EDGE_COMMON_SW_PATH=${PATH} SYSROOT_PATH={PATH}
 ```
 
 
