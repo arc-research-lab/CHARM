@@ -74,7 +74,7 @@ We provide our source code that achieves 95% efficiency when calculating 32\*32\
 + **Avoid of using judgement statement in the inner most loop**: The judgement statement will prevent the compiler to acheive fully pipelined mac instructions. As can be seen in line 98, since we need to store the data from register back to the local memory when finishing the last iteraion of reduction dimension (K loop), to avoid of using the judgement in the innermost loop we mannually write the last iteration of the innermost loop out of the "for loop" region. <br>
 + **Using __restrict and chess_prepare_for_pipelining pragma to improve the efficiency**: [Software pipelining](https://www.xilinx.com/content/dam/xilinx/support/documents/sw_manuals/xilinx2022_1/ug1079-ai-engine-kernel-coding.pdf)**<br>
 
-### Automatic Code Generation (ACG):<br>
+## Automatic Code Generation (ACG):<br>
 The tools for automatically generate the source code is under ""src_gen"" folder
 
 **ACG** takes platform information and user-specified design point as input, and automatically generated the systen-level design by launching the following 4 template based components sequentially:<br>
@@ -90,7 +90,7 @@ The tools for automatically generate the source code is under ""src_gen"" folder
 **Compilation**
 After code generation, the vendor tools AIE compiler and V++ compiler take ADF gragh and HLS C/C++ as input respectively. Their output object file libadf.a and kernel.xo will be linked into xclbin file which includes the hardware information of the design for the target platform. C++ compiler compiles XRT API based host code to executable file runs on CPU.<br>
 
-## Configuration File 
+### Configuration File 
 We provide a configuration file template under "./config_files/input.cfg", users can specify platform, data type, kernel type and mapping strategy of each level in this file. The feasible option of each parameter are illustrated in **( )** The rules of using this configuration file are listed below:
 - **Platform** refers to the hardware platform used in the project. VCK5000 and VCK190 are supported in the current framework.
 - **KernelGen, AIEArrGen, SysGen** decide if the corresponding ACG should be launched (1 refers to launch). 
