@@ -195,6 +195,9 @@ else
 fi
 
 mkdir -p ${dir_name}/kernel
+
+if [ ${data_type} == "fp32" ] || [ ${data_type} == "int32" ]
+then
 if [ ${B} == 4 ] 
 then
 echo \
@@ -816,10 +819,8 @@ void reshapeC(ap_uint<PLIO_WIDTH> c_buf[X*Z][PACKET_NUM][OUT_SIZE],axis_stream& 
                 }
             } 
         }
-    }
-    
-}
-"
+    } 
+}">> ./${dir_name}/kernel/dma.cpp;
 fi
 
 echo \
@@ -1223,4 +1224,9 @@ echo \
 "
 }">> ./${dir_name}/kernel/dma.cpp;
 
+fi
+
+elif [ ${data_type} == "int16" ]
+then
+    echo "";
 fi
