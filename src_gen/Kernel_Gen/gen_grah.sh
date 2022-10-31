@@ -70,6 +70,14 @@ then
     kernel_type=1;
 fi
 
+if [ ${data_type} == "fp32" ] || [ ${kernel_type} == "int32" ]
+then
+	BPE=4;
+elif [ ${data_type} == "int16" ]
+then
+	BPE=2;
+fi
+
 mkdir -p ${dir_name}/aie
 if [ ${data_type} == "int32" ] && [ ${kernel_type} == 0 ]
 then
@@ -92,9 +100,9 @@ class simpleGraph : public graph {
     simpleGraph() {
         mm = kernel::create(mm_kernel0);
 
-        connect<window<h1*w1*4>>(in0, mm.in[0]);
-        connect<window<w1*w2*4>>(in1, mm.in[1]);
-        connect<window<h1*w2*4>>(mm.out[0], out);
+        connect<window<h1*w1*${BPE}>>(in0, mm.in[0]);
+        connect<window<w1*w2*${BPE}>>(in1, mm.in[1]);
+        connect<window<h1*w2*${BPE}>>(mm.out[0], out);
 
 
         source(mm) = "'"mm_kernel0.cc"'";
@@ -129,12 +137,12 @@ class simpleGraph : public graph {
         mm = kernel::create(mm_kernel0);
         mm1 = kernel::create(mm_kernel1);
 
-        connect<window<h1*w1*4>>(in0, mm.in[0]);
-        connect<window<w1*w2*4>>(in1, mm.in[1]);
-        connect<window<h1*w1*4>>(in2, mm1.in[0]);
-        connect<window<w1*w2*4>>(in3, mm1.in[1]);
-        connect<window<h1*w2*4>>(mm.out[0], mm1.in[2]);
-        connect<window<h1*w2*4>>(mm1.out[0], out);
+        connect<window<h1*w1*${BPE}>>(in0, mm.in[0]);
+        connect<window<w1*w2*${BPE}>>(in1, mm.in[1]);
+        connect<window<h1*w1*${BPE}>>(in2, mm1.in[0]);
+        connect<window<w1*w2*${BPE}>>(in3, mm1.in[1]);
+        connect<window<h1*w2*${BPE}>>(mm.out[0], mm1.in[2]);
+        connect<window<h1*w2*${BPE}>>(mm1.out[0], out);
 
 
 
@@ -169,9 +177,9 @@ class simpleGraph : public graph {
     simpleGraph() {
         mm = kernel::create(mm_kernel0);
 
-        connect<window<h1*w1*4>>(in0, mm.in[0]);
-        connect<window<w1*w2*4>>(in1, mm.in[1]);
-        connect<window<h1*w2*4>>(mm.out[0], out);
+        connect<window<h1*w1*${BPE}>>(in0, mm.in[0]);
+        connect<window<w1*w2*${BPE}>>(in1, mm.in[1]);
+        connect<window<h1*w2*${BPE}>>(mm.out[0], out);
 
 
         source(mm) = \"mm_kernel0.cc\";
@@ -204,9 +212,9 @@ class simpleGraph : public graph {
     simpleGraph() {
         mm = kernel::create(mm_kernel0);
 
-        connect<window<h1*w1*4>>(in0, mm.in[0]);
-        connect<window<w1*w2*4>>(in1, mm.in[1]);
-        connect<window<h1*w2*4>>(mm.out[0], out);
+        connect<window<h1*w1*${BPE}>>(in0, mm.in[0]);
+        connect<window<w1*w2*${BPE}>>(in1, mm.in[1]);
+        connect<window<h1*w2*${BPE}>>(mm.out[0], out);
 
 
         source(mm) = \"mm_kernel0.cc\";
@@ -241,12 +249,12 @@ class simpleGraph : public graph {
         mm = kernel::create(mm_kernel0);
         mm1 = kernel::create(mm_kernel1);
 
-        connect<window<h1*w1*4>>(in0, mm.in[0]);
-        connect<window<w1*w2*4>>(in1, mm.in[1]);
-        connect<window<h1*w1*4>>(in2, mm1.in[0]);
-        connect<window<w1*w2*4>>(in3, mm1.in[1]);
-        connect<window<h1*w2*4>>(mm.out[0], mm1.in[2]);
-        connect<window<h1*w2*4>>(mm1.out[0], out);
+        connect<window<h1*w1*${BPE}>>(in0, mm.in[0]);
+        connect<window<w1*w2*${BPE}>>(in1, mm.in[1]);
+        connect<window<h1*w1*${BPE}>>(in2, mm1.in[0]);
+        connect<window<w1*w2*${BPE}>>(in3, mm1.in[1]);
+        connect<window<h1*w2*${BPE}>>(mm.out[0], mm1.in[2]);
+        connect<window<h1*w2*${BPE}>>(mm1.out[0], out);
 
 
 

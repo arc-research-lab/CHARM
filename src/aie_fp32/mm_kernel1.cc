@@ -1,10 +1,13 @@
 #include <adf.h>
 #include <stdio.h>
 #include "para.h"
-void mm_kernel0(input_window_float* __restrict matA,
+void mm_kernel1(input_window_float* __restrict matA,
 		input_window_float* __restrict matB,
+		input_window_float* __restrict acc_in,
 		output_window_float* __restrict matC){
 
+	v8float acc0=null_v8float();//For first output column
+	v8float acc1=null_v8float();//For second output column
 	v16float buf_matB = undef_v16float();
 	v16float buf_matA = undef_v16float();
 
@@ -16,18 +19,14 @@ void mm_kernel0(input_window_float* __restrict matA,
 	buf_matA=upd_w(buf_matA,0,window_read_v8(matA));
 	window_incr(matA,h1);
 	
-	//v8float  acc0=undef_v8float();//For first output column
-	//v8float  acc1=undef_v8float();//For second output column
 	for (unsigned int i=0;i<boundary_i;i++) 
 	chess_prepare_for_pipelining
 	chess_loop_range(boundary_i,)
 	{	
-		
+
 		for (unsigned int j=0;j<boundary_j;j++)
 		chess_prepare_for_pipelining
 		chess_loop_range(boundary_j,){
-			v8float  acc0=null_v8float();//For first output column
-			v8float  acc1=null_v8float();//For second output column
 			int jump=h1;
 			if (j==judge_j){
 				if(i==judge_i){
@@ -40,6 +39,10 @@ void mm_kernel0(input_window_float* __restrict matA,
 			else{
 				jump=h1;
 			}
+			acc0=window_read_v8(acc_in);
+			window_incr(acc_in,h1);
+			acc1=window_read_v8(acc_in);
+			window_incr(acc_in,jump);
 			for (unsigned int k=0;k<boundary_k;k++)
 			chess_prepare_for_pipelining
 			chess_loop_range(boundary_k,)
@@ -149,7 +152,10 @@ void mm_kernel0(input_window_float* __restrict matA,
 			window_incr(matC,jump);
 			buf_matB = upd_v(buf_matB,1,window_read_v4(matB));
 			window_decr(matB,w1-4);	
+
+			
 		}
 	}
 }
+
 

@@ -659,6 +659,8 @@ echo \
     }
 }">> ./${dir_name}/kernel/dma.cpp;
 
+if [ ${data_type} == "fp32" ]
+then
 echo \
 "
 template<int NC>
@@ -748,6 +750,77 @@ void reshapeC(ap_uint<PLIO_WIDTH> c_buf[X*Z][PACKET_NUM][OUT_SIZE],axis_stream& 
     }
     
 }">> ./${dir_name}/kernel/dma.cpp;
+elif [ ${data_type} == "int32" ]
+then
+echo \
+"
+template<int NC>
+void reshapeC(ap_uint<PLIO_WIDTH> c_buf[X*Z][PACKET_NUM][OUT_SIZE],axis_stream& rxC, bool enable){   
+#pragma HLS inline off
+    if (enable){
+        
+        axis_pkt tmp; 
+        int cnt[4];
+        #pragma HLS ARRAY_PARTITION variable=cnt complete dim=0
+        data_t1 data_temp[2][4];
+        #pragma HLS ARRAY_PARTITION variable=data_temp complete dim=0
+        for(int i=0;i<PACKET_NUM;i++){
+        #pragma HLS unroll
+            cnt[i]=0;
+        }
+        for(int z = 0; z < Z; z++){
+            for(int x = 0; x < X; x++){
+                for(int j=0;j<PACKET_NUM;j++){
+                    for (int i = 0; i < OUT_SIZE; i++){
+                    #pragma HLS PIPELINE II = 1
+                        c_buf[x+z*X][j][i]=0; 
+                    }
+                }
+            }
+        }
+        for(int z = 0; z < Z; z++){
+            for(int x = 0; x < X; x++){
+                for (int n = 0; n < Y; n++){
+                    for(int j=0;j<PACKET_NUM;j++){
+                        ap_uint<32> header;
+                        tmp=rxC.read();
+                        
+                        header=tmp.data(31,0);
+                        data_temp[0][1]=tmp.data(63,32);
+                        data_temp[0][2]=tmp.data(95,64);
+                        data_temp[0][3]=tmp.data(127,96);
+                        
+                        unsigned int ID=getPacketId(header);
+    
+                        unsigned int tile_x=cnt[ID]/Y;
+                        cnt[ID]=cnt[ID]+1;
+    
+    
+    
+                        for(int i=0;i<OUT_SIZE;i++){
+                        #pragma HLS PIPELINE II = 1
+                            tmp=rxC.read();
+            
+                            data_temp[(i+1)%2][0]=tmp.data(31,0);
+                            data_temp[(i+1)%2][1]=tmp.data(63,32);
+                            data_temp[(i+1)%2][2]=tmp.data(95,64);
+                            data_temp[(i+1)%2][3]=tmp.data(127,96);
+        
+                            c_buf[tile_x][ID][i](31,0)  = data_temp[i%2][1] + c_buf[tile_x][ID][i](31,0)  ;
+                            c_buf[tile_x][ID][i](63,32) = data_temp[i%2][2] + c_buf[tile_x][ID][i](63,32) ;
+                            c_buf[tile_x][ID][i](95,64) = data_temp[i%2][3] + c_buf[tile_x][ID][i](95,64) ;
+                            c_buf[tile_x][ID][i](127,96)= data_temp[(i+1)%2][0] + c_buf[tile_x][ID][i](127,96);
+                            
+                        }
+                    }
+                }
+            } 
+        }
+    }
+    
+}
+"
+fi
 
 echo \
 "

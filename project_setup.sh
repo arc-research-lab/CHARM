@@ -16,7 +16,14 @@ fi
 for ((n=1;n<=21;n++));
 do
 	read -r line
-	if (( ${n} == 3 ))
+    if (( ${n} == 2 ))
+	then
+		IFS=':' read -ra Key <<< "$line";
+		value_temp="${Key[1]}"; 
+		unset IFS
+		IFS=';' read -ra Value <<< "$value_temp";
+		data_type="${Value[0]}"; 
+	elif (( ${n} == 3 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
 		value_temp="${Key[1]}"; 
@@ -60,6 +67,16 @@ then
     exit
 fi
 
+if [ ${data_type} == "fp32" ]
+then
+	src_dir="aie_fp32";
+elif [ ${data_type} == "int32" ]
+then
+    src_dir="aie_int32";
+elif [ ${data_type} == "int16" ]
+then
+	src_dir="aie_int16";
+fi
 
 
 if (( ${KernelGen} == 1 ))
@@ -67,7 +84,7 @@ then
 	./src_gen/Kernel_Gen/gen_gracpp.sh $1 $2;
     ./src_gen/Kernel_Gen/gen_grah.sh $1 $2;
     ./src_gen/Kernel_Gen/gen_para.sh $1 $2;
-    cp -r src/aie/* $2/aie;
+    cp -r src/${src_dir}/* $2/aie;
     cp -r src/Makefile* $2;
 fi
 

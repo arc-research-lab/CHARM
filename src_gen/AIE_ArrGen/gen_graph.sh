@@ -85,6 +85,14 @@ then
     exit;
 fi
 
+if [ ${data_type} == "fp32" ] || [ ${kernel_type} == "int32" ]
+then
+	BPE=4;
+elif [ ${data_type} == "int16" ]
+then
+	BPE=2;
+fi
+
 if [ ${B} != 4 ] && [ ${B} != 8 ]
 then
     echo ""
@@ -142,14 +150,14 @@ public:
 			adf::location<kernel>(mm_x${B}[row]) = adf::tile(COL_OFFSET,ROW_OFFSET+row);
 
 
-			adf::connect<pktstream, window<h1*w1*4>> (sp_a0.out[row], mm_x${B}[row].in[0]);
-			adf::connect<pktstream, window<w1*w2*4>> (sp_b0.out[row], mm_x${B}[row].in[1]);
+			adf::connect<pktstream, window<h1*w1*${BPE}>> (sp_a0.out[row], mm_x${B}[row].in[0]);
+			adf::connect<pktstream, window<w1*w2*${BPE}>> (sp_b0.out[row], mm_x${B}[row].in[1]);
 
 			if(row<NUM_ENGINES_PER_PAC-1){
-				adf::connect<window<h1*w2*4>> (mm_x${B}[row].out[0], mm_x${B}[row+1].in[2]);
+				adf::connect<window<h1*w2*${BPE}>> (mm_x${B}[row].out[0], mm_x${B}[row+1].in[2]);
 			}
 			else{
-				adf::connect<window<h1*w2*4>>(mm_x${B}[row].out[0], out);
+				adf::connect<window<h1*w2*${BPE}>>(mm_x${B}[row].out[0], out);
 			}
 		}
 		
@@ -209,18 +217,18 @@ public:
 			adf::location<kernel>(mm_x${B}[row]) = adf::tile(COL_OFFSET,ROW_OFFSET+row);
 
 			if(row<4){
-				adf::connect<pktstream, window<h1*w1*4>> (sp_a0.out[row], mm_x${B}[row].in[0]);
-				adf::connect<pktstream, window<w1*w2*4>> (sp_b0.out[row], mm_x${B}[row].in[1]);
+				adf::connect<pktstream, window<h1*w1*${BPE}>> (sp_a0.out[row], mm_x${B}[row].in[0]);
+				adf::connect<pktstream, window<w1*w2*${BPE}>> (sp_b0.out[row], mm_x${B}[row].in[1]);
 			}
 			else{
-				adf::connect<pktstream, window<h1*w1*4>> (sp_a1.out[row-4], mm_x${B}[row].in[0]);
-				adf::connect<pktstream, window<w1*w2*4>> (sp_b1.out[row-4], mm_x${B}[row].in[1]);
+				adf::connect<pktstream, window<h1*w1*${BPE}>> (sp_a1.out[row-4], mm_x${B}[row].in[0]);
+				adf::connect<pktstream, window<w1*w2*${BPE}>> (sp_b1.out[row-4], mm_x${B}[row].in[1]);
 			}
 			if(row<NUM_ENGINES_PER_PAC-1){
-				adf::connect<window<h1*w2*4>> (mm_x${B}[row].out[0], mm_x${B}[row+1].in[2]);
+				adf::connect<window<h1*w2*${BPE}>> (mm_x${B}[row].out[0], mm_x${B}[row+1].in[2]);
 			}
 			else{
-				adf::connect<window<h1*w2*4>>(mm_x${B}[row].out[0], out);
+				adf::connect<window<h1*w2*${BPE}>>(mm_x${B}[row].out[0], out);
 			}
 		}
 		

@@ -381,7 +381,7 @@ echo \
     std::cout << std::endl;
 
     // sync output memory
-    xrtBOSync(out_bohdl, XCL_BO_SYNC_BO_FROM_DEVICE , sizeOut* sizeof(float),/*OFFSET=*/ 0);
+    xrtBOSync(out_bohdl, XCL_BO_SYNC_BO_FROM_DEVICE , sizeOut* sizeof(${D_TYPE}),/*OFFSET=*/ 0);
         
     xrtRunClose(dma_rhdl);
     xrtKernelClose(dma_khdl);
@@ -396,7 +396,7 @@ echo \
         int errorCount = 0;  
         for (int m = 0; m < M; m++) {
             for (int n = 0; n < N; n++) {
-                if(abs((float)(out_bomapped[m+n*M])-golden[m+n*M])>=1e-4){
+                if(abs((${D_TYPE})(out_bomapped[m+n*M])-golden[m+n*M])>=1e-4){
                     printf(\"Error found out_bomapped[%d][%d]!=golden[%d][%d], %f!=%f \n\", m,n,m,n,out_bomapped[m+n*M],golden[m+n*M]);
                     errorCount++;
                 }
