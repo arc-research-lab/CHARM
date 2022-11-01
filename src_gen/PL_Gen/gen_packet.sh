@@ -174,5 +174,10 @@ typedef union{
     unsigned int uintval;
 } fp_int;
 
+typedef struct{
+   unsigned short int low;
+   unsigned short int high;
+} comb_32;
+
 #endif
 ">> ./${dir_name}/kernel/packet_sender.hpp

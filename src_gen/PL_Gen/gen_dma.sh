@@ -196,8 +196,7 @@ fi
 
 mkdir -p ${dir_name}/kernel
 
-if [ ${data_type} == "fp32" ] || [ ${data_type} == "int32" ]
-then
+
 if [ ${B} == 4 ] 
 then
 echo \
@@ -260,7 +259,6 @@ done
 
 echo \
 "
-
 ap_uint<32> generateHeader(unsigned int pktType, unsigned int ID){
 #pragma HLS inline
     ap_uint<32> header=0;
@@ -300,7 +298,6 @@ void address_A_ddr(axis_stream_32& addrA_out,const int TX,const int TY,const int
     }
 }
 
-
 void loadA_ddr(ap_uint<AXI_WIDTH_512>* ina, axis_stream_32& addrA_in,axis_stream_512& dataA_out,const int TX,const int TY,const int TZ) {
 #pragma HLS inline off
     ap_uint<512> temp_data;
@@ -310,31 +307,6 @@ void loadA_ddr(ap_uint<AXI_WIDTH_512>* ina, axis_stream_32& addrA_in,axis_stream
         ap_uint<32> addr = addrA_in.read();
         temp_data=ina[addr];
         dataA_out.write(temp_data);        
-    }
-}
-
-void loadA(axis_stream_512& dataA_in, ap_uint<PLIO_WIDTH> a_buf[A*(B/PACKET_NUM)][X*Y][LEFT_SIZE*PACKET_NUM],bool enable){
-#pragma HLS inline off
-    if(enable){
-        for(ap_uint<32> y=0;y<Y;y++){
-            for(ap_uint<32> k=0;k<W1*B;k++){
-                for(ap_uint<32> x=0;x<X;x++){
-                    for(ap_uint<32> a=0;a<A;a++){
-                        for(ap_uint<32> i=0;i<(H1/A_PER_TRA);i++){
-                        #pragma HLS PIPELINE II = 1
-                            int pos0=i*4+(k%(W1*PACKET_NUM))*(H1/NUM_PER_TRA);
-                            int pos1=x*Y+y;
-                            int pos2=a+A*(k/(W1*PACKET_NUM));
-                            ap_uint<512> temp_data=dataA_in.read();
-                            a_buf[pos2][pos1][pos0]=temp_data(127,0);
-                            a_buf[pos2][pos1][pos0+1]=temp_data(255,128);
-                            a_buf[pos2][pos1][pos0+2]=temp_data(383,256);
-                            a_buf[pos2][pos1][pos0+3]=temp_data(511,384);
-                        }
-                    }
-                }
-            }
-        }
     }
 }
 
@@ -369,34 +341,6 @@ void loadB_ddr(ap_uint<AXI_WIDTH_512>* inb, axis_stream_32& addrB_in,axis_stream
     }  
 }
 
-void loadB(axis_stream_512& dataB_in, ap_uint<PLIO_WIDTH> b_buf[(B/PACKET_NUM)*C][Y*Z][RIGHT_SIZE*PACKET_NUM],bool enable){
-#pragma HLS inline off
-    if(enable){
-        for(int z=0;z<Z;z++){
-            for(int c=0;c<C;c++){
-                for(int w2=0;w2<W2;w2++){
-                    for(int y=0;y<Y;y++){
-                        for(int b=0;b<B;b++){
-                            for (int m=0;m<(W1/A_PER_TRA);m++){
-                            #pragma HLS PIPELINE II = 1
-                                int pos0=m*4+w2*(W1/NUM_PER_TRA)+(b%PACKET_NUM)*RIGHT_SIZE;
-                                int pos1=z*Y+y;
-                                int pos2=(b/PACKET_NUM)*C+c;
-                                ap_uint<512> temp_data=dataB_in.read();
-                                b_buf[pos2][pos1][pos0]=temp_data(127,0);
-                                b_buf[pos2][pos1][pos0+1]=temp_data(255,128);
-                                b_buf[pos2][pos1][pos0+2]=temp_data(383,256);
-                                b_buf[pos2][pos1][pos0+3]=temp_data(511,384);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}   
-
-
 void address_C_ddr(axis_stream_32& addrC_out,const int TX,const int TZ) {
 #pragma HLS inline off
     for(ap_uint<32> tx=0;tx<TX;tx++){
@@ -424,6 +368,161 @@ void storeC_ddr(ap_uint<AXI_WIDTH_256>* outc, axis_stream_32& addrC_in,axis_stre
             
     }
     
+}">> ./${dir_name}/kernel/dma.cpp;
+
+
+if [ ${data_type} == "fp32" ] || [ ${data_type} == "int32" ]
+then
+echo \
+"
+void loadA(axis_stream_512& dataA_in, ap_uint<PLIO_WIDTH> a_buf[A*(B/PACKET_NUM)][X*Y][LEFT_SIZE*PACKET_NUM],bool enable){
+#pragma HLS inline off
+    if(enable){
+        for(ap_uint<32> y=0;y<Y;y++){
+            for(ap_uint<32> k=0;k<W1*B;k++){
+                for(ap_uint<32> x=0;x<X;x++){
+                    for(ap_uint<32> a=0;a<A;a++){
+                        for(ap_uint<32> i=0;i<(H1/A_PER_TRA);i++){
+                        #pragma HLS PIPELINE II = 1
+                            int pos0=i*4+(k%(W1*PACKET_NUM))*(H1/NUM_PER_TRA);
+                            int pos1=x*Y+y;
+                            int pos2=a+A*(k/(W1*PACKET_NUM));
+                            ap_uint<512> temp_data=dataA_in.read();
+                            a_buf[pos2][pos1][pos0]=temp_data(127,0);
+                            a_buf[pos2][pos1][pos0+1]=temp_data(255,128);
+                            a_buf[pos2][pos1][pos0+2]=temp_data(383,256);
+                            a_buf[pos2][pos1][pos0+3]=temp_data(511,384);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+void loadB(axis_stream_512& dataB_in, ap_uint<PLIO_WIDTH> b_buf[(B/PACKET_NUM)*C][Y*Z][RIGHT_SIZE*PACKET_NUM],bool enable){
+#pragma HLS inline off
+    if(enable){
+        for(int z=0;z<Z;z++){
+            for(int c=0;c<C;c++){
+                for(int w2=0;w2<W2;w2++){
+                    for(int y=0;y<Y;y++){
+                        for(int b=0;b<B;b++){
+                            for (int m=0;m<(W1/A_PER_TRA);m++){
+                            #pragma HLS PIPELINE II = 1
+                                int pos0=m*4+w2*(W1/NUM_PER_TRA)+(b%PACKET_NUM)*RIGHT_SIZE;
+                                int pos1=z*Y+y;
+                                int pos2=(b/PACKET_NUM)*C+c;
+                                ap_uint<512> temp_data=dataB_in.read();
+                                b_buf[pos2][pos1][pos0]=temp_data(127,0);
+                                b_buf[pos2][pos1][pos0+1]=temp_data(255,128);
+                                b_buf[pos2][pos1][pos0+2]=temp_data(383,256);
+                                b_buf[pos2][pos1][pos0+3]=temp_data(511,384);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}   
+
+void storeC(axis_stream_256& dataC_out, ap_uint<PLIO_WIDTH> c_buf[A*C/PACKET_NUM][X*Z][PACKET_NUM][OUT_SIZE], bool enable){
+#pragma HLS inline off
+    if(enable){
+        for(int z=0;z<Z;z++){
+            for(int c=0;c<C;c++){
+                for(int w2=0;w2<W2;w2++){
+                    for(int x=0;x<X;x++){
+                        for (int a=0;a<A;a++){
+                            for (int n=0; n<H1/C_PER_TRA;n++){
+                            #pragma HLS PIPELINE II = 1
+                                int pos0=n*2+w2*(H1/NUM_PER_TRA);
+                                int pos1=c%PACKET_NUM;
+                                int pos2=x+z*X;
+                                int pos3=a*(C/PACKET_NUM)+(c/PACKET_NUM);
+                                ap_uint<AXI_WIDTH_256> temp_data;
+                                temp_data(127,0)=c_buf[pos3][pos2][pos1][pos0];
+                                temp_data(255,128)=c_buf[pos3][pos2][pos1][pos0+1];
+                                dataC_out.write(temp_data);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        for(int x = 0; x < X*Z; x++){
+            for(int j=0;j<PACKET_NUM;j++){
+                for (int i = 0; i < OUT_SIZE/2; i++){
+                #pragma HLS PIPELINE II = 1
+                    for(int a = 0; a < (A*C/PACKET_NUM); a++){
+                        c_buf[a][x][j][i*2+0]=0; 
+                        c_buf[a][x][j][i*2+1]=0;
+                    }
+                }
+            }
+        }
+    }
+}">> ./${dir_name}/kernel/dma.cpp;
+
+elif [ ${data_type} == "int16" ]
+then
+echo \
+"
+void loadA(axis_stream_512& dataA_in, ap_uint<PLIO_WIDTH> a_buf[A*(B/PACKET_NUM)][X*Y][LEFT_SIZE*PACKET_NUM],bool enable){
+#pragma HLS inline off
+    if(enable){
+        for(ap_uint<32> y=0;y<Y;y++){
+            for(ap_uint<32> k=0;k<W1*B;k++){
+                for(ap_uint<32> x=0;x<X;x++){
+                    for(ap_uint<32> a=0;a<A/2;a++){
+                        for(ap_uint<32> i=0;i<(H1*2/A_PER_TRA);i++){
+                        #pragma HLS PIPELINE II = 1
+                            int pos0_0=(i/2)*2+(i%2)*4+(k%(W1*PACKET_NUM))*(H1/NUM_PER_TRA);
+                            int pos0_1=(i/2)*2+(i%2)*4+1+(k%(W1*PACKET_NUM))*(H1/NUM_PER_TRA);
+                            int pos0_2=(i/2)*2-(i%2)*2+2+(k%(W1*PACKET_NUM))*(H1/NUM_PER_TRA);
+                            int pos0_3=(i/2)*2-(i%2)*2+3+(k%(W1*PACKET_NUM))*(H1/NUM_PER_TRA);
+                            int pos1=x*Y+y;
+                            int pos2_0=a+A*(k/(W1*PACKET_NUM))+(i/2);
+                            int pos2_1=a+A*(k/(W1*PACKET_NUM))+(i/2)+(i%2);
+                            ap_uint<512> temp_data=dataA_in.read();
+                            a_buf[pos2_0][pos1][pos0_0]=temp_data(127,0);
+                            a_buf[pos2_0][pos1][pos0_1]=temp_data(255,128);
+                            a_buf[pos2_1][pos1][pos0_2]=temp_data(383,256);
+                            a_buf[pos2_1][pos1][pos0_3]=temp_data(511,384);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+void loadB(axis_stream_512& dataB_in, ap_uint<PLIO_WIDTH> b_buf[(B/PACKET_NUM)*C][Y*Z][RIGHT_SIZE*PACKET_NUM],bool enable){
+#pragma HLS inline off
+    if(enable){
+        for(int z=0;z<Z;z++){
+            for(int c=0;c<C;c++){
+                for(int w2=0;w2<W2;w2++){
+                    for(int y=0;y<Y;y++){
+                        for (int b=0;b<(B/PACKET_NUM);b++){
+                            for (int m=0;m<(W1*PACKET_NUM/A_PER_TRA);m++){
+                            #pragma HLS PIPELINE II = 1
+                                int pos0=m*4+w2*(W1*PACKET_NUM/NUM_PER_TRA);
+                                int pos1=z*Y+y;
+                                int pos2=b*C+c;
+                                ap_uint<512> temp_data=dataB_in.read();
+                                b_buf[pos2][pos1][pos0]=temp_data(127,0);
+                                b_buf[pos2][pos1][pos0+1]=temp_data(255,128);
+                                b_buf[pos2][pos1][pos0+2]=temp_data(383,256);
+                                b_buf[pos2][pos1][pos0+3]=temp_data(511,384);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 void storeC(axis_stream_256& dataC_out, ap_uint<PLIO_WIDTH> c_buf[A*C/PACKET_NUM][X*Z][PACKET_NUM][OUT_SIZE], bool enable){
@@ -463,6 +562,271 @@ void storeC(axis_stream_256& dataC_out, ap_uint<PLIO_WIDTH> c_buf[A*C/PACKET_NUM
         }
     }
 }">> ./${dir_name}/kernel/dma.cpp;
+fi
+
+if [ ${data_type} == "fp32" ]
+then
+echo \
+"
+template<int NC>
+void reshapeC(ap_uint<PLIO_WIDTH> c_buf[X*Z][PACKET_NUM][OUT_SIZE],axis_stream& rxC, bool enable){   
+#pragma HLS inline off
+    if (enable){
+        
+        axis_pkt tmp; 
+        int cnt[4];
+        #pragma HLS ARRAY_PARTITION variable=cnt complete dim=0
+        float data_temp[2][4];
+        #pragma HLS ARRAY_PARTITION variable=data_temp complete dim=0
+
+        fp_int intfp0;
+        fp_int intfp1;
+        fp_int intfp2;
+        fp_int intfp3;
+        fp_int ifp_temp0;
+        fp_int ifp_temp1;
+        fp_int ifp_temp2;
+        fp_int ifp_temp3;   
+    for(int i=0;i<PACKET_NUM;i++){
+        #pragma HLS unroll
+            cnt[i]=0;
+        }
+        
+        for(int z = 0; z < Z; z++){
+            for(int x = 0; x < X; x++){
+                for (int n = 0; n < Y; n++){
+                    for(int j=0;j<PACKET_NUM;j++){
+                        ap_uint<32> header;
+                        tmp=rxC.read();
+                        
+                        header=tmp.data(31,0);
+                        
+                        ifp_temp1.uintval=tmp.data(63,32);
+                        ifp_temp2.uintval=tmp.data(95,64);
+                        ifp_temp3.uintval=tmp.data(127,96);
+            
+            
+                        data_temp[0][1]=ifp_temp1.data_cbuff;
+                        data_temp[0][2]=ifp_temp2.data_cbuff;
+                        data_temp[0][3]=ifp_temp3.data_cbuff;
+                        
+                        unsigned int ID=getPacketId(header);
+    
+                        unsigned int tile_x=cnt[ID]/Y;
+                        cnt[ID]=cnt[ID]+1;
+    
+    
+    
+                        for(int i=0;i<OUT_SIZE;i++){
+                        #pragma HLS PIPELINE II = 1
+                            tmp=rxC.read();
+                            
+
+                            ifp_temp0.uintval=tmp.data(31,0);
+                            ifp_temp1.uintval=tmp.data(63,32);
+                            ifp_temp2.uintval=tmp.data(95,64);
+                            ifp_temp3.uintval=tmp.data(127,96);
+
+                            data_temp[(i+1)%2][0]=ifp_temp0.data_cbuff;
+                            data_temp[(i+1)%2][1]=ifp_temp1.data_cbuff;
+                            data_temp[(i+1)%2][2]=ifp_temp2.data_cbuff;
+                            data_temp[(i+1)%2][3]=ifp_temp3.data_cbuff;
+                            
+                            intfp0.uintval=c_buf[tile_x][ID][i](31,0);
+                            intfp1.uintval=c_buf[tile_x][ID][i](63,32);
+                            intfp2.uintval=c_buf[tile_x][ID][i](95,64);
+                            intfp3.uintval=c_buf[tile_x][ID][i](127,96);
+
+                            intfp0.data_cbuff = data_temp[i%2][1] + intfp0.data_cbuff ;
+                            intfp1.data_cbuff = data_temp[i%2][2] + intfp1.data_cbuff ;
+                            intfp2.data_cbuff = data_temp[i%2][3] + intfp2.data_cbuff ;
+                            intfp3.data_cbuff = data_temp[(i+1)%2][0] + intfp3.data_cbuff;
+
+                            c_buf[tile_x][ID][i](31,0)   =  intfp0.uintval;  
+                            c_buf[tile_x][ID][i](63,32)  =  intfp1.uintval;
+                            c_buf[tile_x][ID][i](95,64)  =  intfp2.uintval;
+                            c_buf[tile_x][ID][i](127,96) =  intfp3.uintval;
+                            
+                        }
+                    }
+                }
+            } 
+        }
+    }
+    
+}">> ./${dir_name}/kernel/dma.cpp;
+
+elif [ ${data_type} == "int32" ]
+then
+echo \
+"
+template<int NC>
+void reshapeC(ap_uint<PLIO_WIDTH> c_buf[X*Z][PACKET_NUM][OUT_SIZE],axis_stream& rxC, bool enable){   
+#pragma HLS inline off
+    if (enable){
+        
+        axis_pkt tmp; 
+        int cnt[4];
+        #pragma HLS ARRAY_PARTITION variable=cnt complete dim=0
+        data_t1 data_temp[2][4];
+        #pragma HLS ARRAY_PARTITION variable=data_temp complete dim=0
+        for(int i=0;i<PACKET_NUM;i++){
+        #pragma HLS unroll
+            cnt[i]=0;
+        }
+        for(int z = 0; z < Z; z++){
+            for(int x = 0; x < X; x++){
+                for(int j=0;j<PACKET_NUM;j++){
+                    for (int i = 0; i < OUT_SIZE; i++){
+                    #pragma HLS PIPELINE II = 1
+                        c_buf[x+z*X][j][i]=0; 
+                    }
+                }
+            }
+        }
+        for(int z = 0; z < Z; z++){
+            for(int x = 0; x < X; x++){
+                for (int n = 0; n < Y; n++){
+                    for(int j=0;j<PACKET_NUM;j++){
+                        ap_uint<32> header;
+                        tmp=rxC.read();
+                        
+                        header=tmp.data(31,0);
+                        data_temp[0][1]=tmp.data(63,32);
+                        data_temp[0][2]=tmp.data(95,64);
+                        data_temp[0][3]=tmp.data(127,96);
+                        
+                        unsigned int ID=getPacketId(header);
+    
+                        unsigned int tile_x=cnt[ID]/Y;
+                        cnt[ID]=cnt[ID]+1;
+    
+    
+    
+                        for(int i=0;i<OUT_SIZE;i++){
+                        #pragma HLS PIPELINE II = 1
+                            tmp=rxC.read();
+            
+                            data_temp[(i+1)%2][0]=tmp.data(31,0);
+                            data_temp[(i+1)%2][1]=tmp.data(63,32);
+                            data_temp[(i+1)%2][2]=tmp.data(95,64);
+                            data_temp[(i+1)%2][3]=tmp.data(127,96);
+        
+                            c_buf[tile_x][ID][i](31,0)  = data_temp[i%2][1] + c_buf[tile_x][ID][i](31,0)  ;
+                            c_buf[tile_x][ID][i](63,32) = data_temp[i%2][2] + c_buf[tile_x][ID][i](63,32) ;
+                            c_buf[tile_x][ID][i](95,64) = data_temp[i%2][3] + c_buf[tile_x][ID][i](95,64) ;
+                            c_buf[tile_x][ID][i](127,96)= data_temp[(i+1)%2][0] + c_buf[tile_x][ID][i](127,96);
+                            
+                        }
+                    }
+                }
+            } 
+        }
+    } 
+}">> ./${dir_name}/kernel/dma.cpp;
+
+elif [ ${data_type} == "int16" ]
+then
+echo \
+"
+template<int NC>
+void reshapeC(ap_uint<PLIO_WIDTH> c_buf[X*Z][PACKET_NUM][OUT_SIZE],axis_stream& rxC, bool enable){   
+#pragma HLS inline off
+    if (enable){
+        
+        axis_pkt tmp; 
+        int cnt[4];
+        #pragma HLS ARRAY_PARTITION variable=cnt complete dim=0
+        comb_32 data_temp[2][4];
+        #pragma HLS ARRAY_PARTITION variable=data_temp complete dim=0
+        comb_32 d0,d1,d2,d3;
+        for(int i=0;i<PACKET_NUM;i++){
+        #pragma HLS unroll
+            cnt[i]=0;
+        }
+        for(int z = 0; z < Z; z++){
+            for(int x = 0; x < X; x++){
+                for(int j=0;j<PACKET_NUM;j++){
+                    for (int i = 0; i < OUT_SIZE; i++){
+                    #pragma HLS PIPELINE II = 1
+                        c_buf[x+z*X][j][i]=0;
+                    }
+                }
+            }
+        }
+        for(int z = 0; z < Z; z++){
+            for(int x = 0; x < X; x++){
+                for (int n = 0; n < Y; n++){
+                    for(int j=0;j<PACKET_NUM;j++){
+                        ap_uint<32> header;
+                        tmp=rxC.read();
+                        
+                        header=tmp.data(31,0);
+
+                        data_temp[0][1].low=tmp.data(47,32);
+                        data_temp[0][1].high=tmp.data(63,48);
+                        data_temp[0][2].low=tmp.data(79,64);
+                        data_temp[0][2].high=tmp.data(95,80);
+                        data_temp[0][3].low=tmp.data(111,96);
+                        data_temp[0][3].high=tmp.data(127,112);
+                        
+                        unsigned int ID=getPacketId(header);
+    
+                        unsigned int tile_x=cnt[ID]/Y;
+                        cnt[ID]=cnt[ID]+1;
+    
+    
+    
+                        for(int i=0;i<OUT_SIZE;i++){
+                        #pragma HLS PIPELINE II = 1
+                            tmp=rxC.read();
+                            
+                            data_temp[(i+1)%2][0].low=tmp.data(15,0);
+                            data_temp[(i+1)%2][0].high=tmp.data(31,16);
+                            data_temp[(i+1)%2][1].low=tmp.data(47,32);
+                            data_temp[(i+1)%2][1].high=tmp.data(63,48);
+                            data_temp[(i+1)%2][2].low=tmp.data(79,64);
+                            data_temp[(i+1)%2][2].high=tmp.data(95,80);
+                            data_temp[(i+1)%2][3].low=tmp.data(111,96);
+                            data_temp[(i+1)%2][3].high=tmp.data(127,112);
+                            
+                            d0.low =c_buf[tile_x][ID][i](15,0)  ;
+                            d0.high=c_buf[tile_x][ID][i](31,16) ;
+                            d1.low =c_buf[tile_x][ID][i](47,32) ;
+                            d1.high=c_buf[tile_x][ID][i](63,48) ;
+                            d2.low =c_buf[tile_x][ID][i](79,64) ;
+                            d2.high=c_buf[tile_x][ID][i](95,80) ;
+                            d3.low =c_buf[tile_x][ID][i](111,96);
+                            d3.high=c_buf[tile_x][ID][i](127,112);
+
+
+                            d0.low = data_temp[i%2][1].low       + d0.low;
+                            d0.high= data_temp[i%2][1].high      + d0.high;
+                            d1.low = data_temp[i%2][2].low       + d1.low;
+                            d1.high= data_temp[i%2][2].high      + d1.high;
+                            d2.low = data_temp[i%2][3].low       + d2.low;
+                            d2.high= data_temp[i%2][3].high      + d2.high;
+                            d3.low = data_temp[(i+1)%2][0].low   + d3.low;
+                            d3.high= data_temp[(i+1)%2][0].high  + d3.high;
+                            
+                            c_buf[tile_x][ID][i](15,0)   = d0.low ;
+                            c_buf[tile_x][ID][i](31,16)  = d0.high;
+                            c_buf[tile_x][ID][i](47,32)  = d1.low ;
+                            c_buf[tile_x][ID][i](63,48)  = d1.high;
+                            c_buf[tile_x][ID][i](79,64)  = d2.low ;
+                            c_buf[tile_x][ID][i](95,80)  = d2.high;
+                            c_buf[tile_x][ID][i](111,96) = d3.low ;
+                            c_buf[tile_x][ID][i](127,112)= d3.high;
+                        }
+                    }
+                }
+            } 
+        }
+    }  
+}
+">> ./${dir_name}/kernel/dma.cpp;
+fi
+
 
 echo \
 "
@@ -590,7 +954,7 @@ echo \
             int tile=tile_B[k];
     
             ap_uint<32> header=generateHeader(PKTTYPE,ID);
-            int position=ID*RIGHT_SIZE;
+            int position=ID*(W1/NUM_PER_TRA);
     
             data=b_buf[tile][position];
             data_temp[0][0]=data(31,0);
@@ -615,7 +979,7 @@ echo \
 "
             for (int i = 1; i < RIGHT_SIZE; i++){
             #pragma HLS PIPELINE II = 1
-                int posb=ID*RIGHT_SIZE+i;   
+                int posb=position+(i/6)*(W1*PACKET_NUM/NUM_PER_TRA);
     
                 data=b_buf[tile][posb];
                 data_temp[i%2][0]=data(31,0);
@@ -661,167 +1025,6 @@ echo \
         }
     }
 }">> ./${dir_name}/kernel/dma.cpp;
-
-if [ ${data_type} == "fp32" ]
-then
-echo \
-"
-template<int NC>
-void reshapeC(ap_uint<PLIO_WIDTH> c_buf[X*Z][PACKET_NUM][OUT_SIZE],axis_stream& rxC, bool enable){   
-#pragma HLS inline off
-    if (enable){
-        
-        axis_pkt tmp; 
-        int cnt[4];
-        #pragma HLS ARRAY_PARTITION variable=cnt complete dim=0
-        float data_temp[2][4];
-        #pragma HLS ARRAY_PARTITION variable=data_temp complete dim=0
-
-        fp_int intfp0;
-        fp_int intfp1;
-        fp_int intfp2;
-        fp_int intfp3;
-        fp_int ifp_temp0;
-        fp_int ifp_temp1;
-        fp_int ifp_temp2;
-        fp_int ifp_temp3;   
-    for(int i=0;i<PACKET_NUM;i++){
-        #pragma HLS unroll
-            cnt[i]=0;
-        }
-        
-        for(int z = 0; z < Z; z++){
-            for(int x = 0; x < X; x++){
-                for (int n = 0; n < Y; n++){
-                    for(int j=0;j<PACKET_NUM;j++){
-                        ap_uint<32> header;
-                        tmp=rxC.read();
-                        
-                        header=tmp.data(31,0);
-                        
-                        ifp_temp1.uintval=tmp.data(63,32);
-                        ifp_temp2.uintval=tmp.data(95,64);
-                        ifp_temp3.uintval=tmp.data(127,96);
-            
-            
-                        data_temp[0][1]=ifp_temp1.data_cbuff;
-                        data_temp[0][2]=ifp_temp2.data_cbuff;
-                        data_temp[0][3]=ifp_temp3.data_cbuff;
-                        
-                        unsigned int ID=getPacketId(header);
-    
-                        unsigned int tile_x=cnt[ID]/Y;
-                        cnt[ID]=cnt[ID]+1;
-    
-    
-    
-                        for(int i=0;i<OUT_SIZE;i++){
-                        #pragma HLS PIPELINE II = 1
-                            tmp=rxC.read();
-                            
-
-                            ifp_temp0.uintval=tmp.data(31,0);
-                            ifp_temp1.uintval=tmp.data(63,32);
-                            ifp_temp2.uintval=tmp.data(95,64);
-                            ifp_temp3.uintval=tmp.data(127,96);
-
-                            data_temp[(i+1)%2][0]=ifp_temp0.data_cbuff;
-                            data_temp[(i+1)%2][1]=ifp_temp1.data_cbuff;
-                            data_temp[(i+1)%2][2]=ifp_temp2.data_cbuff;
-                            data_temp[(i+1)%2][3]=ifp_temp3.data_cbuff;
-                            
-                            intfp0.uintval=c_buf[tile_x][ID][i](31,0);
-                            intfp1.uintval=c_buf[tile_x][ID][i](63,32);
-                            intfp2.uintval=c_buf[tile_x][ID][i](95,64);
-                            intfp3.uintval=c_buf[tile_x][ID][i](127,96);
-
-                            intfp0.data_cbuff = data_temp[i%2][1] + intfp0.data_cbuff ;
-                            intfp1.data_cbuff = data_temp[i%2][2] + intfp1.data_cbuff ;
-                            intfp2.data_cbuff = data_temp[i%2][3] + intfp2.data_cbuff ;
-                            intfp3.data_cbuff = data_temp[(i+1)%2][0] + intfp3.data_cbuff;
-
-                            c_buf[tile_x][ID][i](31,0)   =  intfp0.uintval;  
-                            c_buf[tile_x][ID][i](63,32)  =  intfp1.uintval;
-                            c_buf[tile_x][ID][i](95,64)  =  intfp2.uintval;
-                            c_buf[tile_x][ID][i](127,96) =  intfp3.uintval;
-                            
-                        }
-                    }
-                }
-            } 
-        }
-    }
-    
-}">> ./${dir_name}/kernel/dma.cpp;
-elif [ ${data_type} == "int32" ]
-then
-echo \
-"
-template<int NC>
-void reshapeC(ap_uint<PLIO_WIDTH> c_buf[X*Z][PACKET_NUM][OUT_SIZE],axis_stream& rxC, bool enable){   
-#pragma HLS inline off
-    if (enable){
-        
-        axis_pkt tmp; 
-        int cnt[4];
-        #pragma HLS ARRAY_PARTITION variable=cnt complete dim=0
-        data_t1 data_temp[2][4];
-        #pragma HLS ARRAY_PARTITION variable=data_temp complete dim=0
-        for(int i=0;i<PACKET_NUM;i++){
-        #pragma HLS unroll
-            cnt[i]=0;
-        }
-        for(int z = 0; z < Z; z++){
-            for(int x = 0; x < X; x++){
-                for(int j=0;j<PACKET_NUM;j++){
-                    for (int i = 0; i < OUT_SIZE; i++){
-                    #pragma HLS PIPELINE II = 1
-                        c_buf[x+z*X][j][i]=0; 
-                    }
-                }
-            }
-        }
-        for(int z = 0; z < Z; z++){
-            for(int x = 0; x < X; x++){
-                for (int n = 0; n < Y; n++){
-                    for(int j=0;j<PACKET_NUM;j++){
-                        ap_uint<32> header;
-                        tmp=rxC.read();
-                        
-                        header=tmp.data(31,0);
-                        data_temp[0][1]=tmp.data(63,32);
-                        data_temp[0][2]=tmp.data(95,64);
-                        data_temp[0][3]=tmp.data(127,96);
-                        
-                        unsigned int ID=getPacketId(header);
-    
-                        unsigned int tile_x=cnt[ID]/Y;
-                        cnt[ID]=cnt[ID]+1;
-    
-    
-    
-                        for(int i=0;i<OUT_SIZE;i++){
-                        #pragma HLS PIPELINE II = 1
-                            tmp=rxC.read();
-            
-                            data_temp[(i+1)%2][0]=tmp.data(31,0);
-                            data_temp[(i+1)%2][1]=tmp.data(63,32);
-                            data_temp[(i+1)%2][2]=tmp.data(95,64);
-                            data_temp[(i+1)%2][3]=tmp.data(127,96);
-        
-                            c_buf[tile_x][ID][i](31,0)  = data_temp[i%2][1] + c_buf[tile_x][ID][i](31,0)  ;
-                            c_buf[tile_x][ID][i](63,32) = data_temp[i%2][2] + c_buf[tile_x][ID][i](63,32) ;
-                            c_buf[tile_x][ID][i](95,64) = data_temp[i%2][3] + c_buf[tile_x][ID][i](95,64) ;
-                            c_buf[tile_x][ID][i](127,96)= data_temp[(i+1)%2][0] + c_buf[tile_x][ID][i](127,96);
-                            
-                        }
-                    }
-                }
-            } 
-        }
-    } 
-}">> ./${dir_name}/kernel/dma.cpp;
-fi
 
 echo \
 "
@@ -1224,9 +1427,4 @@ echo \
 "
 }">> ./${dir_name}/kernel/dma.cpp;
 
-fi
-
-elif [ ${data_type} == "int16" ]
-then
-    echo "";
 fi
