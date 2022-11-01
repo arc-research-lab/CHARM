@@ -99,7 +99,7 @@ done
 for ((i=0;i<${port_out};i++));
 do  
     echo \
-    "stream_connect = ai_engine_0.out_${i}:dma_large_0.rxC_${i}">> ./${dir_name}/conn.cfg;
+    "stream_connect = ai_engine_0.out_${i}:dma_0.rxC_${i}">> ./${dir_name}/conn.cfg;
 done
 
 echo \
