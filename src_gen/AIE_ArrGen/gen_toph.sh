@@ -98,6 +98,15 @@ then
 fi
 
 let NUM_INSTANCES=${A}*${C};
+
+if [ ${data_type} == "fp32" ] || [ ${kernel_type} == "int32" ]
+then
+	BPE=4;
+elif [ ${data_type} == "int16" ]
+then
+	BPE=2;
+fi
+
 mkdir -p ${dir_name}/aie
 if [ ${B} == 4 ] 
 then
@@ -158,7 +167,7 @@ do
     do  
         let row=${C}/${R_BRO}*${i}+${j}/${R_BRO};
         echo \
-        "	    connect< pktstream, window< h1*w1*4 > >(in_row[${row}], mm_x${B}_${j}_${i}.in[0]);">> ./${dir_name}/aie/mm_top.h;
+        "	    connect< pktstream, window< h1*w1*${BPE} > >(in_row[${row}], mm_x${B}_${j}_${i}.in[0]);">> ./${dir_name}/aie/mm_top.h;
     done
 done
 
@@ -170,7 +179,7 @@ do
     do  
         let col=${A}/${C_BRO}*${i}+${j}/${C_BRO};
         echo \
-        "	    connect< pktstream, window< w1*w2*4 > >(in_col[${col}], mm_x${B}_${i}_${j}.in[1]);">> ./${dir_name}/aie/mm_top.h;
+        "	    connect< pktstream, window< w1*w2*${BPE} > >(in_col[${col}], mm_x${B}_${i}_${j}.in[1]);">> ./${dir_name}/aie/mm_top.h;
     done
 done
 
@@ -184,7 +193,7 @@ do
         let out=${aie}/${NUM_PACK};
         let port=${aie}%${NUM_PACK};
         echo \
-        "	    connect<adf::window<h1*w2*4>, adf::pktstream > (mm_x${B}_${j}_${i}.out, mg_out[${out}].in[${port}]);">> ./${dir_name}/aie/mm_top.h;
+        "	    connect<adf::window<h1*w2*${BPE}>, adf::pktstream > (mm_x${B}_${j}_${i}.out, mg_out[${out}].in[${port}]);">> ./${dir_name}/aie/mm_top.h;
     done
 done
 
