@@ -109,6 +109,7 @@ After code generation, the vendor tools AIE compiler and V++ compiler take ADF g
 ### Configuration File 
 We provide a configuration file template under "./config_files/input.cfg", users can specify platform, data type, kernel type and mapping strategy of each level in this file. The feasible option of each parameter are illustrated in **( )** The rules of using this configuration file are listed below:
 - **Platform** refers to the hardware platform used in the project. VCK5000 and VCK190 are supported in the current framework.
+- **DATA_TYPE** the framework currently support fp32, int32 and int16 data types.
 - **KernelGen, AIEArrGen, SysGen** decide if the corresponding ACG should be launched (1 refers to launch). 
 - **KRL_TYPE** refers two types of MM kernels provided in our source file.
 - **I, K, J** refers to the MM size stored and calculated in a single AIE.
