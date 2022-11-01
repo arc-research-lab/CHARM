@@ -478,18 +478,28 @@ void loadA(axis_stream_512& dataA_in, ap_uint<PLIO_WIDTH> a_buf[A*(B/PACKET_NUM)
                     for(ap_uint<32> a=0;a<A/2;a++){
                         for(ap_uint<32> i=0;i<(H1*2/A_PER_TRA);i++){
                         #pragma HLS PIPELINE II = 1
-                            int pos0_0=(i/2)*2+(i%2)*4+(k%(W1*PACKET_NUM))*(H1/NUM_PER_TRA);
-                            int pos0_1=(i/2)*2+(i%2)*4+1+(k%(W1*PACKET_NUM))*(H1/NUM_PER_TRA);
-                            int pos0_2=(i/2)*2-(i%2)*2+2+(k%(W1*PACKET_NUM))*(H1/NUM_PER_TRA);
-                            int pos0_3=(i/2)*2-(i%2)*2+3+(k%(W1*PACKET_NUM))*(H1/NUM_PER_TRA);
+                            int temp= (k%(W1*PACKET_NUM))*(H1/NUM_PER_TRA);
                             int pos1=x*Y+y;
-                            int pos2_0=a+A*(k/(W1*PACKET_NUM))+(i/2);
-                            int pos2_1=a+A*(k/(W1*PACKET_NUM))+(i/2)+(i%2);
+                            int pos2=a+A*(k/(W1*PACKET_NUM))+(i/2);
                             ap_uint<512> temp_data=dataA_in.read();
-                            a_buf[pos2_0][pos1][pos0_0]=temp_data(127,0);
-                            a_buf[pos2_0][pos1][pos0_1]=temp_data(255,128);
-                            a_buf[pos2_1][pos1][pos0_2]=temp_data(383,256);
-                            a_buf[pos2_1][pos1][pos0_3]=temp_data(511,384);
+                            if(i==0){
+                                a_buf[pos2][pos1][temp]=temp_data(127,0);
+                                a_buf[pos2][pos1][temp+1]=temp_data(255,128);
+                                a_buf[pos2][pos1][temp+2]=temp_data(383,256);
+                                a_buf[pos2][pos1][temp+3]=temp_data(511,384);
+                            }
+                            else if(i==1){
+                                a_buf[pos2][pos1][temp+4]=temp_data(127,0);
+                                a_buf[pos2][pos1][temp+5]=temp_data(255,128);
+                                a_buf[pos2+1][pos1][temp+0]=temp_data(383,256);
+                                a_buf[pos2+1][pos1][temp+1]=temp_data(511,384);
+                            }
+                            else{
+                                a_buf[pos2+1][pos1][temp+2]=temp_data(127,0);
+                                a_buf[pos2+1][pos1][temp+3]=temp_data(255,128);
+                                a_buf[pos2+1][pos1][temp+4]=temp_data(383,256);
+                                a_buf[pos2+1][pos1][temp+5]=temp_data(511,384);                       
+                            }
                         }
                     }
                 }
@@ -979,7 +989,7 @@ echo \
 "
             for (int i = 1; i < RIGHT_SIZE; i++){
             #pragma HLS PIPELINE II = 1
-                int posb=position+(i/6)*(W1*PACKET_NUM/NUM_PER_TRA);
+                int posb=position+(i/(W1/NUM_PER_TRA))*(W1*PACKET_NUM/NUM_PER_TRA);
     
                 data=b_buf[tile][posb];
                 data_temp[i%2][0]=data(31,0);

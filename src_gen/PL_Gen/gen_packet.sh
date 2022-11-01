@@ -120,6 +120,14 @@ do
  	fi
 done < "$input"
 
+if [ ${data_type} == "fp32" ] || [ ${data_type} == "int32" ]
+then
+	DATA_T=32;
+elif [ ${data_type} == "int16" ]
+then
+	DATA_T=16;
+fi
+
 mkdir -p ${dir_name}/kernel
 echo \
 "
@@ -132,7 +140,7 @@ echo \
 #define AXI_WIDTH_512 512
 #define AXI_WIDTH_256 256
 #define PLIO_WIDTH 128
-#define DATA_TYPE 32
+#define DATA_TYPE ${DATA_T}
 #define PKTTYPE 0 
 #define PACKET_NUM 4
 #define H1 ${mm_i}
