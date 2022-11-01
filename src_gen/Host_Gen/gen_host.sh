@@ -154,7 +154,11 @@ then
 elif [ ${data_type} == "fp32" ]
 then
     D_TYPE="float";
+elif [ ${data_type} == "int16" ]
+then
+    D_TYPE="uint16_t";
 fi
+
 
 let temp=${A}*${C};
 let left_aie=400-${A}*${B}*${C};
