@@ -480,7 +480,7 @@ void loadA(axis_stream_512& dataA_in, ap_uint<PLIO_WIDTH> a_buf[A*(B/PACKET_NUM)
                         #pragma HLS PIPELINE II = 1
                             int temp= (k%(W1*PACKET_NUM))*(H1/NUM_PER_TRA);
                             int pos1=x*Y+y;
-                            int pos2=a+A*(k/(W1*PACKET_NUM))+(i/2);
+                            int pos2=2*a+A*(k/(W1*PACKET_NUM));
                             ap_uint<512> temp_data=dataA_in.read();
                             if(i==0){
                                 a_buf[pos2][pos1][temp]=temp_data(127,0);
