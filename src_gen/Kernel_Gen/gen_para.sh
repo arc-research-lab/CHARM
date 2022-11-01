@@ -190,13 +190,13 @@ const int boundary_k=w1/16-1;
 const int judge_i=boundary_i-1;
 const int judge_j=boundary_j-1;
 
-void mm_kernel0(input_window_int16* matA, input_window_int16* matB, input_window_int16* matC);
+void mm_kernel0(input_window_int16* matA, input_window_int16* matB, output_window_int16* matC);
 ">> ./${dir_name}/aie/para.h;
 
 if [ ${kernel_type} == 1 ] 
 then
 echo \
-"void mm_kernel1(input_window_int16* matA, input_window_int16* matB, input_window_int16* acc_in, input_window_int16* matC);
+"void mm_kernel1(input_window_int16* matA, input_window_int16* matB, input_window_int16* acc_in, output_window_int16* matC);
 ">> ./${dir_name}/aie/para.h;
 fi
 
