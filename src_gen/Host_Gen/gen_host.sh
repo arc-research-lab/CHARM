@@ -151,12 +151,15 @@ done < "$input"
 if [ ${data_type} == "int32" ]
 then
     D_TYPE="int";
+    PRINT_F="%d"
 elif [ ${data_type} == "fp32" ]
 then
     D_TYPE="float";
+    PRINT_F="%f"
 elif [ ${data_type} == "int16" ]
 then
     D_TYPE="uint16_t";
+    PRINT_F="%d"
 fi
 
 
@@ -265,9 +268,9 @@ int main(int argc, char** argv) {
     auto top = reinterpret_cast<const axlf*>(xclbin.data());
     adf::registerXRT(dhdl, top->m_header.uuid);
 
-    ${D_TYPE} temp_m=(${D_TYPE})(M1)/(${D_TYPE})(X*A*H1);
-    ${D_TYPE} temp_k=(${D_TYPE})(K1)/(${D_TYPE})(Y*B*W1);
-    ${D_TYPE} temp_n=(${D_TYPE})(N1)/(${D_TYPE})(Z*C*W2);
+    float temp_m=(float)(M1)/(float)(X*A*H1);
+    float temp_k=(float)(K1)/(float)(Y*B*W1);
+    float temp_n=(float)(N1)/(float)(Z*C*W2);
     TX=ceil(temp_m);
     TY=ceil(temp_k);
     TZ=ceil(temp_n);
@@ -401,7 +404,7 @@ echo \
         for (int m = 0; m < M; m++) {
             for (int n = 0; n < N; n++) {
                 if(abs((${D_TYPE})(out_bomapped[m+n*M])-golden[m+n*M])>=1e-4){
-                    printf(\"Error found out_bomapped[%d][%d]!=golden[%d][%d], %f!=%f \n\", m,n,m,n,out_bomapped[m+n*M],golden[m+n*M]);
+                    printf(\"Error found out_bomapped[%d][%d]!=golden[%d][%d], ${PRINT_F}!=${PRINT_F} \n\", m,n,m,n,out_bomapped[m+n*M],golden[m+n*M]);
                     errorCount++;
                 }
 
