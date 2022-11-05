@@ -175,7 +175,7 @@ echo \
 "
             for (int i = 1; i < RIGHT_SIZE; i++){
             #pragma HLS PIPELINE II = 1
-                int posb=position+(i/(W1/NUM_PER_TRA))*(W1*PACKET_NUM/NUM_PER_TRA);
+                int posb=position+(i/(W1/NUM_PER_TRA))*(W1*PACKET_NUM/NUM_PER_TRA)+(i%(W1/NUM_PER_TRA));
     
                 data=b_buf[tile][posb];
                 data_temp[i%2][0]=data(31,0);
