@@ -54,10 +54,9 @@ void address_A_ddr(axis_stream_32& addrA_out,const int TX,const int TY,const int
     }
 }
 
-void loadA_ddr(ap_uint<AXI_WIDTH_512>* ina, axis_stream_32& addrA_in,axis_stream_512& dataA_out,const int TX,const int TY,const int TZ) {
+void loadA_ddr(ap_uint<AXI_WIDTH_512>* ina, axis_stream_32& addrA_in,axis_stream_512& dataA_out,const int bound) {
 #pragma HLS inline off
     ap_uint<512> temp_data;
-    ap_uint<32> bound=boundA*TX*TY*TZ;
     for(ap_uint<32> i=0;i<bound;i++){
     #pragma HLS PIPELINE II = 1
         ap_uint<32> addr = addrA_in.read();
@@ -85,10 +84,9 @@ void address_B_ddr(axis_stream_32& addrB_out,const int TX,const int TY,const int
 }
 
 
-void loadB_ddr(ap_uint<AXI_WIDTH_512>* inb, axis_stream_32& addrB_in,axis_stream_512& dataB_out,const int TX,const int TY,const int TZ) {
+void loadB_ddr(ap_uint<AXI_WIDTH_512>* inb, axis_stream_32& addrB_in,axis_stream_512& dataB_out,const int bound) {
 #pragma HLS inline off
     ap_uint<512> temp_data;
-    ap_uint<32> bound=boundB*TX*TY*TZ;
     for(ap_uint<32> i=0;i<bound;i++){
     #pragma HLS PIPELINE II = 1
         ap_uint<32> addr = addrB_in.read();
@@ -113,9 +111,8 @@ void address_C_ddr(axis_stream_32& addrC_out,const int TX,const int TZ) {
     }
 }
 
-void storeC_ddr(ap_uint<AXI_WIDTH_256>* outc, axis_stream_32& addrC_in,axis_stream_256& dataC_in,const int TX,const int TZ) { 
+void storeC_ddr(ap_uint<AXI_WIDTH_256>* outc, axis_stream_32& addrC_in,axis_stream_256& dataC_in,const int bound) { 
 #pragma HLS inline off
-    ap_uint<32> bound=boundC*TX*TZ;
     for(ap_uint<32> i=0;i<bound;i++){
     #pragma HLS PIPELINE II = 1
         ap_uint<256> temp_data=dataC_in.read();

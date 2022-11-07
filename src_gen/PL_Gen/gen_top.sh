@@ -87,6 +87,11 @@ done
 echo \
 "    #pragma HLS interface s_axilite bundle=control port=return
     
+    int bound_A=boundA*TX*TY*TZ;
+    int bound_B=boundB*TX*TY*TZ;
+    int bound_C=boundC*TX*TZ;
+
+
     #pragma HLS dataflow
 
     axis_stream_512 dataA_out;
@@ -97,13 +102,13 @@ echo \
     axis_stream_32 addrC_out;
 
     address_A_ddr(addrA_out,TX,TY,TZ);
-    loadA_ddr(ina, addrA_out,dataA_out,TX,TY,TZ);
+    loadA_ddr(ina, addrA_out,dataA_out,bound_A);
 
     address_B_ddr(addrB_out,TX,TY,TZ);
-    loadB_ddr(inb,addrB_out,dataB_out,TX,TY,TZ);
+    loadB_ddr(inb,addrB_out,dataB_out,bound_B);
 
     address_C_ddr(addrC_out,TX,TZ);
-    storeC_ddr(out0,addrC_out,dataC_in,TX,TZ);
+    storeC_ddr(out0,addrC_out,dataC_in,bound_C);
 
     compute(dataA_out, dataB_out, dataC_in, TX, TY, TZ,">> ./${dir_name}/kernel/dma.cpp;
 
