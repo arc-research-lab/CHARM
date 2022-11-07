@@ -167,7 +167,7 @@ do
     do  
         let row=${C}/${R_BRO}*${i}+${j}/${R_BRO};
         echo \
-        "	    connect< pktstream, window< h1*w1*${BPE} > >(in_row[${row}], mm_x${B}_${j}_${i}.in[0]);">> ./${dir_name}/aie/mm_top.h;
+        "	    connect< stream, window< h1*w1*${BPE} > >(in_row[${row}], mm_x${B}_${j}_${i}.in[0]);">> ./${dir_name}/aie/mm_top.h;
     done
 done
 
@@ -179,7 +179,7 @@ do
     do  
         let col=${A}/${C_BRO}*${i}+${j}/${C_BRO};
         echo \
-        "	    connect< pktstream, window< w1*w2*${BPE} > >(in_col[${col}], mm_x${B}_${i}_${j}.in[1]);">> ./${dir_name}/aie/mm_top.h;
+        "	    connect< stream, window< w1*w2*${BPE} > >(in_col[${col}], mm_x${B}_${i}_${j}.in[1]);">> ./${dir_name}/aie/mm_top.h;
     done
 done
 
