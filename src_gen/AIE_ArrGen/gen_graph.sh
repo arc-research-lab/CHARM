@@ -10,6 +10,7 @@ else
     echo "./gen_graph.sh ../../config_files/input.cfg ."
     echo "******************************************"
     echo ""
+	echo "AIE_ArrGen/gen_graph"
     exit
 fi
 
@@ -93,18 +94,19 @@ then
 	BPE=2;
 fi
 
-if [ ${B} != 4 ] && [ ${B} != 8 ]
+if [ ${B} != 3 ] && [ ${B} != 4 ] && [ ${B} != 8 ]
 then
     echo ""
     echo "******************************************"
-    echo "Currently, CHARM supports B=4 or B=8"
+    echo "Currently, CHARM supports B=3 or B=4 or B=8"
     echo "******************************************"
     echo ""
+	echo "AIE_ArrGen/gen_graph"
     exit
 fi
 
 mkdir -p ${dir_name}/aie
-if [ ${B} == 4 ] 
+if [ ${B} == 4 ] || [ ${B} == 3 ]
 then
 echo \
 "
@@ -166,6 +168,7 @@ public:
 
 #endif
 ">> ./${dir_name}/aie/mm_graph_x${B}.h;
+
 
 elif [ ${B} == 8 ] 
 then
@@ -237,4 +240,140 @@ public:
 
 #endif
 ">> ./${dir_name}/aie/mm_graph_x${B}.h;
+fi
+
+if [ ${B} == 3 ]
+then
+for ((i=0;i<2;i++));
+do
+if [ ${i} == 0 ]
+then
+	pos_col=0;
+	pos_row=1;
+else
+	pos_col=1;
+	pos_row=0;
+fi
+echo \
+"
+#ifndef __GRAPH_H__
+#define __GRAPH_H__
+#include <adf.h>
+#include \"para.h\"
+using namespace adf;
+#define NUM_ENGINES_PER_PAC ${B}
+template <int COL_OFFSET, int ROW_OFFSET>
+class mm_x${B}_graph_type${i} : public adf::graph {
+private:
+	adf::kernel mm_x${B} [NUM_ENGINES_PER_PAC];
+	adf::pktsplit<${NUM_PACK}>  sp_a0;
+	adf::pktsplit<${NUM_PACK}>  sp_b0;
+
+public:
+	adf::port<input>  in[2];
+  	adf::port<output>  out;
+
+	mm_x${B}_graph_type${i}() {
+    
+		// packet stream to different engines
+		sp_a0  = adf::pktsplit<${NUM_PACK}>::create();
+		sp_b0  = adf::pktsplit<${NUM_PACK}>::create();
+		adf::connect< adf::pktstream > (in[0], sp_a0.in[0]);
+		adf::connect< adf::pktstream > (in[1], sp_b0.in[0]);
+
+		// create NUM_ENGINES_PER_COL get_particles_i and n-body kernels
+		for (int row =0; row<NUM_ENGINES_PER_PAC; row++)  {
+			if(row==0){
+				mm_x${B}[row]   = adf::kernel::create(mm_kernel0);
+				adf::source(mm_x${B}[row])   = \"aie/mm_kernel0.cc\";
+			}
+			else{
+				mm_x${B}[row]   = adf::kernel::create(mm_kernel1);
+				adf::source(mm_x${B}[row])   = \"aie/mm_kernel1.cc\";
+			}
+		}
+		adf::location<kernel>(mm_x${B}[0]) = adf::tile(COL_OFFSET,ROW_OFFSET);
+		adf::location<kernel>(mm_x${B}[1]) = adf::tile(COL_OFFSET+${pos_col},ROW_OFFSET+${pos_row});
+		adf::location<kernel>(mm_x${B}[2]) = adf::tile(COL_OFFSET+1,ROW_OFFSET+1);
+
+		for (int row =0; row<NUM_ENGINES_PER_PAC; row++)  {
+			adf::runtime<ratio>(mm_x${B}[row]) = 1;
+			adf::connect<pktstream, window<h1*w1*${BPE}>> (sp_a0.out[row], mm_x${B}[row].in[0]);
+			adf::connect<pktstream, window<w1*w2*${BPE}>> (sp_b0.out[row], mm_x${B}[row].in[1]);
+
+			if(row<NUM_ENGINES_PER_PAC-1){
+				adf::connect<window<h1*w2*${BPE}>> (mm_x${B}[row].out[0], mm_x${B}[row+1].in[2]);
+			}
+			else{
+				adf::connect<window<h1*w2*${BPE}>>(mm_x${B}[row].out[0], out);
+			}
+		}
+	};
+};
+
+#endif
+">> ./${dir_name}/aie/mm_graph_x${B}_type${i}.h;
+done
+
+echo \
+"
+#ifndef __GRAPH_H__
+#define __GRAPH_H__
+#include <adf.h>
+#include \"para.h\"
+using namespace adf;
+#define NUM_ENGINES_PER_PAC ${B}
+
+template <int COL_OFFSET, int ROW_OFFSET>
+class mm_x${B}_graph_col : public adf::graph {
+private:
+	adf::kernel mm_x${B} [NUM_ENGINES_PER_PAC];
+	adf::pktsplit<${NUM_PACK}>  sp_a0;
+	adf::pktsplit<${NUM_PACK}>  sp_b0;
+
+public:
+	adf::port<input>  in[2];
+  	adf::port<output>  out;
+
+	mm_x${B}_graph_col() {
+    
+		// packet stream to different engines
+		sp_a0  = adf::pktsplit<${NUM_PACK}>::create();
+		sp_b0  = adf::pktsplit<${NUM_PACK}>::create();
+		adf::connect< adf::pktstream > (in[0], sp_a0.in[0]);
+		adf::connect< adf::pktstream > (in[1], sp_b0.in[0]);
+
+		// create NUM_ENGINES_PER_COL get_particles_i and n-body kernels
+		for (int col =0; col<NUM_ENGINES_PER_PAC; col++)  {
+			if(col==0){
+				mm_x${B}[col]   = adf::kernel::create(mm_kernel0);
+				adf::source(mm_x${B}[col])   = \"aie/mm_kernel0.cc\";
+			}
+			else{
+				mm_x${B}[col]   = adf::kernel::create(mm_kernel1);
+				adf::source(mm_x${B}[col])   = \"aie/mm_kernel1.cc\";
+			}
+		}
+		for (int col =0; col<NUM_ENGINES_PER_PAC; col++)  {
+			adf::runtime<ratio>(mm_x${B}[col]) = 1;
+			adf::location<kernel>(mm_x${B}[col]) = adf::tile(COL_OFFSET+col,ROW_OFFSET);
+
+
+			adf::connect<pktstream, window<h1*w1*${BPE}>> (sp_a0.out[col], mm_x${B}[col].in[0]);
+			adf::connect<pktstream, window<w1*w2*${BPE}>> (sp_b0.out[col], mm_x${B}[col].in[1]);
+
+			if(col<NUM_ENGINES_PER_PAC-1){
+				adf::connect<window<h1*w2*${BPE}>> (mm_x${B}[col].out[0], mm_x${B}[col+1].in[2]);
+			}
+			else{
+				adf::connect<window<h1*w2*${BPE}>>(mm_x${B}[col].out[0], out);
+			}
+		}
+		
+	};
+};
+
+#endif
+">> ./${dir_name}/aie/mm_graph_x${B}_col.h;
+
 fi

@@ -10,6 +10,7 @@ else
     echo "./gen_toph.sh ../../config_files/input.cfg ."
     echo "******************************************"
     echo ""
+	echo "AIE_ArrGen/gen_toph"
     exit
 fi
 
@@ -95,6 +96,8 @@ then
 	";
 	echo "******************************************"
 	echo ""
+	echo "AIE_ArrGen/gen_toph"
+	exit
 fi
 
 let NUM_INSTANCES=${A}*${C};
@@ -113,23 +116,19 @@ then
 echo \
 "
 #include \"mm_graph_x${B}.h\"
-
 const int ROW=${A};
 const int COL=${C};
 const int R_BRO=${R_BRO};
 const int C_BRO=${C_BRO};
 const int NUM_PACKET_PAC=NUM_ENGINES_PER_PAC/${NUM_PACK};    //number of packet in each graph
 const int NUM_INSTANCES=ROW*COL;
-const int NUM_OUT_PACK=NUM_INSTANCES/4;
+const int NUM_OUT_PACK=NUM_INSTANCES/${NUM_PACK};
 using namespace adf;
-
 template <int COL_OFFSET,int ROW_OFFSET>
 class mm_x${NUM_INSTANCES}_x${B}_graph : public adf::graph {
-
 public:
 	input_port in_row[ROW*NUM_PACKET_PAC*COL/R_BRO];
 	input_port in_col[COL*NUM_PACKET_PAC*ROW/C_BRO];
-
     adf::pktmerge<${NUM_PACK}>  mg_out[NUM_OUT_PACK];
 	output_port out[NUM_OUT_PACK];
 ">> ./${dir_name}/aie/mm_top.h;
@@ -152,6 +151,154 @@ do
         fi
     done
 done
+
+echo \
+"
+	mm_x${NUM_INSTANCES}_x${B}_graph() {
+		for (int i =0; i<NUM_OUT_PACK; i++)  {
+			mg_out[i] = adf::pktmerge<${NUM_PACK}>::create();
+		}
+">> ./${dir_name}/aie/mm_top.h;
+
+for ((i=0;i<${A};i++));
+do
+    for ((j=0;j<${C};j++));
+    do  
+        let row=${C}/${R_BRO}*${i}+${j}/${R_BRO};
+        echo \
+        "	    connect< stream, window< h1*w1*${BPE} > >(in_row[${row}], mm_x${B}_${j}_${i}.in[0]);">> ./${dir_name}/aie/mm_top.h;
+    done
+done
+
+echo "">> ./${dir_name}/aie/mm_top.h;
+
+for ((i=0;i<${C};i++));
+do
+    for ((j=0;j<${A};j++));
+    do  
+        let col=${A}/${C_BRO}*${i}+${j}/${C_BRO};
+        echo \
+        "	    connect< stream, window< w1*w2*${BPE} > >(in_col[${col}], mm_x${B}_${i}_${j}.in[1]);">> ./${dir_name}/aie/mm_top.h;
+    done
+done
+
+echo "">> ./${dir_name}/aie/mm_top.h;
+
+for ((i=0;i<${A};i++));
+do
+    for ((j=0;j<${C};j++));
+    do  
+        let aie=${i}*${C}+${j};
+        let out=${aie}/${NUM_PACK};
+        let port=${aie}%${NUM_PACK};
+        echo \
+        "	    connect<adf::window<h1*w2*${BPE}>, adf::pktstream > (mm_x${B}_${j}_${i}.out, mg_out[${out}].in[${port}]);">> ./${dir_name}/aie/mm_top.h;
+    done
+done
+
+echo \
+"
+	    for (int i=0; i<NUM_OUT_PACK; i++)  {
+	    	adf::connect<adf::pktstream> (mg_out[i].out[0], out[i]);
+	    }
+    }
+};
+">> ./${dir_name}/aie/mm_top.h;
+
+elif [ ${B} == 3 ]
+then
+
+if [ ${AIE_NUM} -gt 300 ]
+then
+echo \
+"#include \"mm_graph_x${B}_col.h\"
+">> ./${dir_name}/aie/mm_top.h;
+else
+echo \
+"#include \"mm_graph_x${B}.h\"
+">> ./${dir_name}/aie/mm_top.h;
+fi
+
+echo \
+"
+const int ROW=${A};
+const int COL=${C};
+const int R_BRO=${R_BRO};
+const int C_BRO=${C_BRO};
+const int NUM_PACKET_PAC=NUM_ENGINES_PER_PAC/${NUM_PACK};    //number of packet in each graph
+const int NUM_INSTANCES=ROW*COL;
+const int NUM_OUT_PACK=NUM_INSTANCES/${NUM_PACK};
+using namespace adf;
+
+template <int COL_OFFSET,int ROW_OFFSET>
+class mm_x${NUM_INSTANCES}_x${B}_graph : public adf::graph {
+
+public:
+	input_port in_row[ROW*NUM_PACKET_PAC*COL/R_BRO];
+	input_port in_col[COL*NUM_PACKET_PAC*ROW/C_BRO];
+
+    adf::pktmerge<${NUM_PACK}>  mg_out[NUM_OUT_PACK];
+	output_port out[NUM_OUT_PACK];
+">> ./${dir_name}/aie/mm_top.h;
+
+
+if [ ${AIE_NUM} -gt 300 ]
+then
+	if [ $((${C} % 4)) != 0 ]
+	then
+		echo ""
+		echo "******************************************"
+		echo "When ${B}=3 and the number of AIE is greater than 300, ${C} must be multiple of 4";
+		echo "******************************************"
+		echo ""
+		echo "AIE_ArrGen/gen_toph"
+		exit
+	elif [ $((${C} % 8)) == 0 ]
+	then
+		
+		for ((a=0;a<${A};a++));
+		do
+			for ((c=0;c<${C};c++));
+	    	do	
+				let num_col=$(((${c}/8)*${B}+(${C}/8)*${a}*${B})); 
+				let num_row=${c}%8; 
+				echo \
+	    	        "	mm_x${B}_graph_col<COL_OFFSET+${num_col}, ROW_OFFSET+${num_row}>  mm_x${B}_${c}_${a}; //(col,row)">> ./${dir_name}/aie/mm_top.h;
+			done
+		done
+	else
+		for ((a=0;a<${A};a++));
+		do
+			for ((c=0;c<${C};c++));
+	    	do	
+
+				let num_col=$(((${c}+${a}*${C})/8*${B}));
+				let num_row=$((${c}%4+(${c}/4+${a})%2*4));
+				echo \
+	    	        "	mm_x${B}_graph_col<COL_OFFSET+${num_col}, ROW_OFFSET+${num_row}>  mm_x${B}_${c}_${a}; //(col,row)">> ./${dir_name}/aie/mm_top.h;
+			done
+		done
+	fi
+else
+	for ((a=0;a<${A};a++));
+	do 
+	    for ((c=0;c<${C};c++));
+	    do  
+	        let aie=${a}*${C}+${c};
+	        let div=(${NUM_INSTANCES}/2);
+	        let layout=${aie}/${div};
+	        if [ ${layout} == 0 ]
+	        then
+	            echo \
+	            "	mm_x${B}_graph<COL_OFFSET+${aie}, ROW_OFFSET+0>  mm_x${B}_${c}_${a}; //(col,row)">> ./${dir_name}/aie/mm_top.h;
+	        else
+	            let aie1=${aie}-${div};
+	            echo \
+	            "	mm_x${B}_graph<COL_OFFSET+${aie1}, ROW_OFFSET+4>  mm_x${B}_${c}_${a}; //(col,row)">> ./${dir_name}/aie/mm_top.h;
+	        fi
+	    done
+	done
+fi
 
 echo \
 "

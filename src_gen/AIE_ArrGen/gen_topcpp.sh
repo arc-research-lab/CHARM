@@ -85,8 +85,15 @@ do
  	fi
 done < "$input"
 
-let left_aie=400-${A}*${B}*${C};
+if [ ${B} == 4 ]
+then
+	let left_aie=400-${A}*${B}*${C};
+elif [ ${B} == 3 ]
+then
+	let left_aie=400-${A}*${B}*${C}/3*4;
+fi
 let start_pos=${left_aie}/16;
+
 
 let port_row_in=${A}*${B}*${C}/${NUM_PACK}/${R_BRO};
 let port_col_in=${C}*${B}*${A}/${NUM_PACK}/${C_BRO};
@@ -94,7 +101,7 @@ let port_in=${port_row_in}+${port_col_in};
 let port_out=${A}*${C}/${NUM_PACK};
 
 mkdir -p ${dir_name}/aie
-if [ ${B} == 4 ] 
+if [ ${B} == 4 ] || [ ${B} == 3 ]
 then
 
 let NUM_INSTANCES=${A}*${C};
