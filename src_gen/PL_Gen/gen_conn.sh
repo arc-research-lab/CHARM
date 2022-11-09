@@ -76,7 +76,7 @@ let port_col_in=${C}*${B}*${A}/${NUM_PACK}/${C_BRO};
 let port_out=${A}*${C}/${NUM_PACK};
 
 mkdir -p ${dir_name}/kernel
-if [ ${B} == 4 ] 
+if [ ${B} == 4 ] || [ ${B} == 3 ]
 then
 echo \
 "

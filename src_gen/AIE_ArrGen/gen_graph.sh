@@ -248,16 +248,24 @@ for ((i=0;i<2;i++));
 do
 if [ ${i} == 0 ]
 then
-	pos_col=0;
-	pos_row=1;
+	pos_col0=0;
+	pos_row0=1;
+	pos_col1=0;
+	pos_row1=0;
+	pos_col2=1;
+	pos_row2=0;
 else
-	pos_col=1;
-	pos_row=0;
+	pos_col0=0;
+	pos_row0=0;
+	pos_col1=0;
+	pos_row1=1;
+	pos_col2='(-1)';
+	pos_row2=1;
 fi
 echo \
 "
-#ifndef __GRAPH_H__
-#define __GRAPH_H__
+#ifndef __GRAPH_TYPE${i}_H__
+#define __GRAPH_TYPE${i}_H__
 #include <adf.h>
 #include \"para.h\"
 using namespace adf;
@@ -292,9 +300,9 @@ public:
 				adf::source(mm_x${B}[row])   = \"aie/mm_kernel1.cc\";
 			}
 		}
-		adf::location<kernel>(mm_x${B}[0]) = adf::tile(COL_OFFSET,ROW_OFFSET);
-		adf::location<kernel>(mm_x${B}[1]) = adf::tile(COL_OFFSET+${pos_col},ROW_OFFSET+${pos_row});
-		adf::location<kernel>(mm_x${B}[2]) = adf::tile(COL_OFFSET+1,ROW_OFFSET+1);
+		adf::location<kernel>(mm_x${B}[0]) = adf::tile(COL_OFFSET+${pos_col0},ROW_OFFSET+${pos_row0});
+		adf::location<kernel>(mm_x${B}[1]) = adf::tile(COL_OFFSET+${pos_col1},ROW_OFFSET+${pos_row1});
+		adf::location<kernel>(mm_x${B}[2]) = adf::tile(COL_OFFSET+${pos_col2},ROW_OFFSET+${pos_row2});
 
 		for (int row =0; row<NUM_ENGINES_PER_PAC; row++)  {
 			adf::runtime<ratio>(mm_x${B}[row]) = 1;
@@ -317,8 +325,8 @@ done
 
 echo \
 "
-#ifndef __GRAPH_H__
-#define __GRAPH_H__
+#ifndef __GRAPH_COL_H__
+#define __GRAPH_COL_H__
 #include <adf.h>
 #include \"para.h\"
 using namespace adf;

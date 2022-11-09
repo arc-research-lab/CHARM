@@ -139,7 +139,7 @@ let array_size=${pipe_length}*${NUM_PACK};
 mkdir -p ${dir_name}/kernel
 
 
-if [ ${B} == 4 ] 
+if [ ${B} == 4 ] || [ ${B} == 3 ]
 then
 echo \
 "

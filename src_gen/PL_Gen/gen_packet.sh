@@ -142,7 +142,7 @@ echo \
 #define PLIO_WIDTH 128
 #define DATA_TYPE ${DATA_T}
 #define PKTTYPE 0 
-#define PACKET_NUM 4
+#define PACKET_NUM ${NUM_PACK}
 #define H1 ${mm_i}
 #define W1 ${mm_k}
 #define W2 ${mm_j}

@@ -85,17 +85,24 @@ do
  	fi
 done < "$input"
 
+let AIE_NUM=${A}*${B}*${C};
+
 if [ ${B} == 4 ]
 then
-	let left_aie=400-${A}*${B}*${C};
+	let left_aie=400-${AIE_NUM}s;
 elif [ ${B} == 3 ]
 then
-	let left_aie=400-${A}*${B}*${C}/3*4;
+	if [ ${AIE_NUM} -gt 300 ]
+	then
+		let left_aie=$(((50%${C})/2*16));
+	else	
+		let left_aie=400-${AIE_NUM}/3*4;
+	fi
 fi
 let start_pos=${left_aie}/16;
 
 
-let port_row_in=${A}*${B}*${C}/${NUM_PACK}/${R_BRO};
+let port_row_in=${AIE_NUM}/${NUM_PACK}/${R_BRO};
 let port_col_in=${C}*${B}*${A}/${NUM_PACK}/${C_BRO};
 let port_in=${port_row_in}+${port_col_in};
 let port_out=${A}*${C}/${NUM_PACK};

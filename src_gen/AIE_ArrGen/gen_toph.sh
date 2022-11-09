@@ -140,14 +140,17 @@ do
         let aie=${a}*${C}+${c};
         let div=(${NUM_INSTANCES}/2);
         let layout=${aie}/${div};
+		let temp0=${aie}/${C};
+		let temp1=$(((${A}+1)/2));
+		let pos_row=$(((${temp0}%${temp1})*2))+${temp0}/${temp1};
         if [ ${layout} == 0 ] 
         then
             echo \
-            "	mm_x${B}_graph<COL_OFFSET+${aie}, ROW_OFFSET+0>  mm_x${B}_${c}_${a}; //(col,row)">> ./${dir_name}/aie/mm_top.h;
+            "	mm_x${B}_graph<COL_OFFSET+${aie}, ROW_OFFSET+0>  mm_x${B}_${c}_${pos_row}; //(col,row)">> ./${dir_name}/aie/mm_top.h;
         else
             let aie1=${aie}-${div};
             echo \
-            "	mm_x${B}_graph<COL_OFFSET+${aie1}, ROW_OFFSET+4>  mm_x${B}_${c}_${a}; //(col,row)">> ./${dir_name}/aie/mm_top.h;
+            "	mm_x${B}_graph<COL_OFFSET+${aie1}, ROW_OFFSET+4>  mm_x${B}_${c}_${pos_row}; //(col,row)">> ./${dir_name}/aie/mm_top.h;
         fi
     done
 done
@@ -211,7 +214,9 @@ then
 if [ ${AIE_NUM} -gt 300 ]
 then
 echo \
-"#include \"mm_graph_x${B}_col.h\"
+"#include \"mm_graph_x${B}_type0.h\"
+#include \"mm_graph_x${B}_type1.h\"
+#include \"mm_graph_x${B}.h\"
 ">> ./${dir_name}/aie/mm_top.h;
 else
 echo \
@@ -241,44 +246,60 @@ public:
 	output_port out[NUM_OUT_PACK];
 ">> ./${dir_name}/aie/mm_top.h;
 
-
 if [ ${AIE_NUM} -gt 300 ]
 then
-	if [ $((${C} % 4)) != 0 ]
+	if [ ${C} -gt 16 ]
 	then
 		echo ""
 		echo "******************************************"
-		echo "When ${B}=3 and the number of AIE is greater than 300, ${C} must be multiple of 4";
+		echo "When B=3 and the number of AIE is greater than 300, C should be less than or equal to 16";
 		echo "******************************************"
 		echo ""
 		echo "AIE_ArrGen/gen_toph"
 		exit
-	elif [ $((${C} % 8)) == 0 ]
-	then
-		
-		for ((a=0;a<${A};a++));
+	else
+		let num_block_origin=50/${C};
+		let col_origin=${num_block_origin}*${C};
+		let num_col_new=$(((${AIE_NUM}-${col_origin}*${B}*2)/2));
+		let start_new=48-${num_col_new};
+		let new_graph=${A}-${num_block_origin}*2;
+		 
+		for ((row=0;row<2;row++));
 		do
-			for ((c=0;c<${C};c++));
+			for ((col=0;col<${col_origin};col++));
 	    	do	
-				let num_col=$(((${c}/8)*${B}+(${C}/8)*${a}*${B})); 
-				let num_row=${c}%8; 
+				let c=${col}%${C};
+				let a=$((${col}/${C}*2+${row}));
+				let row_pos=${row}*${B};
 				echo \
-	    	        "	mm_x${B}_graph_col<COL_OFFSET+${num_col}, ROW_OFFSET+${num_row}>  mm_x${B}_${c}_${a}; //(col,row)">> ./${dir_name}/aie/mm_top.h;
+	    	        "	mm_x${B}_graph<COL_OFFSET+${col}, ROW_OFFSET+${row_pos}>  mm_x${B}_${c}_${a}; //(col,row)">> ./${dir_name}/aie/mm_top.h;
 			done
 		done
-	else
-		for ((a=0;a<${A};a++));
-		do
-			for ((c=0;c<${C};c++));
-	    	do	
 
-				let num_col=$(((${c}+${a}*${C})/8*${B}));
-				let num_row=$((${c}%4+(${c}/4+${a})%2*4));
-				echo \
-	    	        "	mm_x${B}_graph_col<COL_OFFSET+${num_col}, ROW_OFFSET+${num_row}>  mm_x${B}_${c}_${a}; //(col,row)">> ./${dir_name}/aie/mm_top.h;
+		let a_start=${num_block_origin}*2;
+		for ((a=${a_start};a<${a_start}+${new_graph};a++));
+		do	
+			for ((col=0;col<${C};col++));
+	    	do	
+				let temp0=${col}%2;
+				let temp1=${col}/2;
+				let real_a=${a}-${a_start};
+				let col_pos=${start_new}+${temp1}*3+${temp0}*2+${num_col_new}/${new_graph}*${real_a};
+				let row_pos=2*${B};
+				if [ ${temp0} == 0 ]
+				then
+					echo \
+	    	        	"	mm_x${B}_graph_type0<COL_OFFSET+${col_pos}, ROW_OFFSET+${row_pos}>  mm_x${B}_${col}_${a}; //(col,row)">> ./${dir_name}/aie/mm_top.h;
+				else
+					echo \
+	    	        	"	mm_x${B}_graph_type1<COL_OFFSET+${col_pos}, ROW_OFFSET+${row_pos}>  mm_x${B}_${col}_${a}; //(col,row)">> ./${dir_name}/aie/mm_top.h;
+				fi
 			done
 		done
 	fi
+# Row 7 : AIE <-- AIE <--
+# Row 6 : --> AIE --> AIE
+#Following code is a puzzle solution
 else
 	for ((a=0;a<${A};a++));
 	do 
@@ -287,14 +308,18 @@ else
 	        let aie=${a}*${C}+${c};
 	        let div=(${NUM_INSTANCES}/2);
 	        let layout=${aie}/${div};
+			let temp0=${aie}/${C};
+			let temp1=$(((${A}+1)/2));
+			let pos_row=$(((${temp0}%${temp1})*2))+${temp0}/${temp1};
 	        if [ ${layout} == 0 ]
 	        then
+
 	            echo \
-	            "	mm_x${B}_graph<COL_OFFSET+${aie}, ROW_OFFSET+0>  mm_x${B}_${c}_${a}; //(col,row)">> ./${dir_name}/aie/mm_top.h;
+	            "	mm_x${B}_graph<COL_OFFSET+${aie}, ROW_OFFSET+0>  mm_x${B}_${c}_${pos_row}; //(col,row)">> ./${dir_name}/aie/mm_top.h;
 	        else
 	            let aie1=${aie}-${div};
 	            echo \
-	            "	mm_x${B}_graph<COL_OFFSET+${aie1}, ROW_OFFSET+4>  mm_x${B}_${c}_${a}; //(col,row)">> ./${dir_name}/aie/mm_top.h;
+	            "	mm_x${B}_graph<COL_OFFSET+${aie1}, ROW_OFFSET+4>  mm_x${B}_${c}_${pos_row}; //(col,row)">> ./${dir_name}/aie/mm_top.h;
 	        fi
 	    done
 	done
