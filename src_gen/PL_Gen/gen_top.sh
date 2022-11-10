@@ -17,7 +17,7 @@ fi
 
 echo \
 "
-void dma(ap_uint<AXI_WIDTH_512>* ina, ap_uint<AXI_WIDTH_512>* inb, ap_uint<AXI_WIDTH_256>* out0, const int TX, const int TY, const int TZ,">> ./${dir_name}/kernel/dma.cpp;
+void dma(ap_uint<AXI_WIDTH_A>* ina, ap_uint<AXI_WIDTH_B>* inb, ap_uint<AXI_WIDTH_C>* out0, const int TX, const int TY, const int TZ,">> ./${dir_name}/kernel/dma.cpp;
 
 echo -n "             ">> ./${dir_name}/kernel/dma.cpp;
 for ((i=0;i<${port_row_in};i++));
@@ -87,16 +87,15 @@ done
 echo \
 "    #pragma HLS interface s_axilite bundle=control port=return
     
+    #pragma HLS dataflow
+
     int bound_A=boundA*TX*TY*TZ;
     int bound_B=boundB*TX*TY*TZ;
     int bound_C=boundC*TX*TZ;
 
-
-    #pragma HLS dataflow
-
-    axis_stream_512 dataA_out;
-    axis_stream_512 dataB_out;
-    axis_stream_256 dataC_in;
+    axis_stream_A dataA_out;
+    axis_stream_B dataB_out;
+    axis_stream_C dataC_in;
     axis_stream_32 addrA_out;
     axis_stream_32 addrB_out;
     axis_stream_32 addrC_out;

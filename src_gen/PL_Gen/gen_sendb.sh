@@ -1,8 +1,9 @@
-if [ "$#" -eq 3 ] 
+if [ "$#" -eq 4 ] 
 then
     dir_name=$1;
     data_type=$2;
     NUM_TXB=$3;
+    NUM_PACK=$4;
 else
     echo ""
     echo "******************************************"
@@ -14,7 +15,7 @@ else
     exit
 fi
 
-if [ ${data_type} == "fp32" ] || [ ${data_type} == "int32" ]
+if [ ${data_type} == "fp32" ] || [ ${data_type} == "int32" ] || [[ ${data_type} == "int16" &&  $((${NUM_PACK}%2)) == 1 ]]
 then
 echo \
 "
@@ -71,7 +72,7 @@ echo \
 "
             for (int i = 1; i < RIGHT_SIZE; i++){
             #pragma HLS PIPELINE II = 1
-                int posb=ID*RIGHT_SIZE+i;   
+                int posb=position+i;   
     
                 data=b_buf[tile][posb];
                 data_temp[i%2][0]=data(31,0);
@@ -118,7 +119,7 @@ echo \
 }">> ./${dir_name}/kernel/dma.cpp;
 
 
-elif [ ${data_type} == "int16" ]
+elif [ ${data_type} == "int16" ] && [ $((${NUM_PACK}%2)) == 0 ]
 then
 echo \
 "

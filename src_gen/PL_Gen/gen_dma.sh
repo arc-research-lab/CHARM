@@ -151,15 +151,15 @@ echo \
 
 ./src_gen/PL_Gen/gen_address.sh ${dir_name};
 
-./src_gen/PL_Gen/gen_ld_st.sh ${dir_name} ${data_type};
+./src_gen/PL_Gen/gen_ld_st.sh ${dir_name} ${data_type} ${A} ${NUM_PACK};
 
 ./src_gen/PL_Gen/gen_reshapec.sh ${dir_name} ${data_type};
 
 ./src_gen/PL_Gen/gen_senda.sh ${dir_name} ${data_type} ${NUM_TXA};
 
-./src_gen/PL_Gen/gen_sendb.sh ${dir_name} ${data_type} ${NUM_TXB};
+./src_gen/PL_Gen/gen_sendb.sh ${dir_name} ${data_type} ${NUM_TXB} ${NUM_PACK};
 
-./src_gen/PL_Gen/gen_compute.sh ${dir_name} ${port_row_in} ${port_col_in} ${port_out} ${l_buff} ${r_buff} ${o_buff} ${NUM_TXA} ${NUM_TXB} ${A} ${C};
+./src_gen/PL_Gen/gen_compute.sh ${dir_name} ${port_row_in} ${port_col_in} ${port_out} ${l_buff} ${r_buff} ${o_buff} ${NUM_TXA} ${NUM_TXB} ${A} ${C} ${NUM_PACK};
 
 ./src_gen/PL_Gen/gen_top.sh ${dir_name} ${port_row_in} ${port_col_in} ${port_out};
 

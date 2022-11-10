@@ -126,7 +126,22 @@ then
 elif [ ${data_type} == "int16" ]
 then
 	DATA_T=16;
+	if [ $((${A}%2)) == 0 ]
+	then
+		AXI_WIDTH_A=512;
+	else
+		AXI_WIDTH_A=256;
+	fi
+
+	if [ $((${NUM_PACK}%2)) == 0 ]
+	then
+		AXI_WIDTH_B=512;
+	else
+		AXI_WIDTH_B=256;
+	fi
 fi
+
+
 
 mkdir -p ${dir_name}/kernel
 echo \
@@ -137,10 +152,14 @@ echo \
 #include <ap_int.h>
 #include <hls_stream.h>
 #include <ap_axi_sdata.h>
-#define AXI_WIDTH_512 512
-#define AXI_WIDTH_256 256
-#define PLIO_WIDTH 128
+
 #define DATA_TYPE ${DATA_T}
+
+#define AXI_WIDTH_A ${AXI_WIDTH_A}
+#define AXI_WIDTH_B ${AXI_WIDTH_B}
+#define AXI_WIDTH_C 256
+#define PLIO_WIDTH 128
+
 #define PKTTYPE 0 
 #define PACKET_NUM ${NUM_PACK}
 #define H1 ${mm_i}
@@ -156,8 +175,10 @@ echo \
 #define K (W1*B*Y)
 #define N (W2*C*Z)
 
-#define A_PER_TRA (AXI_WIDTH_512/DATA_TYPE)
-#define C_PER_TRA (AXI_WIDTH_256/DATA_TYPE)
+const int A_PER_TRA=(AXI_WIDTH_A/DATA_TYPE);
+const int B_PER_TRA=(AXI_WIDTH_B/DATA_TYPE);
+const int C_PER_TRA=(AXI_WIDTH_C/DATA_TYPE);
+
 #define NUM_PER_TRA (PLIO_WIDTH/DATA_TYPE)
 
 #define LEFT_SIZE (H1*W1/NUM_PER_TRA)
@@ -169,12 +190,12 @@ typedef ap_axiu<PLIO_WIDTH, 0, 0, 0> axis_pkt;
 typedef hls::stream<axis_pkt> axis_stream;
 
 typedef hls::stream<ap_uint<32>> axis_stream_32;
-typedef hls::stream<ap_uint<64>> axis_stream_64;
-typedef hls::stream<ap_uint<256>> axis_stream_256;
-typedef hls::stream<ap_uint<512>> axis_stream_512;
+typedef hls::stream<ap_uint<AXI_WIDTH_A>> axis_stream_A;
+typedef hls::stream<ap_uint<AXI_WIDTH_B>> axis_stream_B;
+typedef hls::stream<ap_uint<AXI_WIDTH_C>> axis_stream_C;
 
 const int boundA=M*K/A_PER_TRA;
-const int boundB=K*N/A_PER_TRA;
+const int boundB=K*N/B_PER_TRA;
 const int boundC=M*N/C_PER_TRA;
 
 typedef union{

@@ -318,10 +318,12 @@ int main(int argc, char** argv) {
     xrtBufferHandle out_bohdl = xrtBOAlloc(dhdl, sizeOut* sizeof(${D_TYPE}), 0, 0);
     auto out_bomapped = reinterpret_cast<${D_TYPE}*>(xrtBOMap(out_bohdl));
     memset(out_bomapped, 0xABCDEF00, sizeOut * sizeof(${D_TYPE}));
+    
+    int graph_iter=X*Y*Z*TX*TY*TZ;
     myGraph.init();
-                              
+           
     printf(\"graph run\n\");
-    myGraph.run(-1);
+    myGraph.run(graph_iter);
 
     std::cout << \"Kernel run\n\";
     xrtKernelHandle dma_khdl = xrtPLKernelOpen(dhdl, top->m_header.uuid, \"dma\");
@@ -425,6 +427,7 @@ echo \
     xrtBOFree(out_bohdl);
     xrtBOFree(in_bohdl0);
     xrtBOFree(in_bohdl1);
+    myGraph.end();
     xrtDeviceClose(dhdl);
     return 0;
 }

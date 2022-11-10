@@ -68,7 +68,7 @@ echo \
 " 
             for (int i = 1; i < LEFT_SIZE; i++){ 
             #pragma HLS PIPELINE II = 1
-                int posa=ID*LEFT_SIZE+i;
+                int posa=position+i;
     
                 data=a_buf[tile][posa];
                 data_temp[i%2][0]=data(31,0);
@@ -167,7 +167,7 @@ echo \
 " 
             for (int i = 1; i < LEFT_SIZE; i++){ 
             #pragma HLS PIPELINE II = 1
-                int posa=ID*LEFT_SIZE+i;
+                int posa=position+i;
     
                 data=a_buf[tile][posa];
                 data_temp[i%2][0]=data(31,0);
