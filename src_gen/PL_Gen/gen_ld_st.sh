@@ -240,6 +240,9 @@ void loadB(axis_stream_B& dataB_in, ap_uint<PLIO_WIDTH> b_buf[(B/PACKET_NUM)*C][
 }   
 ">> ./${dir_name}/kernel/dma.cpp;
 fi
+
+if [ $((${NUM_PACK}%2)) == 0 ] && [ $((${A}%2)) == 0 ]
+then
 echo \
 "
 void storeC(axis_stream_C& dataC_out, ap_uint<PLIO_WIDTH> c_buf[A*C/PACKET_NUM][X*Z][PACKET_NUM][OUT_SIZE], bool enable){
@@ -279,4 +282,49 @@ void storeC(axis_stream_C& dataC_out, ap_uint<PLIO_WIDTH> c_buf[A*C/PACKET_NUM][
         }
     }
 }">> ./${dir_name}/kernel/dma.cpp;
+else
+echo \
+"
+void storeC(axis_stream_C& dataC_out, ap_uint<PLIO_WIDTH> c_buf[A*C/PACKET_NUM][X*Z][PACKET_NUM][OUT_SIZE], bool enable){
+#pragma HLS inline off
+    if(enable){
+        for(int z=0;z<Z;z++){
+            for(int c=0;c<C;c++){
+                for(int w2=0;w2<W2;w2++){
+                    for(int x=0;x<X;x++){
+                        for (int a=0;a<A;a++){
+                            for (int n=0; n<H1/C_PER_TRA;n++){
+                            #pragma HLS PIPELINE II = 1
+                                int pos0=n*4+w2*(H1/NUM_PER_TRA);
+                                int pos1=c%PACKET_NUM;
+                                int pos2=x+z*X;
+                                int pos3=a*(C/PACKET_NUM)+(c/PACKET_NUM);
+                                ap_uint<AXI_WIDTH_C> temp_data;
+                                temp_data(127,0)=c_buf[pos3][pos2][pos1][pos0];
+                                temp_data(255,128)=c_buf[pos3][pos2][pos1][pos0+1];
+                                temp_data(383,256)=c_buf[pos3][pos2][pos1][pos0+2];
+                                temp_data(511,384)=c_buf[pos3][pos2][pos1][pos0+3];
+                                dataC_out.write(temp_data);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        for(int x = 0; x < X*Z; x++){
+            for(int j=0;j<PACKET_NUM;j++){
+                for (int i = 0; i < OUT_SIZE/4; i++){
+                #pragma HLS PIPELINE II = 1
+                    for(int a = 0; a < (A*C/PACKET_NUM); a++){
+                        c_buf[a][x][j][i*4+0]=0; 
+                        c_buf[a][x][j][i*4+1]=0;
+                        c_buf[a][x][j][i*4+2]=0; 
+                        c_buf[a][x][j][i*4+3]=0;
+                    }
+                }
+            }
+        }
+    }
+}">> ./${dir_name}/kernel/dma.cpp;  
+fi
 fi

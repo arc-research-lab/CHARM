@@ -123,6 +123,9 @@ done < "$input"
 if [ ${data_type} == "fp32" ] || [ ${data_type} == "int32" ]
 then
 	DATA_T=32;
+	AXI_WIDTH_A=512;
+	AXI_WIDTH_B=512;
+	AXI_WIDTH_C=256;
 elif [ ${data_type} == "int16" ]
 then
 	DATA_T=16;
@@ -138,6 +141,12 @@ then
 		AXI_WIDTH_B=512;
 	else
 		AXI_WIDTH_B=256;
+	fi
+	if [ $((${A}%2)) == 0 ] && [ $((${NUM_PACK}%2)) == 0 ]
+	then
+		AXI_WIDTH_C=256;
+	else
+		AXI_WIDTH_C=512;
 	fi
 fi
 
@@ -157,7 +166,7 @@ echo \
 
 #define AXI_WIDTH_A ${AXI_WIDTH_A}
 #define AXI_WIDTH_B ${AXI_WIDTH_B}
-#define AXI_WIDTH_C 256
+#define AXI_WIDTH_C ${AXI_WIDTH_C}
 #define PLIO_WIDTH 128
 
 #define PKTTYPE 0 

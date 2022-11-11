@@ -68,6 +68,7 @@ void reshapeC(ap_uint<PLIO_WIDTH> c_buf[X*Z][PACKET_NUM][OUT_SIZE],axis_stream& 
     
                         for(int i=0;i<OUT_SIZE;i++){
                         #pragma HLS PIPELINE II = 1
+                        #pragma HLS dependence variable=c_buf type=inter false
                             tmp=rxC.read();
                             
 
@@ -154,6 +155,7 @@ void reshapeC(ap_uint<PLIO_WIDTH> c_buf[X*Z][PACKET_NUM][OUT_SIZE],axis_stream& 
     
                         for(int i=0;i<OUT_SIZE;i++){
                         #pragma HLS PIPELINE II = 1
+                        #pragma HLS dependence variable=c_buf type=inter false
                             tmp=rxC.read();
             
                             data_temp[(i+1)%2][0]=tmp.data(31,0);
@@ -228,6 +230,7 @@ void reshapeC(ap_uint<PLIO_WIDTH> c_buf[X*Z][PACKET_NUM][OUT_SIZE],axis_stream& 
     
                         for(int i=0;i<OUT_SIZE;i++){
                         #pragma HLS PIPELINE II = 1
+                        #pragma HLS dependence variable=c_buf type=inter false
                             tmp=rxC.read();
                             
                             data_temp[(i+1)%2][0].low=tmp.data(15,0);

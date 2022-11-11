@@ -56,6 +56,13 @@ else
 	FACTOR_B=2;
 fi
 
+if [ $((${NUM_PACK}%2)) == 0 ] && [ $((${A}%2)) == 0 ]
+then
+	FACTOR_C=1;
+else
+	FACTOR_C=2;
+fi
+
 
 echo \
 "
@@ -121,12 +128,18 @@ echo \
 
     ap_uint<PLIO_WIDTH> buff0_C[A*C/PACKET_NUM][X*Z][PACKET_NUM][OUT_SIZE];
     #pragma HLS bind_storage variable=buff0_C type=RAM_T2P impl=${O_buffer}
+    #pragma HLS ARRAY_PARTITION variable=buff0_C cyclic factor=${FACTOR_C} dim=4
     #pragma HLS ARRAY_PARTITION variable=buff0_C complete dim=1
 
     ap_uint<PLIO_WIDTH> buff1_C[A*C/PACKET_NUM][X*Z][PACKET_NUM][OUT_SIZE];
     #pragma HLS bind_storage variable=buff1_C type=RAM_T2P impl=${O_buffer}
-    #pragma HLS ARRAY_PARTITION variable=buff1_C complete dim=1
+    #pragma HLS ARRAY_PARTITION variable=buff1_C cyclic factor=${FACTOR_C} dim=4
+    #pragma HLS ARRAY_PARTITION variable=buff1_C complete dim=1">> ./${dir_name}/kernel/dma.cpp;
 
+if [ $((${NUM_PACK}%2)) == 0 ] && [ $((${A}%2)) == 0 ]
+then
+echo \
+"
     const int Total_rd=TX*TY*TZ;
     for(int x = 0; x < X*Z; x++){
         for(int j=0;j<PACKET_NUM;j++){
@@ -140,8 +153,32 @@ echo \
                 }
             }
         }
-    }
+    }">> ./${dir_name}/kernel/dma.cpp;
+else
+echo \
+"
+    const int Total_rd=TX*TY*TZ;
+    for(int x = 0; x < X*Z; x++){
+        for(int j=0;j<PACKET_NUM;j++){
+            for (int i = 0; i < OUT_SIZE/4; i++){
+            #pragma HLS PIPELINE II = 1
+                for(int a = 0; a < (A*C/PACKET_NUM); a++){
+                    buff0_C[a][x][j][i*4+0]=0; 
+                    buff0_C[a][x][j][i*4+1]=0;
+                    buff0_C[a][x][j][i*4+2]=0; 
+                    buff0_C[a][x][j][i*4+3]=0;
+                    buff1_C[a][x][j][i*4+0]=0; 
+                    buff1_C[a][x][j][i*4+1]=0; 
+                    buff1_C[a][x][j][i*4+2]=0; 
+                    buff1_C[a][x][j][i*4+3]=0;
+                }
+            }
+        }
+    }">> ./${dir_name}/kernel/dma.cpp;
+fi
 
+echo \
+"
     for (int rd=0; rd<Total_rd+2;rd++){
         int c_flg=0,s_flg=0;
         if(rd>0){

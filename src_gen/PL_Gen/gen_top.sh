@@ -89,10 +89,6 @@ echo \
     
     #pragma HLS dataflow
 
-    int bound_A=boundA*TX*TY*TZ;
-    int bound_B=boundB*TX*TY*TZ;
-    int bound_C=boundC*TX*TZ;
-
     axis_stream_A dataA_out;
     axis_stream_B dataB_out;
     axis_stream_C dataC_in;
@@ -101,13 +97,13 @@ echo \
     axis_stream_32 addrC_out;
 
     address_A_ddr(addrA_out,TX,TY,TZ);
-    loadA_ddr(ina, addrA_out,dataA_out,bound_A);
+    loadA_ddr(ina, addrA_out,dataA_out,TX,TY,TZ);
 
     address_B_ddr(addrB_out,TX,TY,TZ);
-    loadB_ddr(inb,addrB_out,dataB_out,bound_B);
+    loadB_ddr(inb,addrB_out,dataB_out,TX,TY,TZ);
 
     address_C_ddr(addrC_out,TX,TZ);
-    storeC_ddr(out0,addrC_out,dataC_in,bound_C);
+    storeC_ddr(out0,addrC_out,dataC_in,TX,TZ);
 
     compute(dataA_out, dataB_out, dataC_in, TX, TY, TZ,">> ./${dir_name}/kernel/dma.cpp;
 
