@@ -1,9 +1,10 @@
-if [ "$#" -eq 4 ] 
+if [ "$#" -eq 5 ] 
 then
     dir_name=$1;
     data_type=$2;
     NUM_TXB=$3;
-    NUM_PACK=$4;
+    NUM_PACK_IN=$4;
+    mm_k=$5;
 else
     echo ""
     echo "******************************************"
@@ -15,7 +16,7 @@ else
     exit
 fi
 
-if [ ${data_type} == "fp32" ] || [ ${data_type} == "int32" ] || [[ ${data_type} == "int16" &&  $((${NUM_PACK}%2)) == 1 ]]
+if [ ${data_type} == "fp32" ] || [ ${data_type} == "int32" ] || [[ ${data_type} == "int16" &&  $((${NUM_PACK_IN}%2)) == 1 ]] || [[ ${data_type} == "int16" &&  ${mm_k} != 48 ]]
 then
 echo \
 "
@@ -119,7 +120,7 @@ echo \
 }">> ./${dir_name}/kernel/dma.cpp;
 
 
-elif [ ${data_type} == "int16" ] && [ $((${NUM_PACK}%2)) == 0 ]
+elif [ ${data_type} == "int16" ] && [ $((${NUM_PACK_IN}%2)) == 0 && ${mm_k} == 48 ]
 then
 echo \
 "

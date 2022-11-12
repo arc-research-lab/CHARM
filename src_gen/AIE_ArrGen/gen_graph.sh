@@ -37,36 +37,36 @@ do
 		value_temp="${Key[1]}"; 
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
-		NUM_PACK="${Value[0]}";
-    elif (( ${n} == 10 ))
-	then
-		IFS=':' read -ra Key <<< "$line";
-		value_temp="${Key[1]}"; 
-		unset IFS
-		IFS=';' read -ra Value <<< "$value_temp";
-		A="${Value[0]}";
+		NUM_PACK_IN="${Value[0]}";
     elif (( ${n} == 11 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
 		value_temp="${Key[1]}"; 
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
+		A="${Value[0]}";
+    elif (( ${n} == 12 ))
+	then
+		IFS=':' read -ra Key <<< "$line";
+		value_temp="${Key[1]}"; 
+		unset IFS
+		IFS=';' read -ra Value <<< "$value_temp";
 		B="${Value[0]}";
- 	elif (( ${n} == 12 ))
+ 	elif (( ${n} == 13 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
 		value_temp="${Key[1]}"; 
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
 		C="${Value[0]}";
-    elif (( ${n} == 13 ))
+    elif (( ${n} == 14 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
 		value_temp="${Key[1]}"; 
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
 		R_BRO="${Value[0]}";
-    elif (( ${n} == 14 ))
+    elif (( ${n} == 15 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
 		value_temp="${Key[1]}"; 
@@ -121,8 +121,8 @@ template <int COL_OFFSET, int ROW_OFFSET>
 class mm_x${B}_graph : public adf::graph {
 private:
 	adf::kernel mm_x${B} [NUM_ENGINES_PER_PAC];
-	adf::pktsplit<${NUM_PACK}>  sp_a0;
-	adf::pktsplit<${NUM_PACK}>  sp_b0;
+	adf::pktsplit<${NUM_PACK_IN}>  sp_a0;
+	adf::pktsplit<${NUM_PACK_IN}>  sp_b0;
 
 public:
 	adf::port<input>  in[2];
@@ -131,8 +131,8 @@ public:
 	mm_x${B}_graph() {
     
 		// packet stream to different engines
-		sp_a0  = adf::pktsplit<${NUM_PACK}>::create();
-		sp_b0  = adf::pktsplit<${NUM_PACK}>::create();
+		sp_a0  = adf::pktsplit<${NUM_PACK_IN}>::create();
+		sp_b0  = adf::pktsplit<${NUM_PACK_IN}>::create();
 		adf::connect< adf::pktstream > (in[0], sp_a0.in[0]);
 		adf::connect< adf::pktstream > (in[1], sp_b0.in[0]);
 
@@ -185,10 +185,10 @@ template <int COL_OFFSET, int ROW_OFFSET>
 class mm_x${B}_graph : public adf::graph {
 private:
 	adf::kernel mm_x${B} [NUM_ENGINES_PER_PAC];
-	adf::pktsplit<${NUM_PACK}>  sp_a0;
-	adf::pktsplit<${NUM_PACK}>  sp_a1;
-	adf::pktsplit<${NUM_PACK}>  sp_b0;
-	adf::pktsplit<${NUM_PACK}>  sp_b1;
+	adf::pktsplit<${NUM_PACK_IN}>  sp_a0;
+	adf::pktsplit<${NUM_PACK_IN}>  sp_a1;
+	adf::pktsplit<${NUM_PACK_IN}>  sp_b0;
+	adf::pktsplit<${NUM_PACK_IN}>  sp_b1;
 
 public:
 	adf::port<input>  in[4];
@@ -196,10 +196,10 @@ public:
 
 	mm_x${B}_graph() {
     
-		sp_a0  = adf::pktsplit<${NUM_PACK}>::create();
-		sp_a1  = adf::pktsplit<${NUM_PACK}>::create();
-		sp_b0  = adf::pktsplit<${NUM_PACK}>::create();
-		sp_b1  = adf::pktsplit<${NUM_PACK}>::create();
+		sp_a0  = adf::pktsplit<${NUM_PACK_IN}>::create();
+		sp_a1  = adf::pktsplit<${NUM_PACK_IN}>::create();
+		sp_b0  = adf::pktsplit<${NUM_PACK_IN}>::create();
+		sp_b1  = adf::pktsplit<${NUM_PACK_IN}>::create();
 		adf::connect< adf::pktstream > (in[0], sp_a0.in[0]);
 		adf::connect< adf::pktstream > (in[1], sp_a1.in[0]);
 		adf::connect< adf::pktstream > (in[2], sp_b0.in[0]);
@@ -274,8 +274,8 @@ template <int COL_OFFSET, int ROW_OFFSET>
 class mm_x${B}_graph_type${i} : public adf::graph {
 private:
 	adf::kernel mm_x${B} [NUM_ENGINES_PER_PAC];
-	adf::pktsplit<${NUM_PACK}>  sp_a0;
-	adf::pktsplit<${NUM_PACK}>  sp_b0;
+	adf::pktsplit<${NUM_PACK_IN}>  sp_a0;
+	adf::pktsplit<${NUM_PACK_IN}>  sp_b0;
 
 public:
 	adf::port<input>  in[2];
@@ -284,8 +284,8 @@ public:
 	mm_x${B}_graph_type${i}() {
     
 		// packet stream to different engines
-		sp_a0  = adf::pktsplit<${NUM_PACK}>::create();
-		sp_b0  = adf::pktsplit<${NUM_PACK}>::create();
+		sp_a0  = adf::pktsplit<${NUM_PACK_IN}>::create();
+		sp_b0  = adf::pktsplit<${NUM_PACK_IN}>::create();
 		adf::connect< adf::pktstream > (in[0], sp_a0.in[0]);
 		adf::connect< adf::pktstream > (in[1], sp_b0.in[0]);
 
@@ -336,8 +336,8 @@ template <int COL_OFFSET, int ROW_OFFSET>
 class mm_x${B}_graph_col : public adf::graph {
 private:
 	adf::kernel mm_x${B} [NUM_ENGINES_PER_PAC];
-	adf::pktsplit<${NUM_PACK}>  sp_a0;
-	adf::pktsplit<${NUM_PACK}>  sp_b0;
+	adf::pktsplit<${NUM_PACK_IN}>  sp_a0;
+	adf::pktsplit<${NUM_PACK_IN}>  sp_b0;
 
 public:
 	adf::port<input>  in[2];
@@ -346,8 +346,8 @@ public:
 	mm_x${B}_graph_col() {
     
 		// packet stream to different engines
-		sp_a0  = adf::pktsplit<${NUM_PACK}>::create();
-		sp_b0  = adf::pktsplit<${NUM_PACK}>::create();
+		sp_a0  = adf::pktsplit<${NUM_PACK_IN}>::create();
+		sp_b0  = adf::pktsplit<${NUM_PACK_IN}>::create();
 		adf::connect< adf::pktstream > (in[0], sp_a0.in[0]);
 		adf::connect< adf::pktstream > (in[1], sp_b0.in[0]);
 

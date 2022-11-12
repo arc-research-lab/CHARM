@@ -60,57 +60,64 @@ do
 		value_temp="${Key[1]}"; 
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
-		NUM_PACK="${Value[0]}";
-    elif (( ${n} == 10 ))
+		NUM_PACK_IN="${Value[0]}";
+	elif (( ${n} == 10 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
 		value_temp="${Key[1]}"; 
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
-		A="${Value[0]}";
+		NUM_PACK_OUT="${Value[0]}";
     elif (( ${n} == 11 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
 		value_temp="${Key[1]}"; 
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
+		A="${Value[0]}";
+    elif (( ${n} == 12 ))
+	then
+		IFS=':' read -ra Key <<< "$line";
+		value_temp="${Key[1]}"; 
+		unset IFS
+		IFS=';' read -ra Value <<< "$value_temp";
 		B="${Value[0]}";
- 	elif (( ${n} == 12 ))
+ 	elif (( ${n} == 13 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
 		value_temp="${Key[1]}"; 
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
 		C="${Value[0]}";
-    elif (( ${n} == 13 ))
-	then
-		IFS=':' read -ra Key <<< "$line";
-		value_temp="${Key[1]}"; 
-		unset IFS
-		IFS=';' read -ra Value <<< "$value_temp";
-		R_BRO="${Value[0]}";
     elif (( ${n} == 14 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
 		value_temp="${Key[1]}"; 
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
+		R_BRO="${Value[0]}";
+    elif (( ${n} == 15 ))
+	then
+		IFS=':' read -ra Key <<< "$line";
+		value_temp="${Key[1]}"; 
+		unset IFS
+		IFS=';' read -ra Value <<< "$value_temp";
 		C_BRO="${Value[0]}";
-	elif (( ${n} == 16 ))
+	elif (( ${n} == 17 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
 		value_temp="${Key[1]}"; 
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
 		X="${Value[0]}";
-    elif (( ${n} == 17 ))
+    elif (( ${n} == 18 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
 		value_temp="${Key[1]}"; 
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
 		Y="${Value[0]}";
-    elif (( ${n} == 18 ))
+    elif (( ${n} == 19 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
 		value_temp="${Key[1]}"; 
@@ -129,24 +136,32 @@ then
 elif [ ${data_type} == "int16" ]
 then
 	DATA_T=16;
-	if [ $((${A}%2)) == 0 ]
+	if [ ${mm_k} != 48 ]
 	then
 		AXI_WIDTH_A=512;
-	else
-		AXI_WIDTH_A=256;
-	fi
-
-	if [ $((${NUM_PACK}%2)) == 0 ]
-	then
 		AXI_WIDTH_B=512;
-	else
-		AXI_WIDTH_B=256;
-	fi
-	if [ $((${A}%2)) == 0 ] && [ $((${NUM_PACK}%2)) != 0 ] && [ ${C} -ge ${NUM_PACK} ]
-	then
-		AXI_WIDTH_C=512;
-	else
 		AXI_WIDTH_C=256;
+	else
+		if [ $((${A}%2)) == 0 ]
+		then
+			AXI_WIDTH_A=512;
+		else
+			AXI_WIDTH_A=256;
+		fi
+
+		if [ $((${NUM_PACK_IN}%2)) == 0 ]
+		then
+			AXI_WIDTH_B=512;
+		else
+			AXI_WIDTH_B=256;
+		fi
+
+		if [ $((${A}%2)) == 0 ] && [ $((${NUM_PACK_IN}%2)) != 0 ] && [ ${C} -ge ${NUM_PACK_OUT} ]
+		then
+			AXI_WIDTH_C=512;
+		else
+			AXI_WIDTH_C=256;
+		fi
 	fi
 fi
 
@@ -170,7 +185,8 @@ echo \
 #define PLIO_WIDTH 128
 
 #define PKTTYPE 0 
-#define PACKET_NUM ${NUM_PACK}
+#define PACKET_NUM_IN ${NUM_PACK_IN}
+#define PACKET_NUM_OUT ${NUM_PACK_OUT}
 #define H1 ${mm_i}
 #define W1 ${mm_k}
 #define W2 ${mm_j}

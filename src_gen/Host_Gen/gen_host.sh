@@ -67,22 +67,29 @@ do
 		value_temp="${Key[1]}"; 
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
-		NUM_PACK="${Value[0]}";
+		NUM_PACK_IN="${Value[0]}";
     elif (( ${n} == 10 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
 		value_temp="${Key[1]}"; 
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
-		A="${Value[0]}";
+		NUM_PACK_OUT="${Value[0]}";
     elif (( ${n} == 11 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
 		value_temp="${Key[1]}"; 
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
+		A="${Value[0]}";
+    elif (( ${n} == 12 ))
+	then
+		IFS=':' read -ra Key <<< "$line";
+		value_temp="${Key[1]}"; 
+		unset IFS
+		IFS=';' read -ra Value <<< "$value_temp";
 		B="${Value[0]}";
- 	elif (( ${n} == 12 ))
+ 	elif (( ${n} == 13 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
 		value_temp="${Key[1]}"; 
@@ -96,49 +103,49 @@ do
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
 		R_BRO="${Value[0]}";
-    elif (( ${n} == 14 ))
+    elif (( ${n} == 15 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
 		value_temp="${Key[1]}"; 
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
 		C_BRO="${Value[0]}";
-    elif (( ${n} == 16 ))
-	then
-		IFS=':' read -ra Key <<< "$line";
-		value_temp="${Key[1]}"; 
-		unset IFS
-		IFS=';' read -ra Value <<< "$value_temp";
-		X="${Value[0]}";
     elif (( ${n} == 17 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
 		value_temp="${Key[1]}"; 
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
-		Y="${Value[0]}";
+		X="${Value[0]}";
     elif (( ${n} == 18 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
 		value_temp="${Key[1]}"; 
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
-		Z="${Value[0]}";
+		Y="${Value[0]}";
     elif (( ${n} == 19 ))
-    then
-        IFS=':' read -ra Key <<< "$line";
-        value_temp="${Key[1]}"; 
-        unset IFS
-        IFS=';' read -ra Value <<< "$value_temp";
-        l_buff="${Value[0]}";
+	then
+		IFS=':' read -ra Key <<< "$line";
+		value_temp="${Key[1]}"; 
+		unset IFS
+		IFS=';' read -ra Value <<< "$value_temp";
+		Z="${Value[0]}";
     elif (( ${n} == 20 ))
     then
         IFS=':' read -ra Key <<< "$line";
         value_temp="${Key[1]}"; 
         unset IFS
         IFS=';' read -ra Value <<< "$value_temp";
-        r_buff="${Value[0]}";
+        l_buff="${Value[0]}";
     elif (( ${n} == 21 ))
+    then
+        IFS=':' read -ra Key <<< "$line";
+        value_temp="${Key[1]}"; 
+        unset IFS
+        IFS=';' read -ra Value <<< "$value_temp";
+        r_buff="${Value[0]}";
+    elif (( ${n} == 22 ))
     then
         IFS=':' read -ra Key <<< "$line";
         value_temp="${Key[1]}"; 
@@ -166,9 +173,9 @@ fi
 let temp=${A}*${C};
 let left_aie=400-${A}*${B}*${C};
 let start_pos=${left_aie}/16;
-let port_row_in=${A}*${B}*${C}/${NUM_PACK}/${R_BRO};
-let port_col_in=${C}*${B}*${A}/${NUM_PACK}/${C_BRO};
-let port_out=${A}*${C}/${NUM_PACK};
+let port_row_in=${A}*${B}*${C}/${NUM_PACK_IN}/${R_BRO};
+let port_col_in=${C}*${B}*${A}/${NUM_PACK_IN}/${C_BRO};
+let port_out=${A}*${C}/${NUM_PACK_OUT};
 
 mkdir -p ${dir_name}/host
 echo \

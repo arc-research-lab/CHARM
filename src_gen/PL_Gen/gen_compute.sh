@@ -1,4 +1,4 @@
-if [ "$#" -eq 12 ] 
+if [ "$#" -eq 15 ] 
 then
     dir_name=$1;
     port_row_in=$2;
@@ -11,7 +11,10 @@ then
     NUM_TXB=$9;
     A=${10};
     C=${11};
-    NUM_PACK=${12};
+    NUM_PACK_IN=${12};
+    NUM_PACK_OUT=${13};
+    data_type=${14};
+    mm_k=${15};
 else
     echo ""
     echo "******************************************"
@@ -42,25 +45,33 @@ else
     O_buffer="URAM";
 fi
 
-if [ $((${A}%2)) == 0 ]
+if [ ${data_type} == "fp32" ] || [ ${data_type} == "int32" ] || [[ ${data_type} == "int16" && ${mm_k} != 48  ]]   
 then
-	FACTOR_A=4;
-else
-	FACTOR_A=2;
-fi
+    FACTOR_A=4;
+    FACTOR_B=4;
+    FACTOR_C=1;
+elif [ ${data_type} == "int16" ]
+then
+    if [ $((${A}%2)) == 0 ]
+    then
+    	FACTOR_A=4;
+    else
+    	FACTOR_A=2;
+    fi
 
-if [ $((${NUM_PACK}%2)) == 0 ]
-then
-	FACTOR_B=4;
-else
-	FACTOR_B=2;
-fi
+    if [ $((${NUM_PACK_IN}%2)) == 0 ]
+    then
+    	FACTOR_B=4;
+    else
+    	FACTOR_B=2;
+    fi
 
-if [ $((${NUM_PACK}%2)) != 0 ] && [ $((${A}%2)) == 0 ] && [ ${C} -ge ${NUM_PACK} ]
-then
-	FACTOR_C=2;
-else
-	FACTOR_C=1;
+    if [ $((${NUM_PACK_IN}%2)) != 0 ] && [ $((${A}%2)) == 0 ] && [ ${C} -ge ${NUM_PACK_OUT} ]
+    then
+    	FACTOR_C=2;
+    else
+    	FACTOR_C=1;
+    fi
 fi
 
 
@@ -136,7 +147,7 @@ echo \
     #pragma HLS ARRAY_PARTITION variable=buff1_C cyclic factor=${FACTOR_C} dim=4
     #pragma HLS ARRAY_PARTITION variable=buff1_C complete dim=1">> ./${dir_name}/kernel/dma.cpp;
 
-if [ $((${NUM_PACK}%2)) != 0 ] && [ $((${A}%2)) == 0 ] && [ ${C} -ge ${NUM_PACK} ]
+if [ ${data_type} == "int16" ] && [ ${mm_k} == 48  ] && [ $((${NUM_PACK_IN}%2)) != 0 ] && [ $((${A}%2)) == 0 ] && [ ${C} -ge ${NUM_PACK_OUT} ]
 then
 echo \
 "

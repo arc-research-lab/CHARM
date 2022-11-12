@@ -47,36 +47,43 @@ do
 		value_temp="${Key[1]}"; 
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
-		NUM_PACK="${Value[0]}";
-    elif (( ${n} == 10 ))
+		NUM_PACK_IN="${Value[0]}";
+	elif (( ${n} == 10 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
 		value_temp="${Key[1]}"; 
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
-		A="${Value[0]}";
+		NUM_PACK_OUT="${Value[0]}";
     elif (( ${n} == 11 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
 		value_temp="${Key[1]}"; 
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
+		A="${Value[0]}";
+    elif (( ${n} == 12 ))
+	then
+		IFS=':' read -ra Key <<< "$line";
+		value_temp="${Key[1]}"; 
+		unset IFS
+		IFS=';' read -ra Value <<< "$value_temp";
 		B="${Value[0]}";
- 	elif (( ${n} == 12 ))
+ 	elif (( ${n} == 13 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
 		value_temp="${Key[1]}"; 
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
 		C="${Value[0]}";
-    elif (( ${n} == 13 ))
+    elif (( ${n} == 14 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
 		value_temp="${Key[1]}"; 
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
 		R_BRO="${Value[0]}";
-    elif (( ${n} == 14 ))
+    elif (( ${n} == 15 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
 		value_temp="${Key[1]}"; 
@@ -120,16 +127,16 @@ const int ROW=${A};
 const int COL=${C};
 const int R_BRO=${R_BRO};
 const int C_BRO=${C_BRO};
-const int NUM_PACKET_PAC=NUM_ENGINES_PER_PAC/${NUM_PACK};    //number of packet in each graph
+const int NUM_PACKET_PAC=NUM_ENGINES_PER_PAC/${NUM_PACK_IN};    //number of packet in each graph
 const int NUM_INSTANCES=ROW*COL;
-const int NUM_OUT_PACK=NUM_INSTANCES/${NUM_PACK};
+const int NUM_OUT_PACK=NUM_INSTANCES/${NUM_PACK_OUT};
 using namespace adf;
 template <int COL_OFFSET,int ROW_OFFSET>
 class mm_x${NUM_INSTANCES}_x${B}_graph : public adf::graph {
 public:
 	input_port in_row[ROW*NUM_PACKET_PAC*COL/R_BRO];
 	input_port in_col[COL*NUM_PACKET_PAC*ROW/C_BRO];
-    adf::pktmerge<${NUM_PACK}>  mg_out[NUM_OUT_PACK];
+    adf::pktmerge<${NUM_PACK_OUT}>  mg_out[NUM_OUT_PACK];
 	output_port out[NUM_OUT_PACK];
 ">> ./${dir_name}/aie/mm_top.h;
 
@@ -159,7 +166,7 @@ echo \
 "
 	mm_x${NUM_INSTANCES}_x${B}_graph() {
 		for (int i =0; i<NUM_OUT_PACK; i++)  {
-			mg_out[i] = adf::pktmerge<${NUM_PACK}>::create();
+			mg_out[i] = adf::pktmerge<${NUM_PACK_OUT}>::create();
 		}
 ">> ./${dir_name}/aie/mm_top.h;
 
@@ -192,8 +199,8 @@ do
     for ((j=0;j<${C};j++));
     do  
         let aie=${i}*${C}+${j};
-        let out=${aie}/${NUM_PACK};
-        let port=${aie}%${NUM_PACK};
+        let out=${aie}/${NUM_PACK_OUT};
+        let port=${aie}%${NUM_PACK_OUT};
         echo \
         "	    connect<adf::window<h1*w2*${BPE}>, adf::pktstream > (mm_x${B}_${j}_${i}.out, mg_out[${out}].in[${port}]);">> ./${dir_name}/aie/mm_top.h;
     done
@@ -230,9 +237,9 @@ const int ROW=${A};
 const int COL=${C};
 const int R_BRO=${R_BRO};
 const int C_BRO=${C_BRO};
-const int NUM_PACKET_PAC=NUM_ENGINES_PER_PAC/${NUM_PACK};    //number of packet in each graph
+const int NUM_PACKET_PAC=NUM_ENGINES_PER_PAC/${NUM_PACK_IN};    //number of packet in each graph
 const int NUM_INSTANCES=ROW*COL;
-const int NUM_OUT_PACK=NUM_INSTANCES/${NUM_PACK};
+const int NUM_OUT_PACK=NUM_INSTANCES/${NUM_PACK_OUT};
 using namespace adf;
 
 template <int COL_OFFSET,int ROW_OFFSET>
@@ -242,7 +249,7 @@ public:
 	input_port in_row[ROW*NUM_PACKET_PAC*COL/R_BRO];
 	input_port in_col[COL*NUM_PACKET_PAC*ROW/C_BRO];
 
-    adf::pktmerge<${NUM_PACK}>  mg_out[NUM_OUT_PACK];
+    adf::pktmerge<${NUM_PACK_OUT}>  mg_out[NUM_OUT_PACK];
 	output_port out[NUM_OUT_PACK];
 ">> ./${dir_name}/aie/mm_top.h;
 
@@ -329,7 +336,7 @@ echo \
 "
 	mm_x${NUM_INSTANCES}_x${B}_graph() {
 		for (int i =0; i<NUM_OUT_PACK; i++)  {
-			mg_out[i] = adf::pktmerge<${NUM_PACK}>::create();
+			mg_out[i] = adf::pktmerge<${NUM_PACK_OUT}>::create();
 		}
 ">> ./${dir_name}/aie/mm_top.h;
 
@@ -362,8 +369,8 @@ do
     for ((j=0;j<${C};j++));
     do  
         let aie=${i}*${C}+${j};
-        let out=${aie}/${NUM_PACK};
-        let port=${aie}%${NUM_PACK};
+        let out=${aie}/${NUM_PACK_OUT};
+        let port=${aie}%${NUM_PACK_OUT};
         echo \
         "	    connect<adf::window<h1*w2*${BPE}>, adf::pktstream > (mm_x${B}_${j}_${i}.out, mg_out[${out}].in[${port}]);">> ./${dir_name}/aie/mm_top.h;
     done

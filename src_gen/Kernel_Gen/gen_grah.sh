@@ -54,8 +54,8 @@ do
 		value_temp="${Key[1]}"; 
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
-		NUM_PACK="${Value[0]}";
-    elif (( ${n} == 15 ))
+		NUM_PACK_IN="${Value[0]}";
+    elif (( ${n} == 16 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
 		value_temp="${Key[1]}"; 

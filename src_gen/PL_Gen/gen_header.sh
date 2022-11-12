@@ -1,7 +1,7 @@
 if [ "$#" -eq 7 ] 
 then
     dir_name=$1;
-    NUM_PACK=$2;
+    NUM_PACK_IN=$2;
     pipe_length=$3;
     array_size=$4;
     X=$5;
@@ -23,9 +23,9 @@ fi
 declare -A arrA_tile;
 declare -A arrB_tile;
 
-for ((i=0;i<${NUM_PACK};i++));
+for ((i=0;i<${NUM_PACK_IN};i++));
 do  
-    for ((l=0;l<${pipe_length}+${NUM_PACK}-1;l++));
+    for ((l=0;l<${pipe_length}+${NUM_PACK_IN}-1;l++));
     do  
         arrA_tile[${i},${l}]=-1;
     done
@@ -39,9 +39,9 @@ do
     done
 done
 
-for ((i=0;i<${NUM_PACK};i++));
+for ((i=0;i<${NUM_PACK_IN};i++));
 do  
-    for ((l=0;l<${pipe_length}+${NUM_PACK}-1;l++));
+    for ((l=0;l<${pipe_length}+${NUM_PACK_IN}-1;l++));
     do  
         arrB_tile[${i},${l}]=-1;
     done
@@ -61,12 +61,12 @@ done
 
 echo -n "static const unsigned int tile_A[${array_size}]={">> ./${dir_name}/kernel/dma.cpp;
 
-for ((l=0;l<${pipe_length}+${NUM_PACK}-1;l++));
+for ((l=0;l<${pipe_length}+${NUM_PACK_IN}-1;l++));
 do  
-    for ((i=0;i<${NUM_PACK};i++));
+    for ((i=0;i<${NUM_PACK_IN};i++));
     do  
-        let temp1=${NUM_PACK}-1;
-        let temp2=${pipe_length}+${NUM_PACK}-2;
+        let temp1=${NUM_PACK_IN}-1;
+        let temp2=${pipe_length}+${NUM_PACK_IN}-2;
         if [ ${i} == ${temp1} ] && [ ${l} == ${temp2} ]
         then
             echo "${arrA_tile[${i},${l}]}};">> ./${dir_name}/kernel/dma.cpp;
@@ -78,12 +78,12 @@ do
 done
 
 echo -n "static const unsigned int tile_B[${array_size}]={">> ./${dir_name}/kernel/dma.cpp;
-for ((l=0;l<${pipe_length}+${NUM_PACK}-1;l++));
+for ((l=0;l<${pipe_length}+${NUM_PACK_IN}-1;l++));
 do  
-    for ((i=0;i<${NUM_PACK};i++));
+    for ((i=0;i<${NUM_PACK_IN};i++));
     do  
-        let temp1=${NUM_PACK}-1;
-        let temp2=${pipe_length}+${NUM_PACK}-2;
+        let temp1=${NUM_PACK_IN}-1;
+        let temp2=${pipe_length}+${NUM_PACK_IN}-2;
         if [ ${i} == ${temp1} ] && [ ${l} == ${temp2} ]
         then
             echo "${arrB_tile[${i},${l}]}};">> ./${dir_name}/kernel/dma.cpp;
@@ -95,12 +95,12 @@ do
 done
 
 echo -n "static const unsigned int packet_id[${array_size}]={">> ./${dir_name}/kernel/dma.cpp;
-for ((l=0;l<${pipe_length}+${NUM_PACK}-1;l++));
+for ((l=0;l<${pipe_length}+${NUM_PACK_IN}-1;l++));
 do  
-    for ((i=0;i<${NUM_PACK};i++));
+    for ((i=0;i<${NUM_PACK_IN};i++));
     do  
-        let temp1=${NUM_PACK}-1;
-        let temp2=${pipe_length}+${NUM_PACK}-2;
+        let temp1=${NUM_PACK_IN}-1;
+        let temp2=${pipe_length}+${NUM_PACK_IN}-2;
         if [ ${i} == ${temp1} ] && [ ${l} == ${temp2} ]
         then
             echo -n "${i}};">> ./${dir_name}/kernel/dma.cpp;

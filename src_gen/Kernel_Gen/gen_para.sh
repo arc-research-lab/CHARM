@@ -68,7 +68,7 @@ do
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
 		AIE_ArrGen="${Value[0]}";
- 	elif (( ${n} == 15 ))
+ 	elif (( ${n} == 16 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
 		value_temp="${Key[1]}"; 
@@ -129,7 +129,6 @@ then
 	then
 		i=48;
 		j=48;
-		k=48;
 	elif [ ${data_type} == "int8" ]
 	then
 		i=64;

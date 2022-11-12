@@ -1,10 +1,12 @@
-if [ "$#" -eq 5 ] 
+if [ "$#" -eq 7 ] 
 then
     dir_name=$1;
     data_type=$2;
-    A=$3;
-    C=$4;
-    NUM_PACK=$5;
+    mm_k=$3;
+    A=$4;
+    C=$5;
+    NUM_PACK_IN=$6;
+    NUM_PACK_OUT=$7;
 else
     echo ""
     echo "******************************************"
@@ -16,7 +18,7 @@ else
     exit
 fi
 
-if [ ${data_type} == "fp32" ] || [ ${data_type} == "int32" ]
+if [ ${data_type} == "fp32" ] || [ ${data_type} == "int32" ] || [[ ${data_type} == "int16" && ${mm_k} == 32  ]]
 then
 echo \
 "
@@ -182,7 +184,7 @@ void loadA(axis_stream_A& dataA_in, ap_uint<PLIO_WIDTH> a_buf[A*(B/PACKET_NUM)][
 ">> ./${dir_name}/kernel/dma.cpp;
 fi
 
-if [ $((${NUM_PACK}%2)) == 0 ]
+if [ $((${NUM_PACK_IN}%2)) == 0 ]
 then
 echo \
 "
@@ -242,7 +244,7 @@ void loadB(axis_stream_B& dataB_in, ap_uint<PLIO_WIDTH> b_buf[(B/PACKET_NUM)*C][
 ">> ./${dir_name}/kernel/dma.cpp;
 fi
 
-if [ $((${A}%2)) == 0 ] && [ $((${NUM_PACK}%2)) != 0 ] && [ ${C} -ge ${NUM_PACK} ]
+if [ $((${A}%2)) == 0 ] && [ $((${NUM_PACK_IN}%2)) != 0 ] && [ ${C} -ge ${NUM_PACK_OUT} ]
 then
 echo \
 "
