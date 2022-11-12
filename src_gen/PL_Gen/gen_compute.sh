@@ -56,11 +56,11 @@ else
 	FACTOR_B=2;
 fi
 
-if [ $((${NUM_PACK}%2)) == 0 ] && [ $((${A}%2)) == 0 ]
+if [ $((${NUM_PACK}%2)) != 0 ] && [ $((${A}%2)) == 0 ]
 then
-	FACTOR_C=1;
-else
 	FACTOR_C=2;
+else
+	FACTOR_C=1;
 fi
 
 
@@ -136,25 +136,8 @@ echo \
     #pragma HLS ARRAY_PARTITION variable=buff1_C cyclic factor=${FACTOR_C} dim=4
     #pragma HLS ARRAY_PARTITION variable=buff1_C complete dim=1">> ./${dir_name}/kernel/dma.cpp;
 
-if [ $((${NUM_PACK}%2)) == 0 ] && [ $((${A}%2)) == 0 ]
+if [ $((${NUM_PACK}%2)) != 0 ] && [ $((${A}%2)) == 0 ]
 then
-echo \
-"
-    const int Total_rd=TX*TY*TZ;
-    for(int x = 0; x < X*Z; x++){
-        for(int j=0;j<PACKET_NUM;j++){
-            for (int i = 0; i < OUT_SIZE/2; i++){
-            #pragma HLS PIPELINE II = 1
-                for(int a = 0; a < (A*C/PACKET_NUM); a++){
-                    buff0_C[a][x][j][i*2+0]=0; 
-                    buff0_C[a][x][j][i*2+1]=0;
-                    buff1_C[a][x][j][i*2+0]=0; 
-                    buff1_C[a][x][j][i*2+1]=0; 
-                }
-            }
-        }
-    }">> ./${dir_name}/kernel/dma.cpp;
-else
 echo \
 "
     const int Total_rd=TX*TY*TZ;
@@ -171,6 +154,23 @@ echo \
                     buff1_C[a][x][j][i*4+1]=0; 
                     buff1_C[a][x][j][i*4+2]=0; 
                     buff1_C[a][x][j][i*4+3]=0;
+                }
+            }
+        }
+    }">> ./${dir_name}/kernel/dma.cpp;
+else
+echo \
+"
+    const int Total_rd=TX*TY*TZ;
+    for(int x = 0; x < X*Z; x++){
+        for(int j=0;j<PACKET_NUM;j++){
+            for (int i = 0; i < OUT_SIZE/2; i++){
+            #pragma HLS PIPELINE II = 1
+                for(int a = 0; a < (A*C/PACKET_NUM); a++){
+                    buff0_C[a][x][j][i*2+0]=0; 
+                    buff0_C[a][x][j][i*2+1]=0;
+                    buff1_C[a][x][j][i*2+0]=0; 
+                    buff1_C[a][x][j][i*2+1]=0; 
                 }
             }
         }

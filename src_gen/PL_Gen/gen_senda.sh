@@ -35,7 +35,7 @@ echo \
 "
 #pragma HLS inline off
     if(enable){
-        float data_temp[2][4];
+        ap_uint<32> data_temp[2][4];
         #pragma HLS ARRAY_PARTITION variable=data_temp complete dim=0
         axis_pkt tmp;
         data_t data;
@@ -133,7 +133,7 @@ echo \
 "
 #pragma HLS inline off
     if(enable){
-        float data_temp[2][4];
+        ap_uint<32> data_temp[2][4];
         #pragma HLS ARRAY_PARTITION variable=data_temp complete dim=0
         axis_pkt tmp;
         data_t data;
