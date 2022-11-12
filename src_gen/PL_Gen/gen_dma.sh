@@ -151,7 +151,7 @@ echo \
 
 ./src_gen/PL_Gen/gen_address.sh ${dir_name};
 
-./src_gen/PL_Gen/gen_ld_st.sh ${dir_name} ${data_type} ${A} ${NUM_PACK};
+./src_gen/PL_Gen/gen_ld_st.sh ${dir_name} ${data_type} ${A} ${C} ${NUM_PACK};
 
 ./src_gen/PL_Gen/gen_reshapec.sh ${dir_name} ${data_type};
 

@@ -78,15 +78,39 @@ do
  	fi
 done < "$input"
 
+let size=${i}*${j}+${j}*${k}+${i}*${k};
 if [ ${data_type} == "int32" ] || [ ${data_type} == "fp32" ]
 then
-	let size=${i}*${j}+${j}*${k}+${i}*${k};
 	if [ ${size} -gt 4096 ]
 	then
 		echo ""
     	echo "******************************************"
 		echo "
 		${size}=i*k+k*j+i*j should not be more than 4096 for int32 and fp32
+		";
+		echo "******************************************"
+    	echo ""
+	fi
+elif [ ${data_type} == "int16" ]
+then
+	if [ ${size} -gt 8192 ]
+	then
+		echo ""
+    	echo "******************************************"
+		echo "
+		${size}=i*k+k*j+i*j should not be more than 8192 for int16
+		";
+		echo "******************************************"
+    	echo ""
+	fi
+elif [ ${data_type} == "int8" ]
+then
+	if [ ${size} -gt 16384 ]
+	then
+		echo ""
+    	echo "******************************************"
+		echo "
+		${size}=i*k+k*j+i*j should not be more than 16384 for int8
 		";
 		echo "******************************************"
     	echo ""
@@ -106,6 +130,13 @@ then
 		i=48;
 		j=48;
 		k=48;
+	elif [ ${data_type} == "int8" ]
+	then
+		i=64;
+		j=64;
+		k=64;
+	else
+		echo "Unsupported data_type";
 	fi
 fi
 
@@ -127,13 +158,13 @@ const int boundary_k=w1/8-1;
 const int judge_i=boundary_i-1;
 const int judge_j=boundary_j-1;
 
-void mm_kernel0(input_window_int32* matA, input_window_int32* matB, output_window_int32* matC);
+void mm_kernel0(input_window_int32* __restrict matA, input_window_int32* __restrict matB, output_window_int32* __restrict matC);
 ">> ./${dir_name}/aie/para.h;
 
 if [ ${kernel_type} == 1 ] 
 then
 echo \
-"void mm_kernel1(input_window_int32* matA, input_window_int32* matB, input_window_int32* acc_in, output_window_int32* matC);
+"void mm_kernel1(input_window_int32* __restrict matA, input_window_int32* __restrict matB, input_window_int32* __restrict acc_in, output_window_int32* __restrict matC);
 ">> ./${dir_name}/aie/para.h;
 fi
 
@@ -159,13 +190,13 @@ const int boundary_k=w1/8-1;
 const int judge_i=boundary_i-1;
 const int judge_j=boundary_j-1;
 
-void mm_kernel0(input_window_float* matA, input_window_float* matB, output_window_float* matC);
+void mm_kernel0(input_window_float* __restrict matA, input_window_float* __restrict matB, output_window_float* __restrict matC);
 ">> ./${dir_name}/aie/para.h;
 
 if [ ${kernel_type} == 1 ] 
 then
 echo \
-"void mm_kernel1(input_window_float* matA, input_window_float* matB, input_window_float* acc_in, output_window_float* matC);
+"void mm_kernel1(input_window_float* __restrict matA, input_window_float* __restrict matB, input_window_float* __restrict acc_in, output_window_float* __restrict matC);
 ">> ./${dir_name}/aie/para.h;
 fi
 
@@ -190,13 +221,49 @@ const int boundary_k=w1/16-1;
 const int judge_i=boundary_i-1;
 const int judge_j=boundary_j-1;
 
-void mm_kernel0(input_window_int16* matA, input_window_int16* matB, output_window_int16* matC);
+void mm_kernel0(input_window_int16* __restrict matA, input_window_int16* __restrict matB, output_window_int16* __restrict matC);
 ">> ./${dir_name}/aie/para.h;
 
 if [ ${kernel_type} == 1 ] 
 then
 echo \
-"void mm_kernel1(input_window_int16* matA, input_window_int16* matB, input_window_int16* acc_in, output_window_int16* matC);
+"void mm_kernel1(input_window_int16* __restrict matA, input_window_int16* __restrict matB, input_window_int16* __restrict acc_in, output_window_int16* __restrict matC);
+">> ./${dir_name}/aie/para.h;
+fi
+
+echo \
+"#endif
+">> ./${dir_name}/aie/para.h;
+
+elif [ ${data_type} == "int8" ]
+then
+if [ ${w1} != 64 ]
+then
+	echo "Currently, when data_type=int8, w1 should be assigned to 64";
+fi
+echo \
+"#ifndef __PARA_H__
+#define __PARA_H__
+
+#include <adf/stream/types.h>
+
+#define h1 ${i}
+#define w1 64
+#define w2 ${j}
+const int boundry_i=h1/8;
+const int boundry_j=w2/4;
+const int boundry_k=w1/16-1;
+const int jumpA0=32;
+const int jumpA1=(h1-8)*w1+32;
+const int jumpB0=32;
+
+void mm_kernel0(input_window_int8* __restrict matA, input_window_int8* __restrict matB, output_window_int8* __restrict matC);
+">> ./${dir_name}/aie/para.h;
+
+if [ ${kernel_type} == 1 ] 
+then
+echo \
+"void mm_kernel1(input_window_int8* __restrict matA, input_window_int8* __restrict matB, input_window_int8* acc_in, output_window_int8* __restrict matC);
 ">> ./${dir_name}/aie/para.h;
 fi
 

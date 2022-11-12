@@ -142,7 +142,7 @@ then
 	else
 		AXI_WIDTH_B=256;
 	fi
-	if [ $((${A}%2)) == 0 ] && [ $((${NUM_PACK}%2)) != 0 ]
+	if [ $((${A}%2)) == 0 ] && [ $((${NUM_PACK}%2)) != 0 ] && [ ${C} -ge ${NUM_PACK} ]
 	then
 		AXI_WIDTH_C=512;
 	else

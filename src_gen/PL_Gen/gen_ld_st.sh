@@ -1,9 +1,10 @@
-if [ "$#" -eq 4 ] 
+if [ "$#" -eq 5 ] 
 then
     dir_name=$1;
     data_type=$2;
     A=$3;
-    NUM_PACK=$4;
+    C=$4;
+    NUM_PACK=$5;
 else
     echo ""
     echo "******************************************"
@@ -241,7 +242,7 @@ void loadB(axis_stream_B& dataB_in, ap_uint<PLIO_WIDTH> b_buf[(B/PACKET_NUM)*C][
 ">> ./${dir_name}/kernel/dma.cpp;
 fi
 
-if [ $((${A}%2)) == 0 ] && [ $((${NUM_PACK}%2)) != 0 ]
+if [ $((${A}%2)) == 0 ] && [ $((${NUM_PACK}%2)) != 0 ] && [ ${C} -ge ${NUM_PACK} ]
 then
 echo \
 "
@@ -255,28 +256,32 @@ void storeC(axis_stream_C& dataC_out, ap_uint<PLIO_WIDTH> c_buf[A*C/PACKET_NUM][
                         for (int a=0;a<A/2;a++){
                             for (int n=0; n<H1*2/C_PER_TRA;n++){
                             #pragma HLS PIPELINE II = 1
+                            #pragma HLS dependence variable=c_buf type=intra false
+                                int temp=c+(2*a)*C; 
                                 int pos0=w2*(H1/NUM_PER_TRA);
-                                int pos1=c%PACKET_NUM;
+                                int pos1_0=temp%PACKET_NUM;
+                                int pos1_1=(temp+C)%PACKET_NUM;
                                 int pos2=x+z*X;
-                                int pos3=a*(C/PACKET_NUM)+(c/PACKET_NUM);
+                                int pos3_0=temp/PACKET_NUM;
+                                int pos3_1=(temp+C)/PACKET_NUM;
                                 ap_uint<AXI_WIDTH_C> temp_data;
                                 if(n==0){
-                                    temp_data(127,0)  =c_buf[pos2][pos1][pos0];
-                                    temp_data(255,128)=c_buf[pos2][pos1][pos0+1];
-                                    temp_data(383,256)=c_buf[pos2][pos1][pos0+2];
-                                    temp_data(511,384)=c_buf[pos2][pos1][pos0+3];
+                                    temp_data(127,0)  =c_buf[pos3_0][pos2][pos1_0][pos0];
+                                    temp_data(255,128)=c_buf[pos3_0][pos2][pos1_0][pos0+1];
+                                    temp_data(383,256)=c_buf[pos3_0][pos2][pos1_0][pos0+2];
+                                    temp_data(511,384)=c_buf[pos3_0][pos2][pos1_0][pos0+3];
                                 }
                                 else if(n==1){
-                                    temp_data(127,0)  =c_buf[pos2][pos1][pos0+4];
-                                    temp_data(255,128)=c_buf[pos2][pos1][pos0+5];
-                                    temp_data(383,256)=c_buf[pos2+1][pos1][pos0];
-                                    temp_data(511,384)=c_buf[pos2+1][pos1][pos0+1];
+                                    temp_data(127,0)  =c_buf[pos3_0][pos2][pos1_0][pos0+4];
+                                    temp_data(255,128)=c_buf[pos3_0][pos2][pos1_0][pos0+5];
+                                    temp_data(383,256)=c_buf[pos3_1][pos2][pos1_1][pos0];
+                                    temp_data(511,384)=c_buf[pos3_1][pos2][pos1_1][pos0+1];
                                 }
                                 else{
-                                    temp_data(127,0)  =c_buf[pos2+1][pos1][pos0+2];
-                                    temp_data(255,128)=c_buf[pos2+1][pos1][pos0+3];
-                                    temp_data(383,256)=c_buf[pos2+1][pos1][pos0+4];
-                                    temp_data(511,384)=c_buf[pos2+1][pos1][pos0+5];                     
+                                    temp_data(127,0)  =c_buf[pos3_1][pos2][pos1_1][pos0+2];
+                                    temp_data(255,128)=c_buf[pos3_1][pos2][pos1_1][pos0+3];
+                                    temp_data(383,256)=c_buf[pos3_1][pos2][pos1_1][pos0+4];
+                                    temp_data(511,384)=c_buf[pos3_1][pos2][pos1_1][pos0+5];                     
                                 }
                                 dataC_out.write(temp_data);
                             }
@@ -313,10 +318,11 @@ void storeC(axis_stream_C& dataC_out, ap_uint<PLIO_WIDTH> c_buf[A*C/PACKET_NUM][
                         for (int a=0;a<A;a++){
                             for (int n=0; n<H1/C_PER_TRA;n++){
                             #pragma HLS PIPELINE II = 1
+                                int aie_pack=c+a*C;
                                 int pos0=n*2+w2*(H1/NUM_PER_TRA);
-                                int pos1=c%PACKET_NUM;
+                                int pos1=aie_pack%PACKET_NUM;
                                 int pos2=x+z*X;
-                                int pos3=a*(C/PACKET_NUM)+(c/PACKET_NUM);
+                                int pos3=aie_pack/PACKET_NUM;
                                 ap_uint<AXI_WIDTH_C> temp_data;
                                 temp_data(127,0)=c_buf[pos3][pos2][pos1][pos0];
                                 temp_data(255,128)=c_buf[pos3][pos2][pos1][pos0+1];

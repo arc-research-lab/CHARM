@@ -56,7 +56,7 @@ else
 	FACTOR_B=2;
 fi
 
-if [ $((${NUM_PACK}%2)) != 0 ] && [ $((${A}%2)) == 0 ]
+if [ $((${NUM_PACK}%2)) != 0 ] && [ $((${A}%2)) == 0 ] && [ ${C} -ge ${NUM_PACK} ]
 then
 	FACTOR_C=2;
 else
@@ -136,7 +136,7 @@ echo \
     #pragma HLS ARRAY_PARTITION variable=buff1_C cyclic factor=${FACTOR_C} dim=4
     #pragma HLS ARRAY_PARTITION variable=buff1_C complete dim=1">> ./${dir_name}/kernel/dma.cpp;
 
-if [ $((${NUM_PACK}%2)) != 0 ] && [ $((${A}%2)) == 0 ]
+if [ $((${NUM_PACK}%2)) != 0 ] && [ $((${A}%2)) == 0 ] && [ ${C} -ge ${NUM_PACK} ]
 then
 echo \
 "
