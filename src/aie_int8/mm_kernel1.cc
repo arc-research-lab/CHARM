@@ -12,7 +12,6 @@ void mm_kernel1(input_window_int8* __restrict matA,
 	v32int8 chess_storage(wc0) buf_matB0=undef_v32int8(); 
 	v32int8 chess_storage(wc1) buf_matB1=undef_v32int8(); 
 	
-
 	buf_matA0=upd_w(buf_matA0,0,window_read_v32(matA));
 	window_incr(matA,jumpA0);
 
