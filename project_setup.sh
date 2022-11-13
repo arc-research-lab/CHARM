@@ -79,17 +79,18 @@ then
 fi
 
 
-if (( ${KernelGen} == 1 )) && (( ${AIEArrGen} == 0 ))
+if (( ${KernelGen} == 1 ))
 then
 	./src_gen/Kernel_Gen/gen_gracpp.sh $1 $2;
     ./src_gen/Kernel_Gen/gen_grah.sh $1 $2;
     ./src_gen/Kernel_Gen/gen_para.sh $1 $2;
     cp -r src/${src_dir}/* $2/aie;
     cp -r src/Makefile* $2;
-elif (( ${AIEArrGen} == 1 ))
+fi
+
+if (( ${AIEArrGen} == 1 ))
 then
-	cp -r src/${src_dir}/* $2/aie;
-    cp -r src/Makefile* $2;
+	mv $2/aie/mm_top.cpp $2/aie/single_graph.cpp
 	./src_gen/AIE_ArrGen/gen_graph.sh $1 $2;
     ./src_gen/AIE_ArrGen/gen_topcpp.sh $1 $2;
     ./src_gen/AIE_ArrGen/gen_toph.sh $1 $2;
