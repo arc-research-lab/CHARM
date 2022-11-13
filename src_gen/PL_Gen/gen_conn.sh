@@ -23,7 +23,7 @@ then
     exit;
 fi
 
-for ((n=1;n<=21;n++));
+for ((n=1;n<=22;n++));
 do
 	read -r line
     if (( ${n} == 9 ))
@@ -32,36 +32,43 @@ do
 		value_temp="${Key[1]}"; 
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
-		NUM_PACK="${Value[0]}";
-    elif (( ${n} == 10 ))
+		NUM_PACK_IN="${Value[0]}";
+	elif (( ${n} == 10 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
 		value_temp="${Key[1]}"; 
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
-		A="${Value[0]}";
+		NUM_PACK_OUT="${Value[0]}";
     elif (( ${n} == 11 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
 		value_temp="${Key[1]}"; 
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
+		A="${Value[0]}";
+    elif (( ${n} == 12 ))
+	then
+		IFS=':' read -ra Key <<< "$line";
+		value_temp="${Key[1]}"; 
+		unset IFS
+		IFS=';' read -ra Value <<< "$value_temp";
 		B="${Value[0]}";
- 	elif (( ${n} == 12 ))
+ 	elif (( ${n} == 13 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
 		value_temp="${Key[1]}"; 
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
 		C="${Value[0]}";
-    elif (( ${n} == 13 ))
+    elif (( ${n} == 14 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
 		value_temp="${Key[1]}"; 
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
 		R_BRO="${Value[0]}";
-    elif (( ${n} == 14 ))
+    elif (( ${n} == 15 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
 		value_temp="${Key[1]}"; 
@@ -71,9 +78,9 @@ do
  	fi
 done < "$input"
 
-let port_row_in=${A}*${B}*${C}/${NUM_PACK}/${R_BRO};
-let port_col_in=${C}*${B}*${A}/${NUM_PACK}/${C_BRO};
-let port_out=${A}*${C}/${NUM_PACK};
+let port_row_in=${A}*${B}*${C}/${NUM_PACK_IN}/${R_BRO};
+let port_col_in=${C}*${B}*${A}/${NUM_PACK_IN}/${C_BRO};
+let port_out=${A}*${C}/${NUM_PACK_OUT};
 
 mkdir -p ${dir_name}/kernel
 if [ ${B} == 4 ] || [ ${B} == 3 ]

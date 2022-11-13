@@ -20,7 +20,7 @@ then
 echo \
 "
 template<int NC>
-void sendA(ap_uint<PLIO_WIDTH> a_buf[X*Y][LEFT_SIZE*PACKET_NUM],">> ./${dir_name}/kernel/dma.cpp;
+void sendA(ap_uint<PLIO_WIDTH> a_buf[X*Y][LEFT_SIZE*PACKET_NUM_IN],">> ./${dir_name}/kernel/dma.cpp;
 
 echo -n "           ">> ./${dir_name}/kernel/dma.cpp;
 for ((i=0;i<${NUM_TXA};i++));
@@ -40,7 +40,7 @@ echo \
         axis_pkt tmp;
         data_t data;
         data_t da;
-        for (int k = 0; k < X*PACKET_NUM*Y*Z; k++) {    
+        for (int k = 0; k < X*PACKET_NUM_IN*Y*Z; k++) {    
             unsigned int ID=packet_id[k];
             int tile=tile_A[k];
             ap_uint<32> header=generateHeader(PKTTYPE,ID);
@@ -118,7 +118,7 @@ then
 echo \
 "
 template<int NC>
-void sendA(ap_uint<PLIO_WIDTH> a_buf[X*Y][LEFT_SIZE*PACKET_NUM],">> ./${dir_name}/kernel/dma.cpp;
+void sendA(ap_uint<PLIO_WIDTH> a_buf[X*Y][LEFT_SIZE*PACKET_NUM_IN],">> ./${dir_name}/kernel/dma.cpp;
 
 echo -n "           ">> ./${dir_name}/kernel/dma.cpp;
 for ((i=0;i<${NUM_TXA};i++));
@@ -138,7 +138,7 @@ echo \
         axis_pkt tmp;
         data_t data;
         data_t da;
-        for (int k = 0; k < X*PACKET_NUM*Y*Z; k++) {    
+        for (int k = 0; k < X*PACKET_NUM_IN*Y*Z; k++) {    
             unsigned int ID=packet_id[k];
             int tile=tile_A[k];
 

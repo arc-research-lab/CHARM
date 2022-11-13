@@ -18,7 +18,7 @@ then
 echo \
 "
 template<int NC>
-void reshapeC(ap_uint<PLIO_WIDTH> c_buf[X*Z][PACKET_NUM][OUT_SIZE],axis_stream& rxC, bool enable){   
+void reshapeC(ap_uint<PLIO_WIDTH> c_buf[X*Z][PACKET_NUM_OUT][OUT_SIZE],axis_stream& rxC, bool enable){   
 #pragma HLS inline off
     if (enable){
         
@@ -36,7 +36,7 @@ void reshapeC(ap_uint<PLIO_WIDTH> c_buf[X*Z][PACKET_NUM][OUT_SIZE],axis_stream& 
         fp_int ifp_temp1;
         fp_int ifp_temp2;
         fp_int ifp_temp3;   
-    for(int i=0;i<PACKET_NUM;i++){
+    for(int i=0;i<PACKET_NUM_OUT;i++){
         #pragma HLS unroll
             cnt[i]=0;
         }
@@ -44,7 +44,7 @@ void reshapeC(ap_uint<PLIO_WIDTH> c_buf[X*Z][PACKET_NUM][OUT_SIZE],axis_stream& 
         for(int z = 0; z < Z; z++){
             for(int x = 0; x < X; x++){
                 for (int n = 0; n < Y; n++){
-                    for(int j=0;j<PACKET_NUM;j++){
+                    for(int j=0;j<PACKET_NUM_OUT;j++){
                         ap_uint<32> header;
                         tmp=rxC.read();
                         
@@ -111,7 +111,7 @@ then
 echo \
 "
 template<int NC>
-void reshapeC(ap_uint<PLIO_WIDTH> c_buf[X*Z][PACKET_NUM][OUT_SIZE],axis_stream& rxC, bool enable){   
+void reshapeC(ap_uint<PLIO_WIDTH> c_buf[X*Z][PACKET_NUM_OUT][OUT_SIZE],axis_stream& rxC, bool enable){   
 #pragma HLS inline off
     if (enable){
         
@@ -120,13 +120,13 @@ void reshapeC(ap_uint<PLIO_WIDTH> c_buf[X*Z][PACKET_NUM][OUT_SIZE],axis_stream& 
         #pragma HLS ARRAY_PARTITION variable=cnt complete dim=0
         data_t1 data_temp[2][4];
         #pragma HLS ARRAY_PARTITION variable=data_temp complete dim=0
-        for(int i=0;i<PACKET_NUM;i++){
+        for(int i=0;i<PACKET_NUM_OUT;i++){
         #pragma HLS unroll
             cnt[i]=0;
         }
         for(int z = 0; z < Z; z++){
             for(int x = 0; x < X; x++){
-                for(int j=0;j<PACKET_NUM;j++){
+                for(int j=0;j<PACKET_NUM_OUT;j++){
                     for (int i = 0; i < OUT_SIZE; i++){
                     #pragma HLS PIPELINE II = 1
                         c_buf[x+z*X][j][i]=0; 
@@ -137,7 +137,7 @@ void reshapeC(ap_uint<PLIO_WIDTH> c_buf[X*Z][PACKET_NUM][OUT_SIZE],axis_stream& 
         for(int z = 0; z < Z; z++){
             for(int x = 0; x < X; x++){
                 for (int n = 0; n < Y; n++){
-                    for(int j=0;j<PACKET_NUM;j++){
+                    for(int j=0;j<PACKET_NUM_OUT;j++){
                         ap_uint<32> header;
                         tmp=rxC.read();
                         
@@ -181,7 +181,7 @@ then
 echo \
 "
 template<int NC>
-void reshapeC(ap_uint<PLIO_WIDTH> c_buf[X*Z][PACKET_NUM][OUT_SIZE],axis_stream& rxC, bool enable){   
+void reshapeC(ap_uint<PLIO_WIDTH> c_buf[X*Z][PACKET_NUM_OUT][OUT_SIZE],axis_stream& rxC, bool enable){   
 #pragma HLS inline off
     if (enable){
         
@@ -191,13 +191,13 @@ void reshapeC(ap_uint<PLIO_WIDTH> c_buf[X*Z][PACKET_NUM][OUT_SIZE],axis_stream& 
         comb_32 data_temp[2][4];
         #pragma HLS ARRAY_PARTITION variable=data_temp complete dim=0
         comb_32 d0,d1,d2,d3;
-        for(int i=0;i<PACKET_NUM;i++){
+        for(int i=0;i<PACKET_NUM_OUT;i++){
         #pragma HLS unroll
             cnt[i]=0;
         }
         for(int z = 0; z < Z; z++){
             for(int x = 0; x < X; x++){
-                for(int j=0;j<PACKET_NUM;j++){
+                for(int j=0;j<PACKET_NUM_OUT;j++){
                     for (int i = 0; i < OUT_SIZE; i++){
                     #pragma HLS PIPELINE II = 1
                         c_buf[x+z*X][j][i]=0;
@@ -208,7 +208,7 @@ void reshapeC(ap_uint<PLIO_WIDTH> c_buf[X*Z][PACKET_NUM][OUT_SIZE],axis_stream& 
         for(int z = 0; z < Z; z++){
             for(int x = 0; x < X; x++){
                 for (int n = 0; n < Y; n++){
-                    for(int j=0;j<PACKET_NUM;j++){
+                    for(int j=0;j<PACKET_NUM_OUT;j++){
                         ap_uint<32> header;
                         tmp=rxC.read();
                         

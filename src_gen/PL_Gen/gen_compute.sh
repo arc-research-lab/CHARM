@@ -1,4 +1,4 @@
-if [ "$#" -eq 15 ] 
+if [ "$#" -eq 15 ]
 then
     dir_name=$1;
     port_row_in=$2;
@@ -117,32 +117,32 @@ done
 
 echo \
 "{
-    ap_uint<PLIO_WIDTH> buff0_A[A*(B/PACKET_NUM)][X*Y][LEFT_SIZE*PACKET_NUM];
+    ap_uint<PLIO_WIDTH> buff0_A[A*(B/PACKET_NUM_IN)][X*Y][LEFT_SIZE*PACKET_NUM_IN];
     #pragma HLS bind_storage variable=buff0_A type=RAM_1P impl=${L_buffer}
     #pragma HLS ARRAY_PARTITION variable=buff0_A cyclic factor=${FACTOR_A} dim=3
     #pragma HLS ARRAY_PARTITION variable=buff0_A complete dim=1
 
-    ap_uint<PLIO_WIDTH> buff1_A[A*(B/PACKET_NUM)][X*Y][LEFT_SIZE*PACKET_NUM];
+    ap_uint<PLIO_WIDTH> buff1_A[A*(B/PACKET_NUM_IN)][X*Y][LEFT_SIZE*PACKET_NUM_IN];
     #pragma HLS bind_storage variable=buff1_A type=RAM_1P impl=${L_buffer}
     #pragma HLS ARRAY_PARTITION variable=buff1_A cyclic factor=${FACTOR_A} dim=3
     #pragma HLS ARRAY_PARTITION variable=buff1_A complete dim=1
 
-    ap_uint<PLIO_WIDTH> buff0_B[(B/PACKET_NUM)*C][Y*Z][RIGHT_SIZE*PACKET_NUM];
+    ap_uint<PLIO_WIDTH> buff0_B[(B/PACKET_NUM_IN)*C][Y*Z][RIGHT_SIZE*PACKET_NUM_IN];
     #pragma HLS bind_storage variable=buff0_B type=RAM_1P impl=${R_buffer}
     #pragma HLS ARRAY_PARTITION variable=buff0_B cyclic factor=${FACTOR_B} dim=3
     #pragma HLS ARRAY_PARTITION variable=buff0_B complete dim=1
 
-    ap_uint<PLIO_WIDTH> buff1_B[(B/PACKET_NUM)*C][Y*Z][RIGHT_SIZE*PACKET_NUM];
+    ap_uint<PLIO_WIDTH> buff1_B[(B/PACKET_NUM_IN)*C][Y*Z][RIGHT_SIZE*PACKET_NUM_IN];
     #pragma HLS bind_storage variable=buff1_B type=RAM_1P impl=${R_buffer}
     #pragma HLS ARRAY_PARTITION variable=buff1_B cyclic factor=${FACTOR_B} dim=3
     #pragma HLS ARRAY_PARTITION variable=buff1_B complete dim=1
 
-    ap_uint<PLIO_WIDTH> buff0_C[A*C/PACKET_NUM][X*Z][PACKET_NUM][OUT_SIZE];
+    ap_uint<PLIO_WIDTH> buff0_C[A*C/PACKET_NUM_OUT][X*Z][PACKET_NUM_OUT][OUT_SIZE];
     #pragma HLS bind_storage variable=buff0_C type=RAM_T2P impl=${O_buffer}
     #pragma HLS ARRAY_PARTITION variable=buff0_C cyclic factor=${FACTOR_C} dim=4
     #pragma HLS ARRAY_PARTITION variable=buff0_C complete dim=1
 
-    ap_uint<PLIO_WIDTH> buff1_C[A*C/PACKET_NUM][X*Z][PACKET_NUM][OUT_SIZE];
+    ap_uint<PLIO_WIDTH> buff1_C[A*C/PACKET_NUM_OUT][X*Z][PACKET_NUM_OUT][OUT_SIZE];
     #pragma HLS bind_storage variable=buff1_C type=RAM_T2P impl=${O_buffer}
     #pragma HLS ARRAY_PARTITION variable=buff1_C cyclic factor=${FACTOR_C} dim=4
     #pragma HLS ARRAY_PARTITION variable=buff1_C complete dim=1">> ./${dir_name}/kernel/dma.cpp;
@@ -153,10 +153,10 @@ echo \
 "
     const int Total_rd=TX*TY*TZ;
     for(int x = 0; x < X*Z; x++){
-        for(int j=0;j<PACKET_NUM;j++){
+        for(int j=0;j<PACKET_NUM_OUT;j++){
             for (int i = 0; i < OUT_SIZE/4; i++){
             #pragma HLS PIPELINE II = 1
-                for(int a = 0; a < (A*C/PACKET_NUM); a++){
+                for(int a = 0; a < (A*C/PACKET_NUM_OUT); a++){
                     buff0_C[a][x][j][i*4+0]=0; 
                     buff0_C[a][x][j][i*4+1]=0;
                     buff0_C[a][x][j][i*4+2]=0; 
@@ -174,10 +174,10 @@ echo \
 "
     const int Total_rd=TX*TY*TZ;
     for(int x = 0; x < X*Z; x++){
-        for(int j=0;j<PACKET_NUM;j++){
+        for(int j=0;j<PACKET_NUM_OUT;j++){
             for (int i = 0; i < OUT_SIZE/2; i++){
             #pragma HLS PIPELINE II = 1
-                for(int a = 0; a < (A*C/PACKET_NUM); a++){
+                for(int a = 0; a < (A*C/PACKET_NUM_OUT); a++){
                     buff0_C[a][x][j][i*2+0]=0; 
                     buff0_C[a][x][j][i*2+1]=0;
                     buff1_C[a][x][j][i*2+0]=0; 

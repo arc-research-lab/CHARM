@@ -23,7 +23,7 @@ then
     exit;
 fi
 
-for ((n=1;n<=21;n++));
+for ((n=1;n<=22;n++));
 do
 	read -r line
 	if (( ${n} == 2 ))
@@ -96,7 +96,7 @@ do
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
 		C="${Value[0]}";
-    elif (( ${n} == 13 ))
+    elif (( ${n} == 14 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
 		value_temp="${Key[1]}"; 

@@ -21,7 +21,7 @@ then
 echo \
 "
 template<int NC>
-void sendB(ap_uint<PLIO_WIDTH> b_buf[Y*Z][RIGHT_SIZE*PACKET_NUM],">> ./${dir_name}/kernel/dma.cpp;
+void sendB(ap_uint<PLIO_WIDTH> b_buf[Y*Z][RIGHT_SIZE*PACKET_NUM_IN],">> ./${dir_name}/kernel/dma.cpp;
 
 echo -n "           ">> ./${dir_name}/kernel/dma.cpp;
 for ((i=0;i<${NUM_TXB};i++));
@@ -43,7 +43,7 @@ echo \
         data_t da;
     
     
-        for (int k = 0; k < PACKET_NUM*Y*X*Z; k++) {
+        for (int k = 0; k < PACKET_NUM_IN*Y*X*Z; k++) {
             unsigned int ID=packet_id[k];
             int tile=tile_B[k];
     
@@ -125,7 +125,7 @@ then
 echo \
 "
 template<int NC>
-void sendB(ap_uint<PLIO_WIDTH> b_buf[Y*Z][RIGHT_SIZE*PACKET_NUM],">> ./${dir_name}/kernel/dma.cpp;
+void sendB(ap_uint<PLIO_WIDTH> b_buf[Y*Z][RIGHT_SIZE*PACKET_NUM_IN],">> ./${dir_name}/kernel/dma.cpp;
 
 echo -n "           ">> ./${dir_name}/kernel/dma.cpp;
 for ((i=0;i<${NUM_TXB};i++));
@@ -147,7 +147,7 @@ echo \
         data_t da;
     
     
-        for (int k = 0; k < PACKET_NUM*Y*X*Z; k++) {
+        for (int k = 0; k < PACKET_NUM_IN*Y*X*Z; k++) {
             unsigned int ID=packet_id[k];
             int tile=tile_B[k];
     
@@ -177,7 +177,7 @@ echo \
 "
             for (int i = 1; i < RIGHT_SIZE; i++){
             #pragma HLS PIPELINE II = 1
-                int posb=position+(i/(W1/NUM_PER_TRA))*(W1*PACKET_NUM/NUM_PER_TRA)+(i%(W1/NUM_PER_TRA));
+                int posb=position+(i/(W1/NUM_PER_TRA))*(W1*PACKET_NUM_IN/NUM_PER_TRA)+(i%(W1/NUM_PER_TRA));
     
                 data=b_buf[tile][posb];
                 data_temp[i%2][0]=data(31,0);
