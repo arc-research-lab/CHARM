@@ -167,7 +167,7 @@ echo \
 
 ./src_gen/PL_Gen/gen_ld_st.sh ${dir_name} ${data_type} ${mm_k} ${A} ${C} ${NUM_PACK_IN} ${NUM_PACK_OUT};
 
-./src_gen/PL_Gen/gen_reshapec.sh ${dir_name} ${data_type};
+./src_gen/PL_Gen/gen_reshapec.sh ${dir_name} ${data_type} ${NUM_PACK_OUT};
 
 ./src_gen/PL_Gen/gen_senda.sh ${dir_name} ${data_type} ${NUM_TXA};
 

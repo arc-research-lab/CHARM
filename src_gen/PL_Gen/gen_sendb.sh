@@ -16,7 +16,7 @@ else
     exit
 fi
 
-if [ ${data_type} == "fp32" ] || [ ${data_type} == "int32" ] || [[ ${data_type} == "int16" &&  $((${NUM_PACK_IN}%2)) == 1 ]] || [[ ${data_type} == "int16" &&  ${mm_k} != 48 ]]
+if [ ${data_type} == "fp32" ] || [ ${data_type} == "int32" ] || [[ ${data_type} == "int16" &&  $((${NUM_PACK_IN}%2)) == 1 ]] || [[ ${data_type} == "int16" &&  ${mm_k} != 32 ]]
 then
 echo \
 "

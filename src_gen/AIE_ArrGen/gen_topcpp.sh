@@ -96,7 +96,7 @@ let AIE_NUM=${A}*${B}*${C};
 
 if [ ${B} == 4 ]
 then
-	let left_aie=400-${AIE_NUM}s;
+	let left_aie=400-${AIE_NUM};
 elif [ ${B} == 3 ]
 then
 	if [ ${AIE_NUM} -gt 300 ]

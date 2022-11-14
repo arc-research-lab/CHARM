@@ -18,7 +18,7 @@ else
     exit
 fi
 
-if [ ${data_type} == "fp32" ] || [ ${data_type} == "int32" ] || [[ ${data_type} == "int16" && ${mm_k} == 32  ]]
+if [ ${data_type} == "fp32" ] || [ ${data_type} == "int32" ]
 then
 echo \
 "
@@ -114,7 +114,7 @@ void storeC(axis_stream_C& dataC_out, ap_uint<PLIO_WIDTH> c_buf[A*C/PACKET_NUM_O
 
 elif [ ${data_type} == "int16" ]
 then
-if [ $((${A}%2)) == 0 ]
+if [ $((${A}%2)) == 0 ] || [ ${mm_k} == 32 ]
 then
 echo \
 "
@@ -184,7 +184,7 @@ void loadA(axis_stream_A& dataA_in, ap_uint<PLIO_WIDTH> a_buf[A*(B/PACKET_NUM_IN
 ">> ./${dir_name}/kernel/dma.cpp;
 fi
 
-if [ $((${NUM_PACK_IN}%2)) == 0 ]
+if [ $((${NUM_PACK_IN}%2)) == 0 ] || [ ${mm_k} == 32 ]
 then
 echo \
 "
@@ -244,7 +244,7 @@ void loadB(axis_stream_B& dataB_in, ap_uint<PLIO_WIDTH> b_buf[(B/PACKET_NUM_IN)*
 ">> ./${dir_name}/kernel/dma.cpp;
 fi
 
-if [ $((${A}%2)) == 0 ] && [ $((${NUM_PACK_IN}%2)) != 0 ] && [ ${C} -ge ${NUM_PACK_OUT} ]
+if [[( $((${A}%2)) == 0 && $((${NUM_PACK_IN}%2)) != 0 ) || ( $((${A}%2)) != 0 && $((${NUM_PACK_IN}%2)) == 0 )]] && [ ${C} -ge ${NUM_PACK_OUT} ]
 then
 echo \
 "

@@ -1,7 +1,8 @@
-if [ "$#" -eq 2 ] 
+if [ "$#" -eq 3 ] 
 then
     dir_name=$1;
     data_type=$2;
+    NUM_PACK_OUT=$3;
 else
     echo ""
     echo "******************************************"
@@ -23,7 +24,7 @@ void reshapeC(ap_uint<PLIO_WIDTH> c_buf[X*Z][PACKET_NUM_OUT][OUT_SIZE],axis_stre
     if (enable){
         
         axis_pkt tmp; 
-        int cnt[4];
+        int cnt[${NUM_PACK_OUT}];
         #pragma HLS ARRAY_PARTITION variable=cnt complete dim=0
         float data_temp[2][4];
         #pragma HLS ARRAY_PARTITION variable=data_temp complete dim=0
@@ -116,7 +117,7 @@ void reshapeC(ap_uint<PLIO_WIDTH> c_buf[X*Z][PACKET_NUM_OUT][OUT_SIZE],axis_stre
     if (enable){
         
         axis_pkt tmp; 
-        int cnt[4];
+        int cnt[${NUM_PACK_OUT}];
         #pragma HLS ARRAY_PARTITION variable=cnt complete dim=0
         data_t1 data_temp[2][4];
         #pragma HLS ARRAY_PARTITION variable=data_temp complete dim=0
@@ -124,16 +125,7 @@ void reshapeC(ap_uint<PLIO_WIDTH> c_buf[X*Z][PACKET_NUM_OUT][OUT_SIZE],axis_stre
         #pragma HLS unroll
             cnt[i]=0;
         }
-        for(int z = 0; z < Z; z++){
-            for(int x = 0; x < X; x++){
-                for(int j=0;j<PACKET_NUM_OUT;j++){
-                    for (int i = 0; i < OUT_SIZE; i++){
-                    #pragma HLS PIPELINE II = 1
-                        c_buf[x+z*X][j][i]=0; 
-                    }
-                }
-            }
-        }
+
         for(int z = 0; z < Z; z++){
             for(int x = 0; x < X; x++){
                 for (int n = 0; n < Y; n++){
@@ -186,7 +178,7 @@ void reshapeC(ap_uint<PLIO_WIDTH> c_buf[X*Z][PACKET_NUM_OUT][OUT_SIZE],axis_stre
     if (enable){
         
         axis_pkt tmp; 
-        int cnt[4];
+        int cnt[${NUM_PACK_OUT}];
         #pragma HLS ARRAY_PARTITION variable=cnt complete dim=0
         comb_32 data_temp[2][4];
         #pragma HLS ARRAY_PARTITION variable=data_temp complete dim=0
@@ -195,16 +187,7 @@ void reshapeC(ap_uint<PLIO_WIDTH> c_buf[X*Z][PACKET_NUM_OUT][OUT_SIZE],axis_stre
         #pragma HLS unroll
             cnt[i]=0;
         }
-        for(int z = 0; z < Z; z++){
-            for(int x = 0; x < X; x++){
-                for(int j=0;j<PACKET_NUM_OUT;j++){
-                    for (int i = 0; i < OUT_SIZE; i++){
-                    #pragma HLS PIPELINE II = 1
-                        c_buf[x+z*X][j][i]=0;
-                    }
-                }
-            }
-        }
+        
         for(int z = 0; z < Z; z++){
             for(int x = 0; x < X; x++){
                 for (int n = 0; n < Y; n++){

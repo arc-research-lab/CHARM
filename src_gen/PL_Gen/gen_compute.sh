@@ -45,28 +45,28 @@ else
     O_buffer="URAM";
 fi
 
-if [ ${data_type} == "fp32" ] || [ ${data_type} == "int32" ] || [[ ${data_type} == "int16" && ${mm_k} != 48  ]]   
+if [ ${data_type} == "fp32" ] || [ ${data_type} == "int32" ]   
 then
     FACTOR_A=4;
     FACTOR_B=4;
     FACTOR_C=1;
 elif [ ${data_type} == "int16" ]
 then
-    if [ $((${A}%2)) == 0 ]
+    if [ $((${A}%2)) == 0 ] || [ ${mm_k} == 32 ]
     then
     	FACTOR_A=4;
     else
     	FACTOR_A=2;
     fi
 
-    if [ $((${NUM_PACK_IN}%2)) == 0 ]
+    if [ $((${NUM_PACK_IN}%2)) == 0 ] || [ ${mm_k} == 32 ]
     then
     	FACTOR_B=4;
     else
     	FACTOR_B=2;
     fi
 
-    if [ $((${NUM_PACK_IN}%2)) != 0 ] && [ $((${A}%2)) == 0 ] && [ ${C} -ge ${NUM_PACK_OUT} ]
+    if [[( $((${A}%2)) == 0 && $((${NUM_PACK_IN}%2)) != 0 ) || ( $((${A}%2)) != 0 && $((${NUM_PACK_IN}%2)) == 0 )]] && [ ${C} -ge ${NUM_PACK_OUT} ]
     then
     	FACTOR_C=2;
     else
@@ -147,7 +147,7 @@ echo \
     #pragma HLS ARRAY_PARTITION variable=buff1_C cyclic factor=${FACTOR_C} dim=4
     #pragma HLS ARRAY_PARTITION variable=buff1_C complete dim=1">> ./${dir_name}/kernel/dma.cpp;
 
-if [ ${data_type} == "int16" ] && [ ${mm_k} == 48  ] && [ $((${NUM_PACK_IN}%2)) != 0 ] && [ $((${A}%2)) == 0 ] && [ ${C} -ge ${NUM_PACK_OUT} ]
+if [[( $((${A}%2)) == 0 && $((${NUM_PACK_IN}%2)) != 0 ) || ( $((${A}%2)) != 0 && $((${NUM_PACK_IN}%2)) == 0 )]] && [ ${C} -ge ${NUM_PACK_OUT} ]
 then
 echo \
 "

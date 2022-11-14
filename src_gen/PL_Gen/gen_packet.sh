@@ -136,7 +136,7 @@ then
 elif [ ${data_type} == "int16" ]
 then
 	DATA_T=16;
-	if [ ${mm_k} != 48 ]
+	if [ ${mm_k} == 32 ]
 	then
 		AXI_WIDTH_A=512;
 		AXI_WIDTH_B=512;
@@ -156,7 +156,7 @@ then
 			AXI_WIDTH_B=256;
 		fi
 
-		if [ $((${A}%2)) == 0 ] && [ $((${NUM_PACK_IN}%2)) != 0 ] && [ ${C} -ge ${NUM_PACK_OUT} ]
+		if [[( $((${A}%2)) == 0 && $((${NUM_PACK_IN}%2)) != 0 ) || ( $((${A}%2)) != 0 && $((${NUM_PACK_IN}%2)) == 0 )]] && [ ${C} -ge ${NUM_PACK_OUT} ]
 		then
 			AXI_WIDTH_C=512;
 		else
