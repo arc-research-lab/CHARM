@@ -201,7 +201,7 @@ echo \
 
 int main(void) {
   myGraph.init();
-  myGraph.run(1);
+  myGraph.run(8);
   myGraph.end();
   return 0;
 }

@@ -13,7 +13,7 @@ else
     exit
 fi
 
-for ((n=1;n<=21;n++));
+for ((n=1;n<=22;n++));
 do
 	read -r line
     if (( ${n} == 2 ))

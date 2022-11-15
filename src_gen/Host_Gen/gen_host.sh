@@ -171,7 +171,20 @@ fi
 
 
 let temp=${A}*${C};
-let left_aie=400-${A}*${B}*${C};
+let AIE_NUM=${A}*${B}*${C};
+
+if [ ${B} == 4 ]
+then
+	let left_aie=400-${AIE_NUM};
+elif [ ${B} == 3 ]
+then
+	if [ ${AIE_NUM} -gt 300 ]
+	then
+		let left_aie=$(((50%${C})/2*16));
+	else	
+		let left_aie=400-${AIE_NUM}/3*4;
+	fi
+fi
 let start_pos=${left_aie}/16;
 let port_row_in=${A}*${B}*${C}/${NUM_PACK_IN}/${R_BRO};
 let port_col_in=${C}*${B}*${A}/${NUM_PACK_IN}/${C_BRO};

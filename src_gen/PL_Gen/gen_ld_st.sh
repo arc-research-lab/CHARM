@@ -84,10 +84,11 @@ void storeC(axis_stream_C& dataC_out, ap_uint<PLIO_WIDTH> c_buf[A*C/PACKET_NUM_O
                         for (int a=0;a<A;a++){
                             for (int n=0; n<H1/C_PER_TRA;n++){
                             #pragma HLS PIPELINE II = 1
+                                int aie_pack=c+a*C;
                                 int pos0=n*2+w2*(H1/NUM_PER_TRA);
-                                int pos1=c%PACKET_NUM_OUT;
+                                int pos1=aie_pack%PACKET_NUM_OUT;
                                 int pos2=x+z*X;
-                                int pos3=a*(C/PACKET_NUM_OUT)+(c/PACKET_NUM_OUT);
+                                int pos3=aie_pack/PACKET_NUM_OUT;
                                 ap_uint<AXI_WIDTH_C> temp_data;
                                 temp_data(127,0)=c_buf[pos3][pos2][pos1][pos0];
                                 temp_data(255,128)=c_buf[pos3][pos2][pos1][pos0+1];
