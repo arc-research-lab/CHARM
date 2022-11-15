@@ -105,8 +105,11 @@ then
     exit
 fi
 
+let PACK_PER_B=${B}/${NUM_PACK_IN};
+
 mkdir -p ${dir_name}/aie
-if [ ${B} == 4 ] || [ ${B} == 3 ]
+
+if [ ${PACK_PER_B} == 1 ]
 then
 echo \
 "
@@ -170,7 +173,7 @@ public:
 ">> ./${dir_name}/aie/mm_graph_x${B}.h;
 
 
-elif [ ${B} == 8 ] 
+elif [ ${PACK_PER_B} == 2 ]
 then
 echo \
 "
@@ -201,8 +204,8 @@ public:
 		sp_b0  = adf::pktsplit<${NUM_PACK_IN}>::create();
 		sp_b1  = adf::pktsplit<${NUM_PACK_IN}>::create();
 		adf::connect< adf::pktstream > (in[0], sp_a0.in[0]);
-		adf::connect< adf::pktstream > (in[1], sp_a1.in[0]);
-		adf::connect< adf::pktstream > (in[2], sp_b0.in[0]);
+		adf::connect< adf::pktstream > (in[1], sp_b0.in[0]);
+		adf::connect< adf::pktstream > (in[2], sp_a1.in[0]);
 		adf::connect< adf::pktstream > (in[3], sp_b1.in[0]);
 
 		for (int row =0; row<NUM_ENGINES_PER_PAC; row++)  {
@@ -219,13 +222,13 @@ public:
 			adf::runtime<ratio>(mm_x${B}[row]) = 1;
 			adf::location<kernel>(mm_x${B}[row]) = adf::tile(COL_OFFSET,ROW_OFFSET+row);
 
-			if(row<4){
+			if(row<${NUM_PACK_IN}){
 				adf::connect<pktstream, window<h1*w1*${BPE}>> (sp_a0.out[row], mm_x${B}[row].in[0]);
 				adf::connect<pktstream, window<w1*w2*${BPE}>> (sp_b0.out[row], mm_x${B}[row].in[1]);
 			}
 			else{
-				adf::connect<pktstream, window<h1*w1*${BPE}>> (sp_a1.out[row-4], mm_x${B}[row].in[0]);
-				adf::connect<pktstream, window<w1*w2*${BPE}>> (sp_b1.out[row-4], mm_x${B}[row].in[1]);
+				adf::connect<pktstream, window<h1*w1*${BPE}>> (sp_a1.out[row-${NUM_PACK_IN}], mm_x${B}[row].in[0]);
+				adf::connect<pktstream, window<w1*w2*${BPE}>> (sp_b1.out[row-${NUM_PACK_IN}], mm_x${B}[row].in[1]);
 			}
 			if(row<NUM_ENGINES_PER_PAC-1){
 				adf::connect<window<h1*w2*${BPE}>> (mm_x${B}[row].out[0], mm_x${B}[row+1].in[2]);

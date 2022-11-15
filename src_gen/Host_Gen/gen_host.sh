@@ -167,6 +167,10 @@ elif [ ${data_type} == "int16" ]
 then
     D_TYPE="uint16_t";
     PRINT_F="%d"
+elif [ ${data_type} == "int8" ]
+then
+    D_TYPE="uint8_t";
+    PRINT_F="%d"
 fi
 
 

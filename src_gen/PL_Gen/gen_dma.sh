@@ -152,18 +152,18 @@ let array_size=${pipe_length}*${NUM_PACK_IN};
 
 mkdir -p ${dir_name}/kernel
 
-if [ ${data_type} == "fp32" ] || [ ${data_type} == "int32" ]
+if [ ${data_type} == "fp32" ] || [ ${data_type} == "int32" ] || [ ${data_type} == "int8" ]
 then
 	AXI_WIDTH_A=512;
 	AXI_WIDTH_B=512;
-	AXI_WIDTH_C=256;
+	AXI_WIDTH_C=512;
 elif [ ${data_type} == "int16" ]
 then
 	if [ ${mm_k} == 32 ]
 	then
 		AXI_WIDTH_A=512;
 		AXI_WIDTH_B=512;
-		AXI_WIDTH_C=512;
+		AXI_WIDTH_C=256;
 	else
 		if [ $((${A}%2)) == 0 ]
 		then

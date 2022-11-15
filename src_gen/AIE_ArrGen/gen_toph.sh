@@ -118,6 +118,9 @@ then
 fi
 
 mkdir -p ${dir_name}/aie
+let PACK_PER_B=${B}/${NUM_PACK_IN};
+if [ ${PACK_PER_B} == 1 ] 
+then
 if [ ${B} == 4 ] 
 then
 echo \
@@ -385,4 +388,129 @@ echo \
 };
 ">> ./${dir_name}/aie/mm_top.h;
 
+fi
+
+elif [ ${PACK_PER_B} == 2 ] 
+then
+if [ ${B} == 4 ] 
+then
+echo \
+"
+#include \"mm_graph_x${B}.h\"
+const int ROW=${A};
+const int COL=${C};
+const int R_BRO=${R_BRO};
+const int C_BRO=${C_BRO};
+const int NUM_PACKET_PAC=NUM_ENGINES_PER_PAC/${NUM_PACK_IN};    //number of packet in each graph
+const int NUM_INSTANCES=ROW*COL;
+const int NUM_OUT_PACK=NUM_INSTANCES/${NUM_PACK_OUT};
+using namespace adf;
+template <int COL_OFFSET,int ROW_OFFSET>
+class mm_x${NUM_INSTANCES}_x${B}_graph : public adf::graph {
+public:
+	input_port in_row[ROW*NUM_PACKET_PAC*COL/R_BRO];
+	input_port in_col[COL*NUM_PACKET_PAC*ROW/C_BRO];
+    adf::pktmerge<${NUM_PACK_OUT}>  mg_out[NUM_OUT_PACK];
+	output_port out[NUM_OUT_PACK];
+">> ./${dir_name}/aie/mm_top.h;
+
+for ((a=0;a<${A};a++));
+do 
+    for ((c=0;c<${C};c++));
+    do  
+        let aie=${a}*${C}+${c};
+        let div=(${NUM_INSTANCES}/2);
+        let layout=${aie}/${div};
+		let temp0=${aie}/${C};
+		let temp1=$(((${A}+1)/2));
+		let pos_row=$(((${temp0}%${temp1})*2))+${temp0}/${temp1};
+        if [ ${layout} == 0 ] 
+        then
+            echo \
+            "	mm_x${B}_graph<COL_OFFSET+${aie}, ROW_OFFSET+0>  mm_x${B}_${c}_${pos_row}; //(col,row)">> ./${dir_name}/aie/mm_top.h;
+        else
+            let aie1=${aie}-${div};
+            echo \
+            "	mm_x${B}_graph<COL_OFFSET+${aie1}, ROW_OFFSET+4>  mm_x${B}_${c}_${pos_row}; //(col,row)">> ./${dir_name}/aie/mm_top.h;
+        fi
+    done
+done
+
+echo \
+"
+	mm_x${NUM_INSTANCES}_x${B}_graph() {
+		for (int i =0; i<NUM_OUT_PACK; i++)  {
+			mg_out[i] = adf::pktmerge<${NUM_PACK_OUT}>::create();
+		}
+">> ./${dir_name}/aie/mm_top.h;
+
+for ((i=0;i<${A};i++));
+do
+    for ((j=0;j<${C};j++));
+    do  
+        let row=${C}/${R_BRO}*${i}+${j}/${R_BRO};
+        echo \
+        "	    connect< stream, window< h1*w1*${BPE} > >(in_row[${row}], mm_x${B}_${j}_${i}.in[0]);">> ./${dir_name}/aie/mm_top.h;
+    done
+done
+
+echo "">> ./${dir_name}/aie/mm_top.h;
+
+for ((i=0;i<${A};i++));
+do
+    for ((j=0;j<${C};j++));
+    do  
+        let row=${C}/${R_BRO}*${i}+${j}/${R_BRO}+${A}*${C}/${R_BRO};
+        echo \
+        "	    connect< stream, window< h1*w1*${BPE} > >(in_row[${row}], mm_x${B}_${j}_${i}.in[2]);">> ./${dir_name}/aie/mm_top.h;
+    done
+done
+
+echo "">> ./${dir_name}/aie/mm_top.h;
+
+for ((i=0;i<${C};i++));
+do
+    for ((j=0;j<${A};j++));
+    do  
+        let col=${A}/${C_BRO}*${i}+${j}/${C_BRO};
+        echo \
+        "	    connect< stream, window< w1*w2*${BPE} > >(in_col[${col}], mm_x${B}_${i}_${j}.in[1]);">> ./${dir_name}/aie/mm_top.h;
+    done
+done
+
+echo "">> ./${dir_name}/aie/mm_top.h;
+
+for ((i=0;i<${C};i++));
+do
+    for ((j=0;j<${A};j++));
+    do  
+        let col=${A}/${C_BRO}*${i}+${j}/${C_BRO}+${A}*${C}/${C_BRO};
+        echo \
+        "	    connect< stream, window< w1*w2*${BPE} > >(in_col[${col}], mm_x${B}_${i}_${j}.in[3]);">> ./${dir_name}/aie/mm_top.h;
+    done
+done
+
+echo "">> ./${dir_name}/aie/mm_top.h;
+
+for ((i=0;i<${A};i++));
+do
+    for ((j=0;j<${C};j++));
+    do  
+        let aie=${i}*${C}+${j};
+        let out=${aie}/${NUM_PACK_OUT};
+        let port=${aie}%${NUM_PACK_OUT};
+        echo \
+        "	    connect<adf::window<h1*w2*${BPE}>, adf::pktstream > (mm_x${B}_${j}_${i}.out, mg_out[${out}].in[${port}]);">> ./${dir_name}/aie/mm_top.h;
+    done
+done
+
+echo \
+"
+	    for (int i=0; i<NUM_OUT_PACK; i++)  {
+	    	adf::connect<adf::pktstream> (mg_out[i].out[0], out[i]);
+	    }
+    }
+};
+">> ./${dir_name}/aie/mm_top.h;
+fi	
 fi

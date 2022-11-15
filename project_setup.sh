@@ -76,6 +76,9 @@ then
 elif [ ${data_type} == "int16" ]
 then
 	src_dir="aie_int16";
+elif [ ${data_type} == "int8" ]
+then
+	src_dir="aie_int8";
 fi
 
 

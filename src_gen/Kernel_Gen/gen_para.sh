@@ -236,7 +236,7 @@ echo \
 
 elif [ ${data_type} == "int8" ]
 then
-if [ ${w1} != 64 ]
+if [ ${k} != 64 ]
 then
 	echo "Currently, when data_type=int8, w1 should be assigned to 64";
 fi
