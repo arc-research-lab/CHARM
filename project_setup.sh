@@ -100,7 +100,6 @@ if (( ${SysGen} == 1 ))
 then
 	./src_gen/PL_Gen/gen_conn.sh $1 $2;
     ./src_gen/PL_Gen/gen_dma.sh $1 $2;
-    ./src_gen/PL_Gen/gen_packet.sh $1 $2;
     ./src_gen/Host_Gen/gen_host.sh $1 $2;
 fi
 

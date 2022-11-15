@@ -1,4 +1,4 @@
-if [ "$#" -eq 15 ]
+if [ "$#" -eq 14 ]
 then
     dir_name=$1;
     port_row_in=$2;
@@ -11,10 +11,9 @@ then
     NUM_TXB=$9;
     A=${10};
     C=${11};
-    NUM_PACK_IN=${12};
-    NUM_PACK_OUT=${13};
-    data_type=${14};
-    mm_k=${15};
+    AXI_WIDTH_A=${12};
+    AXI_WIDTH_B=${13};
+    AXI_WIDTH_C=${14};
 else
     echo ""
     echo "******************************************"
@@ -45,33 +44,28 @@ else
     O_buffer="URAM";
 fi
 
-if [ ${data_type} == "fp32" ] || [ ${data_type} == "int32" ]   
+if [ ${AXI_WIDTH_A} == 512 ]
 then
-    FACTOR_A=4;
-    FACTOR_B=4;
+    FACTOR_A=2;
+elif [ ${AXI_WIDTH_A} == 256 ]
+then
+    FACTOR_A=1;
+fi
+
+if [ ${AXI_WIDTH_B} == 512 ]
+then
+    FACTOR_B=2;
+elif [ ${AXI_WIDTH_B} == 256 ]
+then
+    FACTOR_B=1;
+fi
+
+if [ ${AXI_WIDTH_C} == 512 ]
+then
+    FACTOR_C=2;
+elif [ ${AXI_WIDTH_C} == 256 ]
+then
     FACTOR_C=1;
-elif [ ${data_type} == "int16" ]
-then
-    if [ $((${A}%2)) == 0 ] || [ ${mm_k} == 32 ]
-    then
-    	FACTOR_A=4;
-    else
-    	FACTOR_A=2;
-    fi
-
-    if [ $((${NUM_PACK_IN}%2)) == 0 ] || [ ${mm_k} == 32 ]
-    then
-    	FACTOR_B=4;
-    else
-    	FACTOR_B=2;
-    fi
-
-    if [[( $((${A}%2)) == 0 && $((${NUM_PACK_IN}%2)) != 0 ) || ( $((${A}%2)) != 0 && $((${NUM_PACK_IN}%2)) == 0 )]] && [ ${C} -ge ${NUM_PACK_OUT} ]
-    then
-    	FACTOR_C=2;
-    else
-    	FACTOR_C=1;
-    fi
 fi
 
 
@@ -118,22 +112,22 @@ done
 echo \
 "{
     ap_uint<PLIO_WIDTH> buff0_A[A*(B/PACKET_NUM_IN)][X*Y][LEFT_SIZE*PACKET_NUM_IN];
-    #pragma HLS bind_storage variable=buff0_A type=RAM_1P impl=${L_buffer}
+    #pragma HLS bind_storage variable=buff0_A type=RAM_T2P impl=${L_buffer}
     #pragma HLS ARRAY_PARTITION variable=buff0_A cyclic factor=${FACTOR_A} dim=3
     #pragma HLS ARRAY_PARTITION variable=buff0_A complete dim=1
 
     ap_uint<PLIO_WIDTH> buff1_A[A*(B/PACKET_NUM_IN)][X*Y][LEFT_SIZE*PACKET_NUM_IN];
-    #pragma HLS bind_storage variable=buff1_A type=RAM_1P impl=${L_buffer}
+    #pragma HLS bind_storage variable=buff1_A type=RAM_T2P impl=${L_buffer}
     #pragma HLS ARRAY_PARTITION variable=buff1_A cyclic factor=${FACTOR_A} dim=3
     #pragma HLS ARRAY_PARTITION variable=buff1_A complete dim=1
 
     ap_uint<PLIO_WIDTH> buff0_B[(B/PACKET_NUM_IN)*C][Y*Z][RIGHT_SIZE*PACKET_NUM_IN];
-    #pragma HLS bind_storage variable=buff0_B type=RAM_1P impl=${R_buffer}
+    #pragma HLS bind_storage variable=buff0_B type=RAM_T2P impl=${R_buffer}
     #pragma HLS ARRAY_PARTITION variable=buff0_B cyclic factor=${FACTOR_B} dim=3
     #pragma HLS ARRAY_PARTITION variable=buff0_B complete dim=1
 
     ap_uint<PLIO_WIDTH> buff1_B[(B/PACKET_NUM_IN)*C][Y*Z][RIGHT_SIZE*PACKET_NUM_IN];
-    #pragma HLS bind_storage variable=buff1_B type=RAM_1P impl=${R_buffer}
+    #pragma HLS bind_storage variable=buff1_B type=RAM_T2P impl=${R_buffer}
     #pragma HLS ARRAY_PARTITION variable=buff1_B cyclic factor=${FACTOR_B} dim=3
     #pragma HLS ARRAY_PARTITION variable=buff1_B complete dim=1
 
@@ -147,7 +141,7 @@ echo \
     #pragma HLS ARRAY_PARTITION variable=buff1_C cyclic factor=${FACTOR_C} dim=4
     #pragma HLS ARRAY_PARTITION variable=buff1_C complete dim=1">> ./${dir_name}/kernel/dma.cpp;
 
-if [[( $((${A}%2)) == 0 && $((${NUM_PACK_IN}%2)) != 0 ) || ( $((${A}%2)) != 0 && $((${NUM_PACK_IN}%2)) == 0 )]] && [ ${C} -ge ${NUM_PACK_OUT} ]
+if [ ${AXI_WIDTH_C} == 512 ]
 then
 echo \
 "
@@ -169,7 +163,8 @@ echo \
             }
         }
     }">> ./${dir_name}/kernel/dma.cpp;
-else
+elif [ ${AXI_WIDTH_C} == 256 ]
+then
 echo \
 "
     const int Total_rd=TX*TY*TZ;

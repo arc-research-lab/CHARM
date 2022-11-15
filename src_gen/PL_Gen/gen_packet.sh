@@ -1,7 +1,10 @@
-if [ "$#" -eq 2 ] 
+if [ "$#" -eq 5 ] 
 then
   	input=$1;
     dir_name=$2;
+	AXI_WIDTH_A=$3;
+	AXI_WIDTH_B=$4;
+	AXI_WIDTH_C=$5;
 else
     echo ""
     echo "******************************************"
@@ -130,39 +133,9 @@ done < "$input"
 if [ ${data_type} == "fp32" ] || [ ${data_type} == "int32" ]
 then
 	DATA_T=32;
-	AXI_WIDTH_A=512;
-	AXI_WIDTH_B=512;
-	AXI_WIDTH_C=256;
 elif [ ${data_type} == "int16" ]
 then
 	DATA_T=16;
-	if [ ${mm_k} == 32 ]
-	then
-		AXI_WIDTH_A=512;
-		AXI_WIDTH_B=512;
-		AXI_WIDTH_C=256;
-	else
-		if [ $((${A}%2)) == 0 ]
-		then
-			AXI_WIDTH_A=512;
-		else
-			AXI_WIDTH_A=256;
-		fi
-
-		if [ $((${NUM_PACK_IN}%2)) == 0 ]
-		then
-			AXI_WIDTH_B=512;
-		else
-			AXI_WIDTH_B=256;
-		fi
-
-		if [[( $((${A}%2)) == 0 && $((${NUM_PACK_IN}%2)) != 0 ) || ( $((${A}%2)) != 0 && $((${NUM_PACK_IN}%2)) == 0 )]] && [ ${C} -ge ${NUM_PACK_OUT} ]
-		then
-			AXI_WIDTH_C=512;
-		else
-			AXI_WIDTH_C=256;
-		fi
-	fi
 fi
 
 
