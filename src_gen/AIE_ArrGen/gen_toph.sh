@@ -115,6 +115,9 @@ then
 elif [ ${data_type} == "int16" ]
 then
 	BPE=2;
+elif [ ${data_type} == "int8" ]
+then
+	BPE=1;
 fi
 
 mkdir -p ${dir_name}/aie

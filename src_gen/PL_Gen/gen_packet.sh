@@ -136,6 +136,9 @@ then
 elif [ ${data_type} == "int16" ]
 then
 	DATA_T=16;
+elif [ ${data_type} == "int8" ]
+then
+	DATA_T=8;
 fi
 
 
@@ -194,17 +197,41 @@ typedef hls::stream<ap_uint<AXI_WIDTH_C>> axis_stream_C;
 
 const int boundA=M*K/A_PER_TRA;
 const int boundB=K*N/B_PER_TRA;
-const int boundC=M*N/C_PER_TRA;
+const int boundC=M*N/C_PER_TRA;">> ./${dir_name}/kernel/packet_sender.hpp
 
+if [ ${data_type} == "fp32" ]
+then
+echo \
+"
 typedef union{
     float data_cbuff;
     unsigned int uintval;
-} fp_int;
+} fp_int;">> ./${dir_name}/kernel/packet_sender.hpp
 
+elif [ ${data_type} == "int16" ]
+then
+echo \
+"
 typedef struct{
    unsigned short int low;
    unsigned short int high;
 } comb_32;
+">> ./${dir_name}/kernel/packet_sender.hpp
 
+elif [ ${data_type} == "int8" ]
+then
+echo \
+"
+typedef struct{
+   ap_unit<8> low0;
+   ap_unit<8> low1;
+   ap_unit<8> high0;
+   ap_unit<8> high1;
+} comb_32;
+">> ./${dir_name}/kernel/packet_sender.hpp
+fi
+
+echo \
+"
 #endif
 ">> ./${dir_name}/kernel/packet_sender.hpp

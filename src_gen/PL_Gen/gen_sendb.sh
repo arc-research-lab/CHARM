@@ -1,9 +1,10 @@
-if [ "$#" -eq 4 ] 
+if [ "$#" -eq 5 ] 
 then
     dir_name=$1;
     data_type=$2;
     NUM_TXB=$3;
     AXI_WIDTH_B=$4;
+    mm_k=$5;
 else
     echo ""
     echo "******************************************"
@@ -15,7 +16,7 @@ else
     exit
 fi
 
-if [ ${data_type} == "int16" ] && [ ${AXI_WIDTH_B} == 512 ]
+if [ ${data_type} == "int16" ] && [ ${AXI_WIDTH_B} == 512 ] && [ $((${mm_k}%32)) != 0 ]
 then
 echo \
 "

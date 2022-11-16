@@ -163,7 +163,7 @@ then
 	then
 		AXI_WIDTH_A=512;
 		AXI_WIDTH_B=512;
-		AXI_WIDTH_C=256;
+		AXI_WIDTH_C=512;
 	else
 		if [ $((${A}%2)) == 0 ]
 		then
@@ -201,13 +201,13 @@ echo \
 
 ./src_gen/PL_Gen/gen_address.sh ${dir_name};
 
-./src_gen/PL_Gen/gen_ld_st.sh ${dir_name} ${data_type} ${AXI_WIDTH_A} ${AXI_WIDTH_B} ${AXI_WIDTH_C};
+./src_gen/PL_Gen/gen_ld_st.sh ${dir_name} ${data_type} ${AXI_WIDTH_A} ${AXI_WIDTH_B} ${AXI_WIDTH_C} ${mm_k} ${NUM_PACK_IN};
 
 ./src_gen/PL_Gen/gen_reshapec.sh ${dir_name} ${data_type} ${NUM_PACK_OUT};
 
 ./src_gen/PL_Gen/gen_senda.sh ${dir_name} ${data_type} ${NUM_TXA};
 
-./src_gen/PL_Gen/gen_sendb.sh ${dir_name} ${data_type} ${NUM_TXB} ${AXI_WIDTH_B};
+./src_gen/PL_Gen/gen_sendb.sh ${dir_name} ${data_type} ${NUM_TXB} ${AXI_WIDTH_B} ${mm_k};
 
 ./src_gen/PL_Gen/gen_compute.sh ${dir_name} ${port_row_in} ${port_col_in} ${port_out} ${l_buff} ${r_buff} ${o_buff} ${NUM_TXA} ${NUM_TXB} ${A} ${C} ${AXI_WIDTH_A} ${AXI_WIDTH_B} ${AXI_WIDTH_C};
 

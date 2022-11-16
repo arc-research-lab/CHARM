@@ -92,6 +92,9 @@ then
 elif [ ${data_type} == "int16" ]
 then
 	BPE=2;
+elif [ ${data_type} == "int8" ]
+then
+	BPE=1;
 fi
 
 if [ ${B} != 3 ] && [ ${B} != 4 ] && [ ${B} != 8 ]
@@ -210,8 +213,8 @@ public:
 
 		for (int row =0; row<NUM_ENGINES_PER_PAC; row++)  {
 			if(row==0){
-				mm_x${B}[row]   = adf::kernel::create(mm_kernel);
-				adf::source(mm_x${B}[row])   = \"aie/mm_kernel.cc\";
+				mm_x${B}[row]   = adf::kernel::create(mm_kernel0);
+				adf::source(mm_x${B}[row])   = \"aie/mm_kernel0.cc\";
 			}
 			else{
 				mm_x${B}[row]   = adf::kernel::create(mm_kernel1);
