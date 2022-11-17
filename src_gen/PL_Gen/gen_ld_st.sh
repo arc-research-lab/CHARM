@@ -404,32 +404,30 @@ void storeC(axis_stream_C& dataC_out, ap_uint<PLIO_WIDTH> c_buf[A*C/PACKET_NUM_O
                         for (int a=0;a<A/2;a++){
                             for (int n=0; n<H1*2/C_PER_TRA;n++){
                             #pragma HLS PIPELINE II = 1
-                            #pragma HLS dependence variable=c_buf type=intra false
                                 int temp=c+(2*a)*C; 
                                 int pos0=w2*(H1/NUM_PER_TRA);
-                                int pos1_0=temp%PACKET_NUM_OUT;
-                                int pos1_1=(temp+C)%PACKET_NUM_OUT;
+                                int pos1=temp%PACKET_NUM_OUT;
                                 int pos2=x+z*X;
                                 int pos3_0=temp/PACKET_NUM_OUT;
                                 int pos3_1=(temp+C)/PACKET_NUM_OUT;
                                 ap_uint<AXI_WIDTH_C> temp_data;
                                 if(n==0){
-                                    temp_data(127,0)  =c_buf[pos3_0][pos2][pos1_0][pos0];
-                                    temp_data(255,128)=c_buf[pos3_0][pos2][pos1_0][pos0+1];
-                                    temp_data(383,256)=c_buf[pos3_0][pos2][pos1_0][pos0+2];
-                                    temp_data(511,384)=c_buf[pos3_0][pos2][pos1_0][pos0+3];
+                                    temp_data(127,0)  =c_buf[pos3_0][pos2][pos1][pos0];
+                                    temp_data(255,128)=c_buf[pos3_0][pos2][pos1][pos0+1];
+                                    temp_data(383,256)=c_buf[pos3_0][pos2][pos1][pos0+2];
+                                    temp_data(511,384)=c_buf[pos3_0][pos2][pos1][pos0+3];
                                 }
                                 else if(n==1){
-                                    temp_data(127,0)  =c_buf[pos3_0][pos2][pos1_0][pos0+4];
-                                    temp_data(255,128)=c_buf[pos3_0][pos2][pos1_0][pos0+5];
-                                    temp_data(383,256)=c_buf[pos3_1][pos2][pos1_1][pos0];
-                                    temp_data(511,384)=c_buf[pos3_1][pos2][pos1_1][pos0+1];
+                                    temp_data(127,0)  =c_buf[pos3_0][pos2][pos1][pos0+4];
+                                    temp_data(255,128)=c_buf[pos3_0][pos2][pos1][pos0+5];
+                                    temp_data(383,256)=c_buf[pos3_1][pos2][pos1][pos0];
+                                    temp_data(511,384)=c_buf[pos3_1][pos2][pos1][pos0+1];
                                 }
                                 else{
-                                    temp_data(127,0)  =c_buf[pos3_1][pos2][pos1_1][pos0+2];
-                                    temp_data(255,128)=c_buf[pos3_1][pos2][pos1_1][pos0+3];
-                                    temp_data(383,256)=c_buf[pos3_1][pos2][pos1_1][pos0+4];
-                                    temp_data(511,384)=c_buf[pos3_1][pos2][pos1_1][pos0+5];                     
+                                    temp_data(127,0)  =c_buf[pos3_1][pos2][pos1][pos0+2];
+                                    temp_data(255,128)=c_buf[pos3_1][pos2][pos1][pos0+3];
+                                    temp_data(383,256)=c_buf[pos3_1][pos2][pos1][pos0+4];
+                                    temp_data(511,384)=c_buf[pos3_1][pos2][pos1][pos0+5];                     
                                 }
                                 dataC_out.write(temp_data);
                             }

@@ -388,7 +388,7 @@ echo "\
 
 for ((i=0;i<${port_row_in}/${NUM_TXA};i++));
 do  
-    echo -n "            sendA<${i}>(buff1_A[${i}],">> ./${dir_name}/kernel/dma.cpp;
+    echo -n "            sendA<${i}>(buff0_A[${i}],">> ./${dir_name}/kernel/dma.cpp;
     for ((j=0;j<${NUM_TXA};j++));
     do  
         let port_a=${j}+${i}*${NUM_TXA};
@@ -401,7 +401,7 @@ echo "">> ./${dir_name}/kernel/dma.cpp;
 
 for ((i=0;i<${port_col_in}/${NUM_TXB};i++));
 do  
-    echo -n "            sendB<${i}>(buff1_B[${i}],">> ./${dir_name}/kernel/dma.cpp;
+    echo -n "            sendB<${i}>(buff0_B[${i}],">> ./${dir_name}/kernel/dma.cpp;
     for ((j=0;j<${NUM_TXB};j++));
     do  
         let port_b=${j}+${i}*${NUM_TXB};
@@ -474,7 +474,7 @@ echo "\
 
 for ((i=0;i<${port_row_in}/${NUM_TXA};i++));
 do  
-    echo -n "            sendA<${i}>(buff1_A[${i}],">> ./${dir_name}/kernel/dma.cpp;
+    echo -n "            sendA<${i}>(buff0_A[${i}],">> ./${dir_name}/kernel/dma.cpp;
     for ((j=0;j<${NUM_TXA};j++));
     do  
         let port_a=${j}+${i}*${NUM_TXA};
@@ -487,7 +487,7 @@ echo "">> ./${dir_name}/kernel/dma.cpp;
 
 for ((i=0;i<${port_col_in}/${NUM_TXB};i++));
 do  
-    echo -n "            sendB<${i}>(buff1_B[${i}],">> ./${dir_name}/kernel/dma.cpp;
+    echo -n "            sendB<${i}>(buff0_B[${i}],">> ./${dir_name}/kernel/dma.cpp;
     for ((j=0;j<${NUM_TXB};j++));
     do  
         let port_b=${j}+${i}*${NUM_TXB};
