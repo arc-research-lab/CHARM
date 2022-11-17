@@ -266,7 +266,7 @@ then
 echo \
 "
 template<int NC>
-void reshapeC(ap_uint<BUFF_WIDTH> c_buf[X*Z][PACKET_NUM_OUT][OUT_SIZE_BUFF],axis_stream& rxC, bool enable){   
+void reshapeC(ap_uint<BUFF_WIDTH> c_buf[2][X*Z][PACKET_NUM_OUT][OUT_SIZE_BUFF/2],axis_stream& rxC, bool enable){   
 #pragma HLS inline off
     if (enable){
         
@@ -313,6 +313,7 @@ void reshapeC(ap_uint<BUFF_WIDTH> c_buf[X*Z][PACKET_NUM_OUT][OUT_SIZE_BUFF],axis
                         for(int i=0;i<OUT_SIZE_BUFF/2;i++){
                         #pragma HLS PIPELINE II = 1
                         #pragma HLS dependence variable=c_buf type=inter false
+                        #pragma HLS dependence variable=c_buf type=intra false
                             tmp=rxC.read();
                             
                             data_temp[(i+1)%2][0].low0=tmp.data(7,0);
@@ -332,22 +333,22 @@ void reshapeC(ap_uint<BUFF_WIDTH> c_buf[X*Z][PACKET_NUM_OUT][OUT_SIZE_BUFF],axis
                             data_temp[(i+1)%2][3].high0=tmp.data(119,112);
                             data_temp[(i+1)%2][3].high1=tmp.data(127,120);
                             
-                            d0.low0  =c_buf[tile_x][ID][i*2](7,0)  ;
-                            d0.low1  =c_buf[tile_x][ID][i*2](15,8) ;
-                            d0.high0 =c_buf[tile_x][ID][i*2](23,16);
-                            d0.high1 =c_buf[tile_x][ID][i*2](31,24);
-                            d1.low0  =c_buf[tile_x][ID][i*2](39,32);
-                            d1.low1  =c_buf[tile_x][ID][i*2](47,40);
-                            d1.high0 =c_buf[tile_x][ID][i*2](55,48);
-                            d1.high1 =c_buf[tile_x][ID][i*2](63,56);
-                            d2.low0  =c_buf[tile_x][ID][i*2+1](7,0)  ;
-                            d2.low1  =c_buf[tile_x][ID][i*2+1](15,8) ;
-                            d2.high0 =c_buf[tile_x][ID][i*2+1](23,16);
-                            d2.high1 =c_buf[tile_x][ID][i*2+1](31,24);
-                            d3.low0  =c_buf[tile_x][ID][i*2+1](39,32);
-                            d3.low1  =c_buf[tile_x][ID][i*2+1](47,40);
-                            d3.high0 =c_buf[tile_x][ID][i*2+1](55,48);
-                            d3.high1 =c_buf[tile_x][ID][i*2+1](63,56);
+                            d0.low0  =c_buf[0][tile_x][ID][i](7,0)  ;
+                            d0.low1  =c_buf[0][tile_x][ID][i](15,8) ;
+                            d0.high0 =c_buf[0][tile_x][ID][i](23,16);
+                            d0.high1 =c_buf[0][tile_x][ID][i](31,24);
+                            d1.low0  =c_buf[0][tile_x][ID][i](39,32);
+                            d1.low1  =c_buf[0][tile_x][ID][i](47,40);
+                            d1.high0 =c_buf[0][tile_x][ID][i](55,48);
+                            d1.high1 =c_buf[0][tile_x][ID][i](63,56);
+                            d2.low0  =c_buf[1][tile_x][ID][i](7,0)  ;
+                            d2.low1  =c_buf[1][tile_x][ID][i](15,8) ;
+                            d2.high0 =c_buf[1][tile_x][ID][i](23,16);
+                            d2.high1 =c_buf[1][tile_x][ID][i](31,24);
+                            d3.low0  =c_buf[1][tile_x][ID][i](39,32);
+                            d3.low1  =c_buf[1][tile_x][ID][i](47,40);
+                            d3.high0 =c_buf[1][tile_x][ID][i](55,48);
+                            d3.high1 =c_buf[1][tile_x][ID][i](63,56);
 
 
                             d0.low0  = data_temp[i%2][1].low0       + d0.low0 ;
@@ -367,22 +368,22 @@ void reshapeC(ap_uint<BUFF_WIDTH> c_buf[X*Z][PACKET_NUM_OUT][OUT_SIZE_BUFF],axis
                             d3.high0 = data_temp[(i+1)%2][0].high0  + d3.high0;
                             d3.high1 = data_temp[(i+1)%2][0].high1  + d3.high1;
                             
-                            c_buf[tile_x][ID][i*2](7,0)    =d0.low0  ;
-                            c_buf[tile_x][ID][i*2](15,8)   =d0.low1  ;
-                            c_buf[tile_x][ID][i*2](23,16)  =d0.high0 ;
-                            c_buf[tile_x][ID][i*2](31,24)  =d0.high1 ;
-                            c_buf[tile_x][ID][i*2](39,32)  =d1.low0  ;
-                            c_buf[tile_x][ID][i*2](47,40)  =d1.low1  ;
-                            c_buf[tile_x][ID][i*2](55,48)  =d1.high0 ;
-                            c_buf[tile_x][ID][i*2](63,56)  =d1.high1 ;
-                            c_buf[tile_x][ID][i*2+1](7,0)  =d2.low0  ;
-                            c_buf[tile_x][ID][i*2+1](15,8) =d2.low1  ;
-                            c_buf[tile_x][ID][i*2+1](23,16)=d2.high0 ;
-                            c_buf[tile_x][ID][i*2+1](31,24)=d2.high1 ;
-                            c_buf[tile_x][ID][i*2+1](39,32)=d3.low0  ;
-                            c_buf[tile_x][ID][i*2+1](47,40)=d3.low1  ;
-                            c_buf[tile_x][ID][i*2+1](55,48)=d3.high0 ;
-                            c_buf[tile_x][ID][i*2+1](63,56)=d3.high1 ;
+                            c_buf[0][tile_x][ID][i](7,0)    =d0.low0  ;
+                            c_buf[0][tile_x][ID][i](15,8)   =d0.low1  ;
+                            c_buf[0][tile_x][ID][i](23,16)  =d0.high0 ;
+                            c_buf[0][tile_x][ID][i](31,24)  =d0.high1 ;
+                            c_buf[0][tile_x][ID][i](39,32)  =d1.low0  ;
+                            c_buf[0][tile_x][ID][i](47,40)  =d1.low1  ;
+                            c_buf[0][tile_x][ID][i](55,48)  =d1.high0 ;
+                            c_buf[0][tile_x][ID][i](63,56)  =d1.high1 ;
+                            c_buf[1][tile_x][ID][i](7,0)  =d2.low0  ;
+                            c_buf[1][tile_x][ID][i](15,8) =d2.low1  ;
+                            c_buf[1][tile_x][ID][i](23,16)=d2.high0 ;
+                            c_buf[1][tile_x][ID][i](31,24)=d2.high1 ;
+                            c_buf[1][tile_x][ID][i](39,32)=d3.low0  ;
+                            c_buf[1][tile_x][ID][i](47,40)=d3.low1  ;
+                            c_buf[1][tile_x][ID][i](55,48)=d3.high0 ;
+                            c_buf[1][tile_x][ID][i](63,56)=d3.high1 ;
                         }
                     }
                 }

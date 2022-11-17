@@ -117,7 +117,7 @@ then
 echo \
 "
 template<int NC>
-void sendA(ap_uint<BUFF_WIDTH> a_buf[X*Y][LEFT_SIZE_BUFF*PACKET_NUM_IN],">> ./${dir_name}/kernel/dma.cpp;
+void sendA(ap_uint<BUFF_WIDTH> a_buf[X*Y][PACKET_NUM_IN][LEFT_SIZE_BUFF],">> ./${dir_name}/kernel/dma.cpp;
 
 echo -n "           ">> ./${dir_name}/kernel/dma.cpp;
 for ((i=0;i<${NUM_TXA};i++));
@@ -142,10 +142,9 @@ echo \
             int tile=tile_A[k];
 
             ap_uint<32> header=generateHeader(PKTTYPE,ID);
-            int position=ID*LEFT_SIZE_BUFF;
     
-            data(63,0)=a_buf[tile][position];
-            data(127,64)=a_buf[tile][position+1];
+            data(63,0)=a_buf[tile][ID][0];
+            data(127,64)=a_buf[tile][ID][1];
             data_temp[0][0]=data(31,0);
             data_temp[0][1]=data(63,32);
             data_temp[0][2]=data(95,64);
@@ -167,10 +166,9 @@ echo \
 " 
             for (int i = 1; i < LEFT_SIZE_BUFF/2; i++){ 
             #pragma HLS PIPELINE II = 1
-                int posa=position+i*2;
     
-                data(63,0)=a_buf[tile][posa];
-                data(127,64)=a_buf[tile][posa+1];
+                data(63,0)=a_buf[tile][ID][i*2];
+                data(127,64)=a_buf[tile][ID][i*2+1];
                 data_temp[i%2][0]=data(31,0);
                 data_temp[i%2][1]=data(63,32);
                 data_temp[i%2][2]=data(95,64);
