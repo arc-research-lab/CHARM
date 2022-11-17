@@ -140,6 +140,116 @@ do
 done
 
 
+
+if [ ${data_type} == "int8" ]
+then
+echo \
+"{
+    ap_uint<BUFF_WIDTH> buff0_A[A*(B/PACKET_NUM_IN)][X*Y][PACKET_NUM_IN][LEFT_SIZE_BUFF];
+    #pragma HLS bind_storage variable=buff0_A type=RAM_T2P impl=${L_buffer}
+    #pragma HLS ARRAY_PARTITION variable=buff0_A ${PARTITION} factor=${FACTOR_A} dim=4
+    #pragma HLS ARRAY_PARTITION variable=buff0_A complete dim=1
+
+    ap_uint<BUFF_WIDTH> buff1_A[A*(B/PACKET_NUM_IN)][X*Y][PACKET_NUM_IN][LEFT_SIZE_BUFF];
+    #pragma HLS bind_storage variable=buff1_A type=RAM_T2P impl=${L_buffer}
+    #pragma HLS ARRAY_PARTITION variable=buff1_A ${PARTITION} factor=${FACTOR_A} dim=4
+    #pragma HLS ARRAY_PARTITION variable=buff1_A complete dim=1
+
+    ap_uint<PLIO_WIDTH> buff0_B[(B/PACKET_NUM_IN)*C][Y*Z][PACKET_NUM_IN][RIGHT_SIZE];
+    #pragma HLS bind_storage variable=buff0_B type=RAM_T2P impl=${R_buffer}
+    #pragma HLS ARRAY_PARTITION variable=buff0_B ${PARTITION} factor=${FACTOR_B} dim=4
+    #pragma HLS ARRAY_PARTITION variable=buff0_B complete dim=1
+
+    ap_uint<PLIO_WIDTH> buff1_B[(B/PACKET_NUM_IN)*C][Y*Z][PACKET_NUM_IN][RIGHT_SIZE];
+    #pragma HLS bind_storage variable=buff1_B type=RAM_T2P impl=${R_buffer}
+    #pragma HLS ARRAY_PARTITION variable=buff1_B ${PARTITION} factor=${FACTOR_B} dim=4
+    #pragma HLS ARRAY_PARTITION variable=buff1_B complete dim=1
+
+    ap_uint<BUFF_WIDTH> buff0_C[A*C/PACKET_NUM_OUT][2][X*Z][PACKET_NUM_OUT][OUT_SIZE_BUFF/2];
+    #pragma HLS bind_storage variable=buff0_C type=RAM_T2P impl=${O_buffer}
+    #pragma HLS ARRAY_PARTITION variable=buff0_C ${PARTITION} factor=${FACTOR_C} dim=5
+    #pragma HLS ARRAY_PARTITION variable=buff0_C complete dim=2
+    #pragma HLS ARRAY_PARTITION variable=buff0_C complete dim=1
+
+    ap_uint<BUFF_WIDTH> buff1_C[A*C/PACKET_NUM_OUT][2][X*Z][PACKET_NUM_OUT][OUT_SIZE_BUFF/2];
+    #pragma HLS bind_storage variable=buff1_C type=RAM_T2P impl=${O_buffer}
+    #pragma HLS ARRAY_PARTITION variable=buff1_C ${PARTITION} factor=${FACTOR_C} dim=5
+    #pragma HLS ARRAY_PARTITION variable=buff1_C complete dim=2
+    #pragma HLS ARRAY_PARTITION variable=buff1_C complete dim=1">> ./${dir_name}/kernel/dma.cpp;
+
+if [ ${AXI_WIDTH_C} == 512 ]
+then
+echo \
+"
+    const int Total_rd=TX*TY*TZ;
+    for(int x = 0; x < X*Z; x++){
+        for(int j=0;j<PACKET_NUM_OUT;j++){
+            for (int i = 0; i < W2/2; i++){
+            #pragma HLS PIPELINE II = 1
+                for(int a = 0; a < (A*C/PACKET_NUM_OUT); a++){
+                #pragma HLS dependence variable=buff0_C type=intra false
+                #pragma HLS dependence variable=buff1_C type=intra false
+                    buff0_C[a][0][x][j][i]=0; 
+                    buff0_C[a][0][x][j][i+32]=0;
+                    buff0_C[a][0][x][j][i+64]=0; 
+                    buff0_C[a][0][x][j][i+96]=0;
+                    buff0_C[a][0][x][j][i+128]=0; 
+                    buff0_C[a][0][x][j][i+160]=0; 
+                    buff0_C[a][0][x][j][i+192]=0; 
+                    buff0_C[a][0][x][j][i+224]=0;
+                    buff0_C[a][1][x][j][i]=0; 
+                    buff0_C[a][1][x][j][i+32]=0;
+                    buff0_C[a][1][x][j][i+64]=0; 
+                    buff0_C[a][1][x][j][i+96]=0;
+                    buff0_C[a][1][x][j][i+128]=0; 
+                    buff0_C[a][1][x][j][i+160]=0; 
+                    buff0_C[a][1][x][j][i+192]=0; 
+                    buff0_C[a][1][x][j][i+224]=0;
+
+                    buff1_C[a][0][x][j][i]=0; 
+                    buff1_C[a][0][x][j][i+32]=0;
+                    buff1_C[a][0][x][j][i+64]=0; 
+                    buff1_C[a][0][x][j][i+96]=0;
+                    buff1_C[a][0][x][j][i+128]=0; 
+                    buff1_C[a][0][x][j][i+160]=0; 
+                    buff1_C[a][0][x][j][i+192]=0; 
+                    buff1_C[a][0][x][j][i+224]=0;
+                    buff1_C[a][1][x][j][i]=0; 
+                    buff1_C[a][1][x][j][i+32]=0;
+                    buff1_C[a][1][x][j][i+64]=0; 
+                    buff1_C[a][1][x][j][i+96]=0;
+                    buff1_C[a][1][x][j][i+128]=0; 
+                    buff1_C[a][1][x][j][i+160]=0; 
+                    buff1_C[a][1][x][j][i+192]=0; 
+                    buff1_C[a][1][x][j][i+224]=0;
+                }
+            }
+        }
+    }">> ./${dir_name}/kernel/dma.cpp;
+elif [ ${AXI_WIDTH_C} == 256 ]
+then
+echo \
+"
+    const int Total_rd=TX*TY*TZ;
+    for(int x = 0; x < X*Z; x++){
+        for(int j=0;j<PACKET_NUM_OUT;j++){
+            for(int w2=0;w2<W2;w2++){
+                    for (int n=0; n<H1/C_PER_TRA;n++){
+                #pragma HLS PIPELINE II = 1
+                    int pos0=n*256+w2;
+                    for(int a = 0; a < (A*C/PACKET_NUM_OUT); a++){
+                        buff0_C[a][x][j][pos0]=0; 
+                        buff0_C[a][x][j][pos0+64]=0;
+                        buff0_C[a][x][j][pos0+128]=0; 
+                        buff0_C[a][x][j][pos0+192]=0;
+                    }
+                }
+            }
+        }
+    }">> ./${dir_name}/kernel/dma.cpp;
+fi
+
+else
 echo \
 "{
     ap_uint<BUFF_WIDTH> buff0_A[A*(B/PACKET_NUM_IN)][X*Y][LEFT_SIZE_BUFF*PACKET_NUM_IN];
@@ -172,54 +282,6 @@ echo \
     #pragma HLS ARRAY_PARTITION variable=buff1_C ${PARTITION} factor=${FACTOR_C} dim=4
     #pragma HLS ARRAY_PARTITION variable=buff1_C complete dim=1">> ./${dir_name}/kernel/dma.cpp;
 
-if [ ${data_type} == "int8" ]
-then
-if [ ${AXI_WIDTH_C} == 512 ]
-then
-echo \
-"
-    const int Total_rd=TX*TY*TZ;
-    for(int x = 0; x < X*Z; x++){
-        for(int j=0;j<PACKET_NUM_OUT;j++){
-            for (int i = 0; i < OUT_SIZE/8; i++){
-            #pragma HLS PIPELINE II = 1
-                for(int a = 0; a < (A*C/PACKET_NUM_OUT); a++){
-                    buff0_C[a][x][j][i]=0; 
-                    buff0_C[a][x][j][i+64]=0;
-                    buff0_C[a][x][j][i+128]=0; 
-                    buff0_C[a][x][j][i+192]=0;
-                    buff1_C[a][x][j][i+256]=0; 
-                    buff1_C[a][x][j][i+320]=0; 
-                    buff1_C[a][x][j][i+384]=0; 
-                    buff1_C[a][x][j][i+448]=0;
-                }
-            }
-        }
-    }">> ./${dir_name}/kernel/dma.cpp;
-elif [ ${AXI_WIDTH_C} == 256 ]
-then
-echo \
-"
-    const int Total_rd=TX*TY*TZ;
-    for(int x = 0; x < X*Z; x++){
-        for(int j=0;j<PACKET_NUM_OUT;j++){
-            for(int w2=0;w2<W2;w2++){
-                    for (int n=0; n<H1/C_PER_TRA;n++){
-                #pragma HLS PIPELINE II = 1
-                    int pos0=n*256+w2;
-                    for(int a = 0; a < (A*C/PACKET_NUM_OUT); a++){
-                        buff0_C[a][x][j][pos0]=0; 
-                        buff0_C[a][x][j][pos0+64]=0;
-                        buff0_C[a][x][j][pos0+128]=0; 
-                        buff0_C[a][x][j][pos0+192]=0;
-                    }
-                }
-            }
-        }
-    }">> ./${dir_name}/kernel/dma.cpp;
-fi
-
-else
 if [ ${AXI_WIDTH_C} == 512 ]
 then
 echo \
