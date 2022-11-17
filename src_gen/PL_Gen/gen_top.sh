@@ -58,11 +58,11 @@ done
 echo \
 "
 {
-    #pragma HLS interface m_axi offset=slave bundle=gmem0 port=ina max_read_burst_length=16 num_read_outstanding=16
+    #pragma HLS interface m_axi offset=slave bundle=gmem0 port=ina max_read_burst_length=16 num_read_outstanding=64
     #pragma HLS interface s_axilite bundle=control port=ina
-    #pragma HLS interface m_axi offset=slave bundle=gmem1 port=inb max_read_burst_length=16 num_read_outstanding=16
+    #pragma HLS interface m_axi offset=slave bundle=gmem1 port=inb max_read_burst_length=16 num_read_outstanding=64
     #pragma HLS interface s_axilite bundle=control port=inb
-    #pragma HLS interface m_axi offset=slave bundle=gmem2 port=out0 max_write_burst_length=16 num_write_outstanding=16
+    #pragma HLS interface m_axi offset=slave bundle=gmem2 port=out0 max_write_burst_length=16 num_write_outstanding=64
     #pragma HLS interface s_axilite bundle=control port=out0
     #pragma HLS interface s_axilite bundle=control port=TX
     #pragma HLS interface s_axilite bundle=control port=TY
