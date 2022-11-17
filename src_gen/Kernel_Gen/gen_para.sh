@@ -255,6 +255,8 @@ const int boundry_k=w1/16-1;
 const int jumpA0=32;
 const int jumpA1=(h1-8)*w1+32;
 const int jumpB0=32;
+const int jumpB1=(w2-2)*16;
+const int jumpB2=(w2+2)*16;
 
 void mm_kernel0(input_window_int8* __restrict matA, input_window_int8* __restrict matB, output_window_int8* __restrict matC);
 ">> ./${dir_name}/aie/para.h;

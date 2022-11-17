@@ -1,8 +1,8 @@
 #include <adf.h>
 #include <stdio.h>
 #include "para.h"
-void mm_kernel0(input_window_int8* __restrict matA,
-		input_window_int8* __restrict matB,
+void mm_kernel0(input_window_int8* __restrict matA, 
+		input_window_int8*  __restrict matB,
 		output_window_int8* __restrict matC){
 
 	v64int8 chess_storage(xa) buf_matA0=undef_v64int8();
@@ -11,6 +11,7 @@ void mm_kernel0(input_window_int8* __restrict matA,
 	v32int8 chess_storage(wc0) buf_matB0=undef_v32int8(); 
 	v32int8 chess_storage(wc1) buf_matB1=undef_v32int8(); 
 	
+
 	buf_matA0=upd_w(buf_matA0,0,window_read_v32(matA));
 	window_incr(matA,jumpA0);
 
@@ -33,8 +34,10 @@ void mm_kernel0(input_window_int8* __restrict matA,
         { //W2/4
 
             int jumpA=jumpA1;
+            int jumpB=jumpB2;
             if(j==boundry_j-1){
 				jumpA=jumpA0;
+                jumpB=jumpB0;
 			}
 
             v16acc48  acc0=acc2;
@@ -45,7 +48,7 @@ void mm_kernel0(input_window_int8* __restrict matA,
             buf_matA1=upd_w(buf_matA1,0,window_read_v32(matA));
             window_incr(matA,jumpA0);
             buf_matB1=window_read_v32(matB);
-            window_incr(matB,jumpB0);
+            window_incr(matB,jumpB1);
 
             acc1=mac16(acc1,buf_matA0,0,0x11101110,16,0x3120,buf_matB1,0,0x88880000,2,0x3210);
 	        buf_matA1=upd_w(buf_matA1,1,window_read_v32(matA));
@@ -66,7 +69,7 @@ void mm_kernel0(input_window_int8* __restrict matA,
             buf_matA1=upd_w(buf_matA1,0,window_read_v32(matA));
             window_incr(matA,jumpA0);
             buf_matB1=window_read_v32(matB);
-            window_incr(matB,jumpB0);
+            window_incr(matB,jumpB1);
 
             acc1=mac16(acc1,buf_matA0,0,0x11101110,16,0x3120,buf_matB1,0,0x88880000,2,0x3210);
 	        buf_matA1=upd_w(buf_matA1,1,window_read_v32(matA));
@@ -87,7 +90,7 @@ void mm_kernel0(input_window_int8* __restrict matA,
             buf_matA1=upd_w(buf_matA1,0,window_read_v32(matA));
             window_incr(matA,jumpA0);
             buf_matB1=window_read_v32(matB);
-            window_incr(matB,jumpB0);
+            window_incr(matB,jumpB1);
 
             acc1=mac16(acc1,buf_matA0,0,0x11101110,16,0x3120,buf_matB1,0,0x88880000,2,0x3210);
 	        buf_matA1=upd_w(buf_matA1,1,window_read_v32(matA));
@@ -109,7 +112,7 @@ void mm_kernel0(input_window_int8* __restrict matA,
             buf_matA1=upd_w(buf_matA1,0,window_read_v32(matA));
             window_incr(matA,jumpA0);
             buf_matB1=window_read_v32(matB);
-            window_incr(matB,jumpB0);
+            window_incr(matB,jumpB);
 
             acc1=mac16(acc1,buf_matA0,0,0x11101110,16,0x3120,buf_matB1,0,0x88880000,2,0x3210);
 	        buf_matA1=upd_w(buf_matA1,1,window_read_v32(matA));

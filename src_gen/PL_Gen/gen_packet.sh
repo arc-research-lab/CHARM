@@ -1,10 +1,11 @@
-if [ "$#" -eq 5 ] 
+if [ "$#" -eq 6 ] 
 then
   	input=$1;
     dir_name=$2;
 	AXI_WIDTH_A=$3;
 	AXI_WIDTH_B=$4;
 	AXI_WIDTH_C=$5;
+	BUFF_WIDTH=$6;
 else
     echo ""
     echo "******************************************"
@@ -159,6 +160,7 @@ echo \
 #define AXI_WIDTH_B ${AXI_WIDTH_B}
 #define AXI_WIDTH_C ${AXI_WIDTH_C}
 #define PLIO_WIDTH 128
+#define BUFF_WIDTH ${BUFF_WIDTH}
 
 #define PKTTYPE 0 
 #define PACKET_NUM_IN ${NUM_PACK_IN}
@@ -181,10 +183,15 @@ const int B_PER_TRA=(AXI_WIDTH_B/DATA_TYPE);
 const int C_PER_TRA=(AXI_WIDTH_C/DATA_TYPE);
 
 #define NUM_PER_TRA (PLIO_WIDTH/DATA_TYPE)
+#define NUM_PER_BUFF (BUFF_WIDTH/DATA_TYPE)
 
 #define LEFT_SIZE (H1*W1/NUM_PER_TRA)
 #define RIGHT_SIZE (W1*W2/NUM_PER_TRA)
 #define OUT_SIZE (H1*W2/NUM_PER_TRA)
+
+#define LEFT_SIZE_BUFF (H1*W1/NUM_PER_BUFF)
+#define RIGHT_SIZE_BUFF (W1*W2/NUM_PER_BUFF)
+#define OUT_SIZE_BUFF (H1*W2/NUM_PER_BUFF)
 
 typedef ap_uint<PLIO_WIDTH> data_t;
 typedef ap_axiu<PLIO_WIDTH, 0, 0, 0> axis_pkt;
@@ -223,10 +230,10 @@ then
 echo \
 "
 typedef struct{
-   ap_unit<8> low0;
-   ap_unit<8> low1;
-   ap_unit<8> high0;
-   ap_unit<8> high1;
+   ap_uint<8> low0;
+   ap_uint<8> low1;
+   ap_uint<8> high0;
+   ap_uint<8> high1;
 } comb_32;
 ">> ./${dir_name}/kernel/packet_sender.hpp
 fi

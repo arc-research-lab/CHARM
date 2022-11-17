@@ -1,4 +1,4 @@
-if [ "$#" -eq 14 ]
+if [ "$#" -eq 16 ]
 then
     dir_name=$1;
     port_row_in=$2;
@@ -14,6 +14,8 @@ then
     AXI_WIDTH_A=${12};
     AXI_WIDTH_B=${13};
     AXI_WIDTH_C=${14};
+    BUFF_WIDTH=${15};
+    data_type=${16};
 else
     echo ""
     echo "******************************************"
@@ -44,30 +46,58 @@ else
     O_buffer="URAM";
 fi
 
-if [ ${AXI_WIDTH_A} == 512 ]
+if [ ${data_type} == "int8" ]
 then
-    FACTOR_A=2;
-elif [ ${AXI_WIDTH_A} == 256 ]
-then
-    FACTOR_A=1;
-fi
+    PARTITION="block"
+    if [ ${AXI_WIDTH_A} == 512 ]
+    then
+        FACTOR_A=4;
+    elif [ ${AXI_WIDTH_A} == 256 ]
+    then
+        FACTOR_A=2;
+    fi
 
-if [ ${AXI_WIDTH_B} == 512 ]
-then
-    FACTOR_B=2;
-elif [ ${AXI_WIDTH_B} == 256 ]
-then
-    FACTOR_B=1;
-fi
+    if [ ${AXI_WIDTH_B} == 512 ]
+    then
+        FACTOR_B=2;
+    elif [ ${AXI_WIDTH_B} == 256 ]
+    then
+        FACTOR_B=1;
+    fi
 
-if [ ${AXI_WIDTH_C} == 512 ]
-then
-    FACTOR_C=2;
-elif [ ${AXI_WIDTH_C} == 256 ]
-then
-    FACTOR_C=1;
-fi
+    if [ ${AXI_WIDTH_C} == 512 ]
+    then
+        FACTOR_C=4;
+    elif [ ${AXI_WIDTH_C} == 256 ]
+    then
+        FACTOR_C=2;
+    fi
+else
+    PARTITION="cyclic"
+    if [ ${AXI_WIDTH_A} == 512 ]
+    then
+        FACTOR_A=2;
+    elif [ ${AXI_WIDTH_A} == 256 ]
+    then
+        FACTOR_A=1;
+    fi
 
+    if [ ${AXI_WIDTH_B} == 512 ]
+    then
+        FACTOR_B=2;
+    elif [ ${AXI_WIDTH_B} == 256 ]
+    then
+        FACTOR_B=1;
+    fi
+
+    if [ ${AXI_WIDTH_C} == 512 ]
+    then
+        FACTOR_C=2;
+    elif [ ${AXI_WIDTH_C} == 256 ]
+    then
+        FACTOR_C=1;
+    fi
+fi
 
 echo \
 "
@@ -109,38 +139,87 @@ do
     fi
 done
 
+
 echo \
 "{
-    ap_uint<PLIO_WIDTH> buff0_A[A*(B/PACKET_NUM_IN)][X*Y][LEFT_SIZE*PACKET_NUM_IN];
+    ap_uint<BUFF_WIDTH> buff0_A[A*(B/PACKET_NUM_IN)][X*Y][LEFT_SIZE_BUFF*PACKET_NUM_IN];
     #pragma HLS bind_storage variable=buff0_A type=RAM_T2P impl=${L_buffer}
-    #pragma HLS ARRAY_PARTITION variable=buff0_A cyclic factor=${FACTOR_A} dim=3
+    #pragma HLS ARRAY_PARTITION variable=buff0_A ${PARTITION} factor=${FACTOR_A} dim=3
     #pragma HLS ARRAY_PARTITION variable=buff0_A complete dim=1
 
-    ap_uint<PLIO_WIDTH> buff1_A[A*(B/PACKET_NUM_IN)][X*Y][LEFT_SIZE*PACKET_NUM_IN];
+    ap_uint<BUFF_WIDTH> buff1_A[A*(B/PACKET_NUM_IN)][X*Y][LEFT_SIZE_BUFF*PACKET_NUM_IN];
     #pragma HLS bind_storage variable=buff1_A type=RAM_T2P impl=${L_buffer}
-    #pragma HLS ARRAY_PARTITION variable=buff1_A cyclic factor=${FACTOR_A} dim=3
+    #pragma HLS ARRAY_PARTITION variable=buff1_A ${PARTITION} factor=${FACTOR_A} dim=3
     #pragma HLS ARRAY_PARTITION variable=buff1_A complete dim=1
 
     ap_uint<PLIO_WIDTH> buff0_B[(B/PACKET_NUM_IN)*C][Y*Z][RIGHT_SIZE*PACKET_NUM_IN];
     #pragma HLS bind_storage variable=buff0_B type=RAM_T2P impl=${R_buffer}
-    #pragma HLS ARRAY_PARTITION variable=buff0_B cyclic factor=${FACTOR_B} dim=3
+    #pragma HLS ARRAY_PARTITION variable=buff0_B ${PARTITION} factor=${FACTOR_B} dim=3
     #pragma HLS ARRAY_PARTITION variable=buff0_B complete dim=1
 
     ap_uint<PLIO_WIDTH> buff1_B[(B/PACKET_NUM_IN)*C][Y*Z][RIGHT_SIZE*PACKET_NUM_IN];
     #pragma HLS bind_storage variable=buff1_B type=RAM_T2P impl=${R_buffer}
-    #pragma HLS ARRAY_PARTITION variable=buff1_B cyclic factor=${FACTOR_B} dim=3
+    #pragma HLS ARRAY_PARTITION variable=buff1_B ${PARTITION} factor=${FACTOR_B} dim=3
     #pragma HLS ARRAY_PARTITION variable=buff1_B complete dim=1
 
-    ap_uint<PLIO_WIDTH> buff0_C[A*C/PACKET_NUM_OUT][X*Z][PACKET_NUM_OUT][OUT_SIZE];
+    ap_uint<BUFF_WIDTH> buff0_C[A*C/PACKET_NUM_OUT][X*Z][PACKET_NUM_OUT][OUT_SIZE_BUFF];
     #pragma HLS bind_storage variable=buff0_C type=RAM_T2P impl=${O_buffer}
-    #pragma HLS ARRAY_PARTITION variable=buff0_C cyclic factor=${FACTOR_C} dim=4
+    #pragma HLS ARRAY_PARTITION variable=buff0_C ${PARTITION} factor=${FACTOR_C} dim=4
     #pragma HLS ARRAY_PARTITION variable=buff0_C complete dim=1
 
-    ap_uint<PLIO_WIDTH> buff1_C[A*C/PACKET_NUM_OUT][X*Z][PACKET_NUM_OUT][OUT_SIZE];
+    ap_uint<BUFF_WIDTH> buff1_C[A*C/PACKET_NUM_OUT][X*Z][PACKET_NUM_OUT][OUT_SIZE_BUFF];
     #pragma HLS bind_storage variable=buff1_C type=RAM_T2P impl=${O_buffer}
-    #pragma HLS ARRAY_PARTITION variable=buff1_C cyclic factor=${FACTOR_C} dim=4
+    #pragma HLS ARRAY_PARTITION variable=buff1_C ${PARTITION} factor=${FACTOR_C} dim=4
     #pragma HLS ARRAY_PARTITION variable=buff1_C complete dim=1">> ./${dir_name}/kernel/dma.cpp;
 
+if [ ${data_type} == "int8" ]
+then
+if [ ${AXI_WIDTH_C} == 512 ]
+then
+echo \
+"
+    const int Total_rd=TX*TY*TZ;
+    for(int x = 0; x < X*Z; x++){
+        for(int j=0;j<PACKET_NUM_OUT;j++){
+            for (int i = 0; i < OUT_SIZE/8; i++){
+            #pragma HLS PIPELINE II = 1
+                for(int a = 0; a < (A*C/PACKET_NUM_OUT); a++){
+                    buff0_C[a][x][j][i]=0; 
+                    buff0_C[a][x][j][i+64]=0;
+                    buff0_C[a][x][j][i+128]=0; 
+                    buff0_C[a][x][j][i+192]=0;
+                    buff1_C[a][x][j][i+256]=0; 
+                    buff1_C[a][x][j][i+320]=0; 
+                    buff1_C[a][x][j][i+384]=0; 
+                    buff1_C[a][x][j][i+448]=0;
+                }
+            }
+        }
+    }">> ./${dir_name}/kernel/dma.cpp;
+elif [ ${AXI_WIDTH_C} == 256 ]
+then
+echo \
+"
+    const int Total_rd=TX*TY*TZ;
+    for(int x = 0; x < X*Z; x++){
+        for(int j=0;j<PACKET_NUM_OUT;j++){
+            for(int w2=0;w2<W2;w2++){
+                    for (int n=0; n<H1/C_PER_TRA;n++){
+                #pragma HLS PIPELINE II = 1
+                    int pos0=n*256+w2;
+                    for(int a = 0; a < (A*C/PACKET_NUM_OUT); a++){
+                        buff0_C[a][x][j][pos0]=0; 
+                        buff0_C[a][x][j][pos0+64]=0;
+                        buff0_C[a][x][j][pos0+128]=0; 
+                        buff0_C[a][x][j][pos0+192]=0;
+                    }
+                }
+            }
+        }
+    }">> ./${dir_name}/kernel/dma.cpp;
+fi
+
+else
 if [ ${AXI_WIDTH_C} == 512 ]
 then
 echo \
@@ -182,6 +261,7 @@ echo \
         }
     }">> ./${dir_name}/kernel/dma.cpp;
 fi
+fi
 
 echo \
 "
@@ -201,7 +281,7 @@ echo "\
 ">> ./${dir_name}/kernel/dma.cpp;
 
 
-for ((i=0;i<${A};i++));
+for ((i=0;i<${port_row_in}/${NUM_TXA};i++));
 do  
     echo -n "            sendA<${i}>(buff1_A[${i}],">> ./${dir_name}/kernel/dma.cpp;
     for ((j=0;j<${NUM_TXA};j++));
@@ -214,7 +294,7 @@ do
 done
 echo "">> ./${dir_name}/kernel/dma.cpp;
 
-for ((i=0;i<${C};i++));
+for ((i=0;i<${port_col_in}/${NUM_TXB};i++));
 do  
     echo -n "            sendB<${i}>(buff1_B[${i}],">> ./${dir_name}/kernel/dma.cpp;
     for ((j=0;j<${NUM_TXB};j++));
@@ -244,9 +324,9 @@ echo "\
 ">> ./${dir_name}/kernel/dma.cpp;
 
 
-for ((i=0;i<${A};i++));
+for ((i=0;i<${port_row_in}/${NUM_TXA};i++));
 do  
-    echo -n "            sendA<${i}>(buff0_A[${i}],">> ./${dir_name}/kernel/dma.cpp;
+    echo -n "            sendA<${i}>(buff1_A[${i}],">> ./${dir_name}/kernel/dma.cpp;
     for ((j=0;j<${NUM_TXA};j++));
     do  
         let port_a=${j}+${i}*${NUM_TXA};
@@ -257,9 +337,9 @@ do
 done
 echo "">> ./${dir_name}/kernel/dma.cpp;
 
-for ((i=0;i<${C};i++));
+for ((i=0;i<${port_col_in}/${NUM_TXB};i++));
 do  
-    echo -n "            sendB<${i}>(buff0_B[${i}],">> ./${dir_name}/kernel/dma.cpp;
+    echo -n "            sendB<${i}>(buff1_B[${i}],">> ./${dir_name}/kernel/dma.cpp;
     for ((j=0;j<${NUM_TXB};j++));
     do  
         let port_b=${j}+${i}*${NUM_TXB};
@@ -287,7 +367,7 @@ echo "\
 ">> ./${dir_name}/kernel/dma.cpp;
 
 
-for ((i=0;i<${A};i++));
+for ((i=0;i<${port_row_in}/${NUM_TXA};i++));
 do  
     echo -n "            sendA<${i}>(buff1_A[${i}],">> ./${dir_name}/kernel/dma.cpp;
     for ((j=0;j<${NUM_TXA};j++));
@@ -300,7 +380,7 @@ do
 done
 echo "">> ./${dir_name}/kernel/dma.cpp;
 
-for ((i=0;i<${C};i++));
+for ((i=0;i<${port_col_in}/${NUM_TXB};i++));
 do  
     echo -n "            sendB<${i}>(buff1_B[${i}],">> ./${dir_name}/kernel/dma.cpp;
     for ((j=0;j<${NUM_TXB};j++));
@@ -330,9 +410,9 @@ echo "\
 ">> ./${dir_name}/kernel/dma.cpp;
 
 
-for ((i=0;i<${A};i++));
+for ((i=0;i<${port_row_in}/${NUM_TXA};i++));
 do  
-    echo -n "            sendA<${i}>(buff0_A[${i}],">> ./${dir_name}/kernel/dma.cpp;
+    echo -n "            sendA<${i}>(buff1_A[${i}],">> ./${dir_name}/kernel/dma.cpp;
     for ((j=0;j<${NUM_TXA};j++));
     do  
         let port_a=${j}+${i}*${NUM_TXA};
@@ -343,9 +423,9 @@ do
 done
 echo "">> ./${dir_name}/kernel/dma.cpp;
 
-for ((i=0;i<${C};i++));
+for ((i=0;i<${port_col_in}/${NUM_TXB};i++));
 do  
-    echo -n "            sendB<${i}>(buff0_B[${i}],">> ./${dir_name}/kernel/dma.cpp;
+    echo -n "            sendB<${i}>(buff1_B[${i}],">> ./${dir_name}/kernel/dma.cpp;
     for ((j=0;j<${NUM_TXB};j++));
     do  
         let port_b=${j}+${i}*${NUM_TXB};

@@ -152,13 +152,15 @@ let array_size=${pipe_length}*${NUM_PACK_IN};
 
 mkdir -p ${dir_name}/kernel
 
-if [ ${data_type} == "fp32" ] || [ ${data_type} == "int32" ] || [ ${data_type} == "int8" ]
+if [ ${data_type} == "fp32" ] || [ ${data_type} == "int32" ]
 then
 	AXI_WIDTH_A=512;
 	AXI_WIDTH_B=512;
 	AXI_WIDTH_C=512;
+	BUFF_WIDTH=128;
 elif [ ${data_type} == "int16" ]
 then
+	BUFF_WIDTH=128;
 	if [ ${mm_k} == 32 ]
 	then
 		AXI_WIDTH_A=512;
@@ -186,6 +188,12 @@ then
 			AXI_WIDTH_C=256;
 		fi
 	fi
+elif [ ${data_type} == "int8" ]
+then
+	AXI_WIDTH_A=512;
+	AXI_WIDTH_B=512;
+	AXI_WIDTH_C=512;
+	BUFF_WIDTH=64;
 fi
 
 if [ ${B} == 4 ] || [ ${B} == 3 ]
@@ -195,7 +203,7 @@ echo \
 #include <stdint.h>
 #include \"packet_sender.hpp\"
 ">> ./${dir_name}/kernel/dma.cpp;
-./src_gen/PL_Gen/gen_packet.sh $1 $2 ${AXI_WIDTH_A} ${AXI_WIDTH_B} ${AXI_WIDTH_C};
+./src_gen/PL_Gen/gen_packet.sh $1 $2 ${AXI_WIDTH_A} ${AXI_WIDTH_B} ${AXI_WIDTH_C} ${BUFF_WIDTH};
 
 ./src_gen/PL_Gen/gen_header.sh ${dir_name} ${NUM_PACK_IN} ${pipe_length} ${array_size} ${X} ${Y} ${Z};
 
@@ -209,7 +217,7 @@ echo \
 
 ./src_gen/PL_Gen/gen_sendb.sh ${dir_name} ${data_type} ${NUM_TXB} ${AXI_WIDTH_B} ${mm_k};
 
-./src_gen/PL_Gen/gen_compute.sh ${dir_name} ${port_row_in} ${port_col_in} ${port_out} ${l_buff} ${r_buff} ${o_buff} ${NUM_TXA} ${NUM_TXB} ${A} ${C} ${AXI_WIDTH_A} ${AXI_WIDTH_B} ${AXI_WIDTH_C};
+./src_gen/PL_Gen/gen_compute.sh ${dir_name} ${port_row_in} ${port_col_in} ${port_out} ${l_buff} ${r_buff} ${o_buff} ${NUM_TXA} ${NUM_TXB} ${A} ${C} ${AXI_WIDTH_A} ${AXI_WIDTH_B} ${AXI_WIDTH_C} ${BUFF_WIDTH} ${data_type};
 
 ./src_gen/PL_Gen/gen_top.sh ${dir_name} ${port_row_in} ${port_col_in} ${port_out};
 
