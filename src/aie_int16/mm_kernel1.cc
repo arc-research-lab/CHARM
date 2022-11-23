@@ -38,8 +38,12 @@ void mm_kernel1(input_window_int16* __restrict matA,
 			v16acc48 acc0=acc2;
 			v16acc48 acc1=acc3;
 			int jump=h1;
+			int jump_acc=h1;
 			if (j==judge_j){
 				jump=h1+16;
+			}
+			else if (j==judge_j-1){
+				jump_acc=h1+16;
 			}
 			else{
 				jump=h1;
