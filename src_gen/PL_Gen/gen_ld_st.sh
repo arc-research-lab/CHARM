@@ -408,26 +408,25 @@ void storeC(axis_stream_C& dataC_out, ap_uint<PLIO_WIDTH> c_buf[A*C/PACKET_NUM_O
                                 int pos0=w2*(H1/NUM_PER_TRA);
                                 int pos1=temp%PACKET_NUM_OUT;
                                 int pos2=x+z*X;
-                                int pos3_0=temp/PACKET_NUM_OUT;
-                                int pos3_1=(temp+C)/PACKET_NUM_OUT;
+                                int pos3=temp/PACKET_NUM_OUT;
                                 ap_uint<AXI_WIDTH_C> temp_data;
                                 if(n==0){
-                                    temp_data(127,0)  =c_buf[pos3_0][pos2][pos1][pos0];
-                                    temp_data(255,128)=c_buf[pos3_0][pos2][pos1][pos0+1];
-                                    temp_data(383,256)=c_buf[pos3_0][pos2][pos1][pos0+2];
-                                    temp_data(511,384)=c_buf[pos3_0][pos2][pos1][pos0+3];
+                                    temp_data(127,0)  =c_buf[pos3][pos2][pos1][pos0];
+                                    temp_data(255,128)=c_buf[pos3][pos2][pos1][pos0+1];
+                                    temp_data(383,256)=c_buf[pos3][pos2][pos1][pos0+2];
+                                    temp_data(511,384)=c_buf[pos3][pos2][pos1][pos0+3];
                                 }
                                 else if(n==1){
-                                    temp_data(127,0)  =c_buf[pos3_0][pos2][pos1][pos0+4];
-                                    temp_data(255,128)=c_buf[pos3_0][pos2][pos1][pos0+5];
-                                    temp_data(383,256)=c_buf[pos3_1][pos2][pos1][pos0];
-                                    temp_data(511,384)=c_buf[pos3_1][pos2][pos1][pos0+1];
+                                    temp_data(127,0)  =c_buf[pos3][pos2][pos1][pos0+4];
+                                    temp_data(255,128)=c_buf[pos3][pos2][pos1][pos0+5];
+                                    temp_data(383,256)=c_buf[pos3+(C/PACKET_NUM_OUT)][pos2][pos1][pos0];
+                                    temp_data(511,384)=c_buf[pos3+(C/PACKET_NUM_OUT)][pos2][pos1][pos0+1];
                                 }
                                 else{
-                                    temp_data(127,0)  =c_buf[pos3_1][pos2][pos1][pos0+2];
-                                    temp_data(255,128)=c_buf[pos3_1][pos2][pos1][pos0+3];
-                                    temp_data(383,256)=c_buf[pos3_1][pos2][pos1][pos0+4];
-                                    temp_data(511,384)=c_buf[pos3_1][pos2][pos1][pos0+5];                     
+                                    temp_data(127,0)  =c_buf[pos3+(C/PACKET_NUM_OUT)][pos2][pos1][pos0+2];
+                                    temp_data(255,128)=c_buf[pos3+(C/PACKET_NUM_OUT)][pos2][pos1][pos0+3];
+                                    temp_data(383,256)=c_buf[pos3+(C/PACKET_NUM_OUT)][pos2][pos1][pos0+4];
+                                    temp_data(511,384)=c_buf[pos3+(C/PACKET_NUM_OUT)][pos2][pos1][pos0+5];                     
                                 }
                                 dataC_out.write(temp_data);
                             }

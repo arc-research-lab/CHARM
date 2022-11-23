@@ -42,11 +42,25 @@ echo \
         data_t data;
         data_t da;
     
-    
+        int index_i=0;
+        int index_j=0;
         for (int k = 0; k < PACKET_NUM_IN*Y*X*Z; k++) {
             unsigned int ID=packet_id[k];
-            int tile=tile_B[k];
-    
+
+            int tile=tile_B[index_i];
+
+            if(( index_i==0 || index_j==(PACKET_NUM_IN-1)) && (index_i<PIPELINE_LEN-PACKET_NUM_IN)){
+                index_i=index_j+1+index_i;
+                index_j=0;
+            }
+            else if ((index_j==(PACKET_NUM_IN-1))&& (index_i>=PIPELINE_LEN-PACKET_NUM_IN)){
+                index_j=PACKET_NUM_IN+1-PIPELINE_LEN+index_i;
+                index_i=PIPELINE_LEN-1;
+            }
+            else{
+                index_i=index_i-1;
+                index_j=index_j+1;
+            }
             ap_uint<32> header=generateHeader(PKTTYPE,ID);
             int position=ID*(W1/NUM_PER_TRA);
     
@@ -144,11 +158,24 @@ echo \
         #pragma HLS ARRAY_PARTITION variable=data_temp complete dim=0
         data_t data;
         data_t da;
-    
-    
+        int index_i=0;
+        int index_j=0;
         for (int k = 0; k < PACKET_NUM_IN*Y*X*Z; k++) {
             unsigned int ID=packet_id[k];
-            int tile=tile_B[k];
+            int tile=tile_B[index_i];
+
+            if(( index_i==0 || index_j==(PACKET_NUM_IN-1)) && (index_i<PIPELINE_LEN-PACKET_NUM_IN)){
+                index_i=index_j+1+index_i;
+                index_j=0;
+            }
+            else if ((index_j==(PACKET_NUM_IN-1))&& (index_i>=PIPELINE_LEN-PACKET_NUM_IN)){
+                index_j=PACKET_NUM_IN+1-PIPELINE_LEN+index_i;
+                index_i=PIPELINE_LEN-1;
+            }
+            else{
+                index_i=index_i-1;
+                index_j=index_j+1;
+            }
     
             ap_uint<32> header=generateHeader(PKTTYPE,ID);
     
@@ -244,11 +271,27 @@ echo \
         #pragma HLS ARRAY_PARTITION variable=data_temp complete dim=0
         data_t data;
         data_t da;
-    
+
+        int index_i=0;
+        int index_j=0;
     
         for (int k = 0; k < PACKET_NUM_IN*Y*X*Z; k++) {
             unsigned int ID=packet_id[k];
-            int tile=tile_B[k];
+
+            int tile=tile_B[index_i];
+
+            if(( index_i==0 || index_j==(PACKET_NUM_IN-1)) && (index_i<PIPELINE_LEN-PACKET_NUM_IN)){
+                index_i=index_j+1+index_i;
+                index_j=0;
+            }
+            else if ((index_j==(PACKET_NUM_IN-1))&& (index_i>=PIPELINE_LEN-PACKET_NUM_IN)){
+                index_j=PACKET_NUM_IN+1-PIPELINE_LEN+index_i;
+                index_i=PIPELINE_LEN-1;
+            }
+            else{
+                index_i=index_i-1;
+                index_j=index_j+1;
+            }
     
             ap_uint<32> header=generateHeader(PKTTYPE,ID);
             int position=ID*RIGHT_SIZE;

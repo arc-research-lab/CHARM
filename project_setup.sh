@@ -30,6 +30,13 @@ do
 		unset IFS
 		IFS=';' read -ra Value <<< "$value_temp";
 		KernelGen="${Value[0]}"; 
+	elif (( ${n} == 6 ))
+	then
+		IFS=':' read -ra Key <<< "$line";
+		value_temp="${Key[1]}"; 
+		unset IFS
+		IFS=';' read -ra Value <<< "$value_temp";
+		mm_k="${Value[0]}";
 	elif (( ${n} == 8 ))
 	then
 		IFS=':' read -ra Key <<< "$line";
@@ -75,7 +82,12 @@ then
     src_dir="aie_int32";
 elif [ ${data_type} == "int16" ]
 then
-	src_dir="aie_int16";
+	if [ ${mm_k} == 32 ]
+	then
+		src_dir="aie_int16/k_32";
+	else
+		src_dir="aie_int16";
+	fi
 elif [ ${data_type} == "int8" ]
 then
 	src_dir="aie_int8";

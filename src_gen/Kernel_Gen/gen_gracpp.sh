@@ -86,7 +86,7 @@ connect<> net2(addergraph.out, platform.sink[0]);
 #ifdef __AIESIM__
 int main(int argc, char** argv) {
     addergraph.init();
-    addergraph.run(1);
+    addergraph.run(4);
     addergraph.end();
     return 0;
 }
@@ -119,7 +119,7 @@ connect<> net4(addergraph.out, platform.sink[0]);
 #ifdef __AIESIM__
 int main(int argc, char** argv) {
     addergraph.init();
-    addergraph.run(1);
+    addergraph.run(4);
     addergraph.end();
     return 0;
 }

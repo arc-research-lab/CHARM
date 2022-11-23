@@ -22,28 +22,58 @@ fi
 
 declare -A arrA_tile;
 declare -A arrB_tile;
+declare -A arrB_tile1;
 
-for ((i=0;i<${NUM_PACK_IN};i++));
+for ((i=0;i<${Z};i++));
 do  
-    for ((l=0;l<${pipe_length}+${NUM_PACK_IN}-1;l++));
+    for ((j=0;j<${X}*${Y};j++));
     do  
-        arrA_tile[${i},${l}]=-1;
+        let pos=${j}+${i}*${X}*${Y};
+        arrA_tile[${pos}]=${j};
     done
-    for ((k=0;k<${Z};k++));
+done
+
+for ((k=0;k<${Z};k++));
+do  
+    for ((i=0;i<${X};i++));
     do  
-        for ((j=0;j<${X}*${Y};j++));
+        for ((j=0;j<${Y};j++));
         do  
-            let pos=${i}+${j}+${k}*${X}*${Y};
-            arrA_tile[${i},${pos}]=${j};
+            let pos=${j}+${i}*${Y}+${k}*${X}*${Y};
+            let data=${j}+${k}*${Y};
+            arrB_tile[${pos}]=${data};
         done
     done
+done
+
+echo -n "static const unsigned int tile_A[${pipe_length}]={">> ./${dir_name}/kernel/dma.cpp;
+
+for ((l=0;l<${pipe_length};l++));
+do  
+    if [ ${l} == $((${pipe_length}-1)) ]
+    then
+        echo "${arrA_tile[${l}]}};">> ./${dir_name}/kernel/dma.cpp;
+    else
+        echo -n "${arrA_tile[${l}]},">> ./${dir_name}/kernel/dma.cpp;
+    fi
+done
+
+echo -n "static const unsigned int tile_B[${pipe_length}]={">> ./${dir_name}/kernel/dma.cpp;
+for ((l=0;l<${pipe_length};l++));
+do  
+    if [ ${l} == $((${pipe_length}-1)) ]
+    then
+        echo "${arrB_tile[${l}]}};">> ./${dir_name}/kernel/dma.cpp;
+    else
+        echo -n "${arrB_tile[${l}]},">> ./${dir_name}/kernel/dma.cpp;
+    fi
 done
 
 for ((i=0;i<${NUM_PACK_IN};i++));
 do  
     for ((l=0;l<${pipe_length}+${NUM_PACK_IN}-1;l++));
     do  
-        arrB_tile[${i},${l}]=-1;
+        arrB_tile1[${i},${l}]=-1;
     done
     for ((z=0;z<${Z};z++));
     do 
@@ -53,44 +83,9 @@ do
             do  
                 let pos=${i}+${y}+${x}*${Y}+${z}*${X}*${Y};
                 let data=${y}+${z}*${Y};
-                arrB_tile[${i},${pos}]=${data};
+                arrB_tile1[${i},${pos}]=${data};
             done
         done
-    done
-done
-
-echo -n "static const unsigned int tile_A[${array_size}]={">> ./${dir_name}/kernel/dma.cpp;
-
-for ((l=0;l<${pipe_length}+${NUM_PACK_IN}-1;l++));
-do  
-    for ((i=0;i<${NUM_PACK_IN};i++));
-    do  
-        let temp1=${NUM_PACK_IN}-1;
-        let temp2=${pipe_length}+${NUM_PACK_IN}-2;
-        if [ ${i} == ${temp1} ] && [ ${l} == ${temp2} ]
-        then
-            echo "${arrA_tile[${i},${l}]}};">> ./${dir_name}/kernel/dma.cpp;
-        elif [ ${arrA_tile[${i},${l}]} != -1 ] 
-        then
-            echo -n "${arrA_tile[${i},${l}]},">> ./${dir_name}/kernel/dma.cpp;
-        fi
-    done
-done
-
-echo -n "static const unsigned int tile_B[${array_size}]={">> ./${dir_name}/kernel/dma.cpp;
-for ((l=0;l<${pipe_length}+${NUM_PACK_IN}-1;l++));
-do  
-    for ((i=0;i<${NUM_PACK_IN};i++));
-    do  
-        let temp1=${NUM_PACK_IN}-1;
-        let temp2=${pipe_length}+${NUM_PACK_IN}-2;
-        if [ ${i} == ${temp1} ] && [ ${l} == ${temp2} ]
-        then
-            echo "${arrB_tile[${i},${l}]}};">> ./${dir_name}/kernel/dma.cpp;
-        elif [ ${arrB_tile[${i},${l}]} != -1 ] 
-        then
-            echo -n "${arrB_tile[${i},${l}]},">> ./${dir_name}/kernel/dma.cpp;
-        fi
     done
 done
 
@@ -104,7 +99,7 @@ do
         if [ ${i} == ${temp1} ] && [ ${l} == ${temp2} ]
         then
             echo -n "${i}};">> ./${dir_name}/kernel/dma.cpp;
-        elif [ ${arrB_tile[${i},${l}]} != -1 ] 
+        elif [ ${arrB_tile1[${i},${l}]} != -1 ] 
         then
             echo -n "${i},">> ./${dir_name}/kernel/dma.cpp;
         fi

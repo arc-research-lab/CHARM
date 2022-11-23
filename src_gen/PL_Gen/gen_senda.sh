@@ -40,9 +40,27 @@ echo \
         axis_pkt tmp;
         data_t data;
         data_t da;
+        int index_i=0;
+        int index_j=0;
         for (int k = 0; k < X*PACKET_NUM_IN*Y*Z; k++) {    
             unsigned int ID=packet_id[k];
-            int tile=tile_A[k];
+            
+            int tile=tile_A[index_i];
+
+            if(( index_i==0 || index_j==(PACKET_NUM_IN-1)) && (index_i<PIPELINE_LEN-PACKET_NUM_IN)){
+                index_i=index_j+1+index_i;
+                index_j=0;
+            }
+            else if ((index_j==(PACKET_NUM_IN-1))&& (index_i>=PIPELINE_LEN-PACKET_NUM_IN)){
+                index_j=PACKET_NUM_IN+1-PIPELINE_LEN+index_i;
+                index_i=PIPELINE_LEN-1;
+            }
+            else{
+                index_i=index_i-1;
+                index_j=index_j+1;
+            }
+            
+
             ap_uint<32> header=generateHeader(PKTTYPE,ID);
             int position=ID*LEFT_SIZE;
     
@@ -137,9 +155,25 @@ echo \
         axis_pkt tmp;
         data_t data;
         data_t da;
+        int index_i=0;
+        int index_j=0;
         for (int k = 0; k < X*PACKET_NUM_IN*Y*Z; k++) {    
             unsigned int ID=packet_id[k];
-            int tile=tile_A[k];
+            
+            int tile=tile_A[index_i];
+
+            if(( index_i==0 || index_j==(PACKET_NUM_IN-1)) && (index_i<PIPELINE_LEN-PACKET_NUM_IN)){
+                index_i=index_j+1+index_i;
+                index_j=0;
+            }
+            else if ((index_j==(PACKET_NUM_IN-1))&& (index_i>=PIPELINE_LEN-PACKET_NUM_IN)){
+                index_j=PACKET_NUM_IN+1-PIPELINE_LEN+index_i;
+                index_i=PIPELINE_LEN-1;
+            }
+            else{
+                index_i=index_i-1;
+                index_j=index_j+1;
+            }
 
             ap_uint<32> header=generateHeader(PKTTYPE,ID);
     

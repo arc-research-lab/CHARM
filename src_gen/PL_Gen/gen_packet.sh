@@ -142,6 +142,7 @@ then
 	DATA_T=8;
 fi
 
+let PIPELINE=${X}*${Y}*${Z};
 
 
 mkdir -p ${dir_name}/kernel
@@ -174,6 +175,7 @@ echo \
 #define X ${X}
 #define Y ${Y}
 #define Z ${Z}
+#define PIPELINE_LEN ${PIPELINE}
 #define M (H1*A*X)
 #define K (W1*B*Y)
 #define N (W2*C*Z)
