@@ -304,7 +304,7 @@ echo \
         int index_j=0;
     
         for (int k = 0; k < PACKET_NUM_IN*Y*X*Z; k++) {
-            unsigned int ID=packet_id[k];
+            unsigned int ID=packet_id[index_j];
 
             int tile=tile_B[index_i];
 
