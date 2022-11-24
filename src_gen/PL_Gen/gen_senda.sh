@@ -1,8 +1,10 @@
-if [ "$#" -eq 3 ] 
+if [ "$#" -eq 5 ] 
 then
     dir_name=$1;
     data_type=$2;
     NUM_TXA=$3;
+    NUM_PACK_IN=$4;
+    pipe_length=$5;
 else
     echo ""
     echo "******************************************"
@@ -42,8 +44,13 @@ echo \
         data_t da;
         int index_i=0;
         int index_j=0;
-        for (int k = 0; k < X*PACKET_NUM_IN*Y*Z; k++) {    
-            unsigned int ID=packet_id[k];
+        for (int k = 0; k < X*PACKET_NUM_IN*Y*Z; k++) {">> ./${dir_name}/kernel/dma.cpp;
+
+if [ ${pipe_length} -gt ${NUM_PACK_IN} ]    
+then
+echo \
+"
+            unsigned int ID=packet_id[index_j];
             
             int tile=tile_A[index_i];
 
@@ -58,9 +65,17 @@ echo \
             else{
                 index_i=index_i-1;
                 index_j=index_j+1;
-            }
-            
+            }">> ./${dir_name}/kernel/dma.cpp;
+else
+echo \
+"
+            unsigned int ID=packet_id[k];
+            int tile=tile_A[k];">> ./${dir_name}/kernel/dma.cpp;
+fi
 
+
+echo \
+"
             ap_uint<32> header=generateHeader(PKTTYPE,ID);
             int position=ID*LEFT_SIZE;
     
@@ -157,8 +172,13 @@ echo \
         data_t da;
         int index_i=0;
         int index_j=0;
-        for (int k = 0; k < X*PACKET_NUM_IN*Y*Z; k++) {    
-            unsigned int ID=packet_id[k];
+        for (int k = 0; k < X*PACKET_NUM_IN*Y*Z; k++) {">> ./${dir_name}/kernel/dma.cpp;    
+
+if [ ${pipe_length} -gt ${NUM_PACK_IN} ]    
+then
+echo \
+"
+            unsigned int ID=packet_id[index_j];
             
             int tile=tile_A[index_i];
 
@@ -173,8 +193,16 @@ echo \
             else{
                 index_i=index_i-1;
                 index_j=index_j+1;
-            }
+            }">> ./${dir_name}/kernel/dma.cpp; 
+else
+echo \
+"
+            unsigned int ID=packet_id[k];
+            int tile=tile_A[k];">> ./${dir_name}/kernel/dma.cpp; 
+fi
 
+echo \
+"
             ap_uint<32> header=generateHeader(PKTTYPE,ID);
     
             data(63,0)=a_buf[tile][ID][0];

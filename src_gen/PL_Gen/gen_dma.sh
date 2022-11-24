@@ -213,9 +213,9 @@ echo \
 
 ./src_gen/PL_Gen/gen_reshapec.sh ${dir_name} ${data_type} ${NUM_PACK_OUT};
 
-./src_gen/PL_Gen/gen_senda.sh ${dir_name} ${data_type} ${NUM_TXA};
+./src_gen/PL_Gen/gen_senda.sh ${dir_name} ${data_type} ${NUM_TXA} ${NUM_PACK_IN} ${pipe_length};
 
-./src_gen/PL_Gen/gen_sendb.sh ${dir_name} ${data_type} ${NUM_TXB} ${AXI_WIDTH_B} ${mm_k};
+./src_gen/PL_Gen/gen_sendb.sh ${dir_name} ${data_type} ${NUM_TXB} ${AXI_WIDTH_B} ${mm_k} ${NUM_PACK_IN} ${pipe_length};
 
 ./src_gen/PL_Gen/gen_compute.sh ${dir_name} ${port_row_in} ${port_col_in} ${port_out} ${l_buff} ${r_buff} ${o_buff} ${NUM_TXA} ${NUM_TXB} ${A} ${C} ${AXI_WIDTH_A} ${AXI_WIDTH_B} ${AXI_WIDTH_C} ${BUFF_WIDTH} ${data_type};
 

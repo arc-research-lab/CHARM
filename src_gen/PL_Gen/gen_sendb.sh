@@ -1,10 +1,12 @@
-if [ "$#" -eq 5 ] 
+if [ "$#" -eq 7 ] 
 then
     dir_name=$1;
     data_type=$2;
     NUM_TXB=$3;
     AXI_WIDTH_B=$4;
     mm_k=$5;
+    NUM_PACK_IN=$6;
+    pipe_length=$7;
 else
     echo ""
     echo "******************************************"
@@ -44,8 +46,13 @@ echo \
     
         int index_i=0;
         int index_j=0;
-        for (int k = 0; k < PACKET_NUM_IN*Y*X*Z; k++) {
-            unsigned int ID=packet_id[k];
+        for (int k = 0; k < PACKET_NUM_IN*Y*X*Z; k++) {">> ./${dir_name}/kernel/dma.cpp;
+
+if [ ${pipe_length} -gt ${NUM_PACK_IN} ]    
+then
+echo \
+"
+            unsigned int ID=packet_id[index_j];
 
             int tile=tile_B[index_i];
 
@@ -60,7 +67,16 @@ echo \
             else{
                 index_i=index_i-1;
                 index_j=index_j+1;
-            }
+            }">> ./${dir_name}/kernel/dma.cpp;
+else
+echo \
+"
+            unsigned int ID=packet_id[k];
+            int tile=tile_B[k];">> ./${dir_name}/kernel/dma.cpp;
+fi
+
+echo \
+"
             ap_uint<32> header=generateHeader(PKTTYPE,ID);
             int position=ID*(W1/NUM_PER_TRA);
     
@@ -160,8 +176,13 @@ echo \
         data_t da;
         int index_i=0;
         int index_j=0;
-        for (int k = 0; k < PACKET_NUM_IN*Y*X*Z; k++) {
-            unsigned int ID=packet_id[k];
+        for (int k = 0; k < PACKET_NUM_IN*Y*X*Z; k++) {">> ./${dir_name}/kernel/dma.cpp;
+
+if [ ${pipe_length} -gt ${NUM_PACK_IN} ]    
+then
+echo \
+"
+            unsigned int ID=packet_id[index_j];
             int tile=tile_B[index_i];
 
             if(( index_i==0 || index_j==(PACKET_NUM_IN-1)) && (index_i<PIPELINE_LEN-PACKET_NUM_IN)){
@@ -175,8 +196,15 @@ echo \
             else{
                 index_i=index_i-1;
                 index_j=index_j+1;
-            }
-    
+            }">> ./${dir_name}/kernel/dma.cpp;
+else
+echo \
+"
+            unsigned int ID=packet_id[k];
+            int tile=tile_B[k];">> ./${dir_name}/kernel/dma.cpp;
+fi
+echo \
+"
             ap_uint<32> header=generateHeader(PKTTYPE,ID);
     
             data=b_buf[tile][ID][0];
