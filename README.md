@@ -35,7 +35,7 @@ sh sdk.sh
 
 ### 3. VCK190 Base 2021.1: It contains the pre-built Versal extensible embedded platform. During compilation users need to specify the platofrm path in the following format.<br/> 
 ```
-PLATFORM = ${PATH}/xilinx_vck190_base_202110_1/xilinx_vck190_base_202110_1.xpfm
+PLATFORM=${PATH}/xilinx_vck190_base_202110_1/xilinx_vck190_base_202110_1.xpfm
 ```
 
 ### 4. Versal common image: It includes the petalinux system boot files and the cross compilation environment needed for ARM CPU. During compilation, users need to point the path to SYSROOT and EDGE_COMMON_SW.<br/>
@@ -57,7 +57,7 @@ Users can generate the customized project by setting up the configuration file a
 ```
 ./project_setup.sh ./config_files/input.cfg ${Project_DIR}
 cd ${Project_DIR}
-make all EDGE_COMMON_SW_PATH=${PATH} SYSROOT_PATH={PATH}
+make all PLATFORM=${PATH} EDGE_COMMON_SW_PATH=${PATH} SYSROOT_PATH={PATH}
 ```
 ### 7. On Board Execution for MM with Arbitrary Sizes
 After copy the sd card image to micro sd card and boot up the system run the following commands to get the execution results. {M}, {K}, {N} refers to the size of MM. In order to reduce the effect of overhead of calling API when runnning the kernel, users can specify the number of {iteration} of running the MM then it provides the average throughput. To verify the correctness of the MM kernel, {verify} should be assigned to 1, otherwise 0. One example of running MM with 1024\*1024*\1024 for 100 iterations without verify the result can be: **./hostexe mm_hw.xclbin 1024 1024 1024 100 0**
