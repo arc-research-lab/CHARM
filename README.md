@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/558491173.svg)](https://zenodo.org/badge/latestdoi/558491173)
+
 # CHARM
 
 ## Overview
