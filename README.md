@@ -12,29 +12,39 @@ In this repo, we use general-purpose Matrix-Matrix Multiplication (GEMM) applica
 We provide an automatic code generation and compilation flow that users can build the system on Versal step by step by changing the configuration files.
 
 ## Dependencies 
-To play with the CHARM MM Accelerators, following software and hardware dependencies are required:
+To play with the Charming Accelerators, following software and hardware dependencies are required:
++ Linux System with "tar" installed
 + AMD/Xilinx Vitis 2021.1
 + AMD/Xilinx XRT Library
 + AMD/Xilinx VCK190 Evaluation Kit
-+ Linux System with "tar" installed
 
-## Environment Setup
-1. To quickly boost and run experiments on the board instead of building the platform and Linux from scratch, users can download the platform package (VCK190 Base 2021.1) and petalinux common image(Versal common image) from the following link:<br>
+## Environment Setup <br/>
 
-https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/embedded-platforms/2021-1.html<br>
+### 1. To quickly boost and run experiments on the board instead of building the platform and Linux from scratch, users can download the platform package (VCK190 Base 2021.1) and petalinux common image(Versal common image) from the following link:<br/>
+https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/embedded-platforms/2021-1.html
 
-2. VCK190 Base 2021.1: It contains the pre-built Versal extensible embedded platform. During compilation users need to specify the platofrm path in the following format.<br/> 
+### 2. Install platform and petalinux
+```
+unzip xilinx_vck190_base_202110_1.zip
+```
+```
+tar -xf xilinx-versal-common-v2021.1.tar.gz
+cd xilinx-versal-common-v2021.1
+sh sdk.sh
+```
+
+### 3. VCK190 Base 2021.1: It contains the pre-built Versal extensible embedded platform. During compilation users need to specify the platofrm path in the following format.<br/> 
 ```
 PLATFORM = ${PATH}/xilinx_vck190_base_202110_1/xilinx_vck190_base_202110_1.xpfm
 ```
 
-3. Versal common image: It includes the petalinux system boot files and the cross compilation environment needed for ARM CPU. Users can install the petalinux by running ``./sdk.sh``. During compilation, users need to point the path to SYSROOT and EDGE_COMMON_SW.<br/>
+### 4. Versal common image: It includes the petalinux system boot files and the cross compilation environment needed for ARM CPU. During compilation, users need to point the path to SYSROOT and EDGE_COMMON_SW.<br/>
 ```
 SYSROOT = ${PATH}/sysroots/cortexa72-cortexa53-xilinx-linux
 EDGE_COMMON_SW=${PATH}/xilinx-versal-common-v2021.1
 ```
 
-4. Vitis and Cross-compilation Environment Setup<br/>
+### 5. Vitis and Cross-compilation Environment Setup<br/>
 ```
 source /opt/tools/xilinx/Vitis/2021.1/settings64.sh
 source /opt/xilinx/xrt/setup.sh
@@ -42,14 +52,14 @@ unset LD_LIBRARY_PATH (If needed)
 source ${PATH}/environment-setup-cortexa72-cortexa53-xilinx-linux
 ```
 
-5. Project Setup and Compilation
+### 6. Project Setup and Compilation
 Users can generate the customized project by setting up the configuration file and directly running the following command:
 ```
 ./project_setup.sh ./config_files/input.cfg ${Project_DIR}
 cd ${Project_DIR}
 make all EDGE_COMMON_SW_PATH=${PATH} SYSROOT_PATH={PATH}
 ```
-5. On Board Execution for MM with Arbitrary Sizes
+### 7. On Board Execution for MM with Arbitrary Sizes
 After copy the sd card image to micro sd card and boot up the system run the following commands to get the execution results. {M}, {K}, {N} refers to the size of MM. In order to reduce the effect of overhead of calling API when runnning the kernel, users can specify the number of {iteration} of running the MM then it provides the average throughput. To verify the correctness of the MM kernel, {verify} should be assigned to 1, otherwise 0. One example of running MM with 1024\*1024*\1024 for 100 iterations without verify the result can be: **./hostexe mm_hw.xclbin 1024 1024 1024 100 0**
 ```
 cd /mnt/sd-mmcblk0p1
