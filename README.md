@@ -1,6 +1,6 @@
 [![DOI](https://zenodo.org/badge/558491173.svg)](https://zenodo.org/badge/latestdoi/558491173)
 
-# CHARM: Composing Heterogeneous Accelerators for Matrix Multiply on Versal ACAP Architecture
+# CHARM: Composing Heterogeneous Accelerators for Matrix Multiply on Versal ACAP Architecture (FPGA'23)
 
 ## Overview
 In this repo, we use general-purpose Matrix-Matrix Multiplication (GEMM) applications as an example and provide a detailed description of how to build a system-level design on AMD Versal VCK190 Platform. By going through this repo, users can get knowledge on:
