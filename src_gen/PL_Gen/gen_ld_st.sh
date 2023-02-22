@@ -33,6 +33,7 @@ void loadA(axis_stream_A& dataA_in, ap_uint<PLIO_WIDTH> a_buf[A*(B/PACKET_NUM_IN
                     for(int a=0;a<A;a++){
                         for(int i=0;i<(H1/A_PER_TRA);i++){
                         #pragma HLS PIPELINE II = 1
+                        #pragma HLS dependence variable=a_buf type=intra false
                             int pos0=i*4+(k%(W1*PACKET_NUM_IN))*(H1/NUM_PER_TRA);
                             int pos1=x*Y+y;
                             int pos2=a+A*(k/(W1*PACKET_NUM_IN));
@@ -61,6 +62,7 @@ void loadA(axis_stream_A& dataA_in, ap_uint<PLIO_WIDTH> a_buf[A*(B/PACKET_NUM_IN
                     for(int a=0;a<A;a++){
                         for(int i=0;i<(H1/A_PER_TRA);i++){
                         #pragma HLS PIPELINE II = 1
+                        #pragma HLS dependence variable=a_buf type=intra false
                             int pos0=i*2+(k%(W1*PACKET_NUM_IN))*(H1/NUM_PER_TRA);
                             int pos1=x*Y+y;
                             int pos2=a+A*(k/(W1*PACKET_NUM_IN));
@@ -89,6 +91,7 @@ echo \
                         for(int b=0;b<B;b++){
                             for (int m=0;m<(W1/B_PER_TRA);m++){
                             #pragma HLS PIPELINE II = 1
+                            #pragma HLS dependence variable=b_buf type=intra false
                                 int pos0=m*4+w2*(W1/NUM_PER_TRA)+(b%PACKET_NUM_IN)*RIGHT_SIZE;
                                 int pos1=z*Y+y;
                                 int pos2=(b/PACKET_NUM_IN)*C+c;
@@ -119,6 +122,7 @@ echo \
                         for(int b=0;b<B;b++){
                             for (int m=0;m<(W1/B_PER_TRA);m++){
                             #pragma HLS PIPELINE II = 1
+                            #pragma HLS dependence variable=b_buf type=intra false
                                 int pos0=m*2+w2*(W1/NUM_PER_TRA)+(b%PACKET_NUM_IN)*RIGHT_SIZE;
                                 int pos1=z*Y+y;
                                 int pos2=(b/PACKET_NUM_IN)*C+c;
@@ -148,6 +152,7 @@ echo \
                         for (int a=0;a<A;a++){
                             for (int n=0; n<H1/C_PER_TRA;n++){
                             #pragma HLS PIPELINE II = 1
+                            #pragma HLS dependence variable=c_buf type=intra false
                                 int aie_pack=c+a*C;
                                 int pos0=n*4+w2*(H1/NUM_PER_TRA);
                                 int pos1=aie_pack%PACKET_NUM_OUT;
@@ -194,6 +199,7 @@ echo \
                         for (int a=0;a<A;a++){
                             for (int n=0; n<H1/C_PER_TRA;n++){
                             #pragma HLS PIPELINE II = 1
+                            #pragma HLS dependence variable=c_buf type=intra false
                                 int aie_pack=c+a*C;
                                 int pos0=n*2+w2*(H1/NUM_PER_TRA);
                                 int pos1=aie_pack%PACKET_NUM_OUT;
@@ -239,6 +245,7 @@ void loadA(axis_stream_A& dataA_in, ap_uint<PLIO_WIDTH> a_buf[A*(B/PACKET_NUM_IN
                     for(int a=0;a<A/2;a++){
                         for(int i=0;i<(H1*2/A_PER_TRA);i++){
                         #pragma HLS PIPELINE II = 1
+                        #pragma HLS dependence variable=a_buf type=intra false
                             int temp= (k%(W1*PACKET_NUM_IN))*(H1/NUM_PER_TRA);
                             int pos1=x*Y+y;
                             int pos2=2*a+A*(k/(W1*PACKET_NUM_IN));
@@ -281,6 +288,7 @@ void loadA(axis_stream_A& dataA_in, ap_uint<PLIO_WIDTH> a_buf[A*(B/PACKET_NUM_IN
                     for(int a=0;a<A;a++){
                         for(int i=0;i<(H1/A_PER_TRA);i++){
                         #pragma HLS PIPELINE II = 1
+                        #pragma HLS dependence variable=a_buf type=intra false
                             int pos0=i*2+(k%(W1*PACKET_NUM_IN))*(H1/NUM_PER_TRA);
                             int pos1=x*Y+y;
                             int pos2=a+A*(k/(W1*PACKET_NUM_IN));
@@ -311,6 +319,7 @@ void loadB(axis_stream_B& dataB_in, ap_uint<PLIO_WIDTH> b_buf[(B/PACKET_NUM_IN)*
                         for(int b=0;b<B;b++){
                             for (int m=0;m<(W1/B_PER_TRA);m++){
                             #pragma HLS PIPELINE II = 1
+                            #pragma HLS dependence variable=b_buf type=intra false
                                 int pos0=m*4+w2*(W1/NUM_PER_TRA)+(b%PACKET_NUM_IN)*RIGHT_SIZE;
                                 int pos1=z*Y+y;
                                 int pos2=(b/PACKET_NUM_IN)*C+c;
@@ -343,6 +352,7 @@ void loadB(axis_stream_B& dataB_in, ap_uint<PLIO_WIDTH> b_buf[(B/PACKET_NUM_IN)*
                         for (int b=0;b<(B/PACKET_NUM_IN);b++){
                             for (int m=0;m<(W1*PACKET_NUM_IN/B_PER_TRA);m++){
                             #pragma HLS PIPELINE II = 1
+                            #pragma HLS dependence variable=b_buf type=intra false
                                 int pos0=m*4+w2*(W1*PACKET_NUM_IN/NUM_PER_TRA);
                                 int pos1=z*Y+y;
                                 int pos2=b*C+c;
@@ -373,6 +383,7 @@ void loadB(axis_stream_B& dataB_in, ap_uint<PLIO_WIDTH> b_buf[(B/PACKET_NUM_IN)*
                         for(int b=0;b<B;b++){
                             for (int m=0;m<(W1/B_PER_TRA);m++){
                             #pragma HLS PIPELINE II = 1
+                            #pragma HLS dependence variable=b_buf type=intra false
                                 int pos0=m*2+w2*(W1/NUM_PER_TRA)+(b%PACKET_NUM_IN)*RIGHT_SIZE;
                                 int pos1=z*Y+y;
                                 int pos2=(b/PACKET_NUM_IN)*C+c;
@@ -404,6 +415,7 @@ void storeC(axis_stream_C& dataC_out, ap_uint<PLIO_WIDTH> c_buf[A*C/PACKET_NUM_O
                         for (int a=0;a<A/2;a++){
                             for (int n=0; n<H1*2/C_PER_TRA;n++){
                             #pragma HLS PIPELINE II = 1
+                            #pragma HLS dependence variable=c_buf type=intra false
                                 int temp=c+(2*a)*C; 
                                 int pos0=w2*(H1/NUM_PER_TRA);
                                 int pos1=temp%PACKET_NUM_OUT;
@@ -464,6 +476,7 @@ void storeC(axis_stream_C& dataC_out, ap_uint<PLIO_WIDTH> c_buf[A*C/PACKET_NUM_O
                         for (int a=0;a<A;a++){
                             for (int n=0; n<H1/C_PER_TRA;n++){
                             #pragma HLS PIPELINE II = 1
+                            #pragma HLS dependence variable=c_buf type=intra false
                                 int aie_pack=c+a*C;
                                 int pos0=n*2+w2*(H1/NUM_PER_TRA);
                                 int pos1=aie_pack%PACKET_NUM_OUT;
@@ -544,6 +557,7 @@ void loadA(axis_stream_A& dataA_in, ap_uint<BUFF_WIDTH> a_buf[A*(B/PACKET_NUM_IN
                     for(int a=0;a<A;a++){
                         for(int i=0;i<(H1/A_PER_TRA);i++){
                         #pragma HLS PIPELINE II = 1
+                        #pragma HLS dependence variable=a_buf type=intra false
                             int pos0=i*256+(k%(W1*PACKET_NUM_IN))*(H1/NUM_PER_BUFF);
                             int pos1=x*Y+y;
                             int pos2=a+A*(k/(W1*PACKET_NUM_IN));
@@ -606,6 +620,7 @@ echo \
                         for(int b=0;b<B;b++){
                             for (int m=0;m<(W1/B_PER_TRA);m++){
                             #pragma HLS PIPELINE II = 1
+                            #pragma HLS dependence variable=b_buf type=intra false
                                 int pos0=m*8+(b%PACKET_NUM_IN)*RIGHT_SIZE+w2%4+(w2/4)*16;
                                 int pos1=z*Y+y;
                                 int pos2=(b/PACKET_NUM_IN)*C+c;
@@ -635,6 +650,7 @@ echo \
                         for (int a=0;a<A;a++){
                             for (int n=0; n<H1/C_PER_TRA;n++){
                             #pragma HLS PIPELINE II = 1
+                            #pragma HLS dependence variable=c_buf type=intra false
                                 int aie_pack=c+a*C;
                                 int pos0=aie_pack%PACKET_NUM_OUT;
                                 int pos1=x+z*X;
@@ -698,6 +714,7 @@ echo \
                         for (int a=0;a<A;a++){
                             for (int n=0; n<H1/C_PER_TRA;n++){
                             #pragma HLS PIPELINE II = 1
+                            #pragma HLS dependence variable=c_buf type=intra false
                                 int aie_pack=c+a*C;
                                 int pos0=n*256+w2;
                                 int pos1=aie_pack%PACKET_NUM_OUT;
