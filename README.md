@@ -168,6 +168,8 @@ To quickly reproduce the results, we provide the pre-built object files of AIE, 
 make package EDGE_COMMON_SW_PATH=${PATH} SYSROOT_PATH={PATH}
 ```
 
+# Errata Sheet
+A typo appears in the Table 6 of the paper. The latency for MLP should be "119ms" instead of "11.9ms". 
 
 **References:**<br>
 [1] **[AIE Architecture(AM009 2021.1)](https://docs.xilinx.com/r/en-US/am009-versal-ai-engine)**<br>
