@@ -20,7 +20,7 @@ We provide an automatic code generation and compilation flow that users can buil
 ## Dependencies 
 To play with the Charming Accelerators, following software and hardware dependencies are required:
 + Linux System with "tar" installed
-+ AMD/Xilinx Vitis 2021.1
++ **AMD/Xilinx Vitis 2021.1** (Version 2021.1 guarantees the designs in the example folder to be compiled correctly)
 + AMD/Xilinx XRT Library
 + AMD/Xilinx VCK190 Evaluation Kit
 
