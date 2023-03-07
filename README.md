@@ -169,7 +169,8 @@ make package EDGE_COMMON_SW_PATH=${PATH} SYSROOT_PATH={PATH}
 ```
 
 # Errata Sheet
-A typo appears in the Table 6 of the paper. The latency for MLP should be "119ms" instead of "11.9ms". <br>
+1) A typo appears in the Table 6 of the paper. The latency for MLP should be "119ms" instead of "11.9ms". <br>
+2) In Table 5, the size of the fifth layer of ViT should be 3072\*1024\*3072 instead of 3072\*1024\*3048.
 
 **References:**<br>
 [1] **[AIE Architecture(AM009 2021.1)](https://docs.xilinx.com/r/en-US/am009-versal-ai-engine)**<br>
