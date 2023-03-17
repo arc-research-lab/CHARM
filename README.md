@@ -20,7 +20,7 @@ We provide an automatic code generation and compilation flow that users can buil
 ## Dependencies 
 To play with the Charming Accelerators, following software and hardware dependencies are required:
 + Linux System with "tar" installed
-+ AMD/Xilinx Vitis 2021.1
++ **AMD/Xilinx Vitis 2021.1** (Version 2021.1 guarantees the designs in the example folder to be compiled correctly)
 + AMD/Xilinx XRT Library
 + AMD/Xilinx VCK190 Evaluation Kit
 
@@ -168,6 +168,9 @@ To quickly reproduce the results, we provide the pre-built object files of AIE, 
 make package EDGE_COMMON_SW_PATH=${PATH} SYSROOT_PATH={PATH}
 ```
 
+# Errata Sheet
+1) A typo appears in the Table 6 of the paper. The latency for MLP should be "119ms" instead of "11.9ms". <br>
+2) In Table 5, the size of the fifth layer of ViT should be 3072\*1024\*3072 instead of 3072\*1024\*3048.
 
 **References:**<br>
 [1] **[AIE Architecture(AM009 2021.1)](https://docs.xilinx.com/r/en-US/am009-versal-ai-engine)**<br>
