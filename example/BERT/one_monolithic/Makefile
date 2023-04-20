@@ -184,7 +184,6 @@ package_${TARGET}: unzip ${PRE_BUILT_LIBADF} ${PRE_BUILT_XCLBIN} host hostbert
 		--package.kernel_image ${IMAGE} \
 		--package.boot_mode=sd \
 		--package.image_format=ext4 \
-		--package.sd_file run_mm.sh \
 		--package.sd_file ${HOST_EXE} \
 		--package.sd_file ${HOST_EXE_BERT} \
 		${PRE_BUILT_LIBADF} ${PRE_BUILT_XCLBIN} -o ${FINAL_XCLBIN}
@@ -198,7 +197,6 @@ package_${TARGET}: ${LIBADF} ${BINARY_CONTAINERS} host hostbert
 		--package.boot_mode=sd \
 		--package.image_format=ext4 \
 		--package.defer_aie_run \
-		--package.sd_file run_mem.sh \
 		--package.sd_file ${HOST_EXE} \
 		--package.sd_file ${HOST_EXE_BERT} \
 		${LIBADF} ${BINARY_CONTAINERS} -o ${FINAL_XCLBIN}
