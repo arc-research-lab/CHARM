@@ -80,30 +80,35 @@ void receiveC(ap_uint<PLIO_WIDTH> c_buf[Z][X][W2][(H1/NUM_PER_TRA)],axis_stream&
                         #pragma HLS PIPELINE II = 1
                         #pragma HLS dependence variable=c_buf type=inter false
                             tmp=rxC.read();
+                            data_temp0[0].data_uint=tmp.data(31,0);
+                            data_temp0[1].data_uint=tmp.data(63,32);
+                            data_temp0[2].data_uint=tmp.data(95,64);
+                            data_temp0[3].data_uint=tmp.data(127,96);
+
                             if (y==0){
-                                c_buf[z][x][j][i] =  0;  
+                                data_temp1[0].data_uint=0;
+                                data_temp1[1].data_uint=0;
+                                data_temp1[2].data_uint=0;
+                                data_temp1[3].data_uint=0;
                             }
                             else{
-                                data_temp0[0].data_uint=tmp.data(31,0);
-                                data_temp0[1].data_uint=tmp.data(63,32);
-                                data_temp0[2].data_uint=tmp.data(95,64);
-                                data_temp0[3].data_uint=tmp.data(127,96);
-
                                 data_temp1[0].data_uint=c_buf[z][x][j][i](31,0);
                                 data_temp1[1].data_uint=c_buf[z][x][j][i](63,32);
                                 data_temp1[2].data_uint=c_buf[z][x][j][i](95,64);
                                 data_temp1[3].data_uint=c_buf[z][x][j][i](127,96);
-
-                                data_temp2[0].data_float=data_temp0[0].data_float + data_temp0[0].data_float; 
-                                data_temp2[1].data_float=data_temp0[1].data_float + data_temp0[1].data_float;
-                                data_temp2[2].data_float=data_temp0[2].data_float + data_temp0[2].data_float;
-                                data_temp2[3].data_float=data_temp0[3].data_float + data_temp0[3].data_float;
-
-                                c_buf[z][x][j][i](31,0)   =  data_temp2[0].data_uint;  
-                                c_buf[z][x][j][i](63,32)  =  data_temp2[1].data_uint;
-                                c_buf[z][x][j][i](95,64)  =  data_temp2[2].data_uint;
-                                c_buf[z][x][j][i](127,96) =  data_temp2[3].data_uint;
                             }
+                            
+
+                            data_temp2[0].data_float=data_temp0[0].data_float + data_temp0[0].data_float; 
+                            data_temp2[1].data_float=data_temp0[1].data_float + data_temp0[1].data_float;
+                            data_temp2[2].data_float=data_temp0[2].data_float + data_temp0[2].data_float;
+                            data_temp2[3].data_float=data_temp0[3].data_float + data_temp0[3].data_float;
+
+                            c_buf[z][x][j][i](31,0)   =  data_temp2[0].data_uint;  
+                            c_buf[z][x][j][i](63,32)  =  data_temp2[1].data_uint;
+                            c_buf[z][x][j][i](95,64)  =  data_temp2[2].data_uint;
+                            c_buf[z][x][j][i](127,96) =  data_temp2[3].data_uint;
+                            
                         }
                     }
                 }
