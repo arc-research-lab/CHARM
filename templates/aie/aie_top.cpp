@@ -91,7 +91,7 @@ out{{i}}_L{{layer}},
 {% set A = HW_Conf[layer][0] -%}
 {% set B = HW_Conf[layer][1] -%}
 {% set C = HW_Conf[layer][2] -%}
-vit_x{{A}}_x{{B}}_x{{C}}_graph{{layer}}  vit_graph{{layer}};
+mm_x{{A}}_x{{B}}_x{{C}}_graph{{layer}}  mm_graph{{layer}};
 {% endfor %}
 
 {% for layer in L_list -%}
@@ -104,7 +104,7 @@ vit_x{{A}}_x{{B}}_x{{C}}_graph{{layer}}  vit_graph{{layer}};
 {% for j in range(C//A_BRO) -%}
 {% for k in range(B) -%}
 {% set row = k+j*B+i*(C//A_BRO)*B -%}
-connect<> net_lhs_in{{row}}_L{{layer}} (platform.src[{{row + port_pre}}], vit_graph{{layer}}.in_lhs[{{j+i*(C//A_BRO)}}][{{k}}]);
+connect<> net_lhs_in{{row}}_L{{layer}} (platform.src[{{row + port_pre}}], mm_graph{{layer}}.in_lhs[{{j+i*(C//A_BRO)}}][{{k}}]);
 {% endfor -%}
 {% endfor -%}
 {% endfor %}
@@ -120,7 +120,7 @@ connect<> net_lhs_in{{row}}_L{{layer}} (platform.src[{{row + port_pre}}], vit_gr
 {% for i in range(A//C_BRO) -%}
 {% for k in range(B) -%}
 {% set col = k+i*B+j*(A//C_BRO)*B -%}
-connect<> net_rhs_in{{col}}_L{{layer}} (platform.src[{{col + port_pre + port_total[0]}}], vit_graph{{layer}}.in_rhs[{{i+j*(A//C_BRO)}}][{{k}}]);
+connect<> net_rhs_in{{col}}_L{{layer}} (platform.src[{{col + port_pre + port_total[0]}}], mm_graph{{layer}}.in_rhs[{{i+j*(A//C_BRO)}}][{{k}}]);
 {% endfor -%}
 {% endfor -%}
 {% endfor -%}
@@ -133,7 +133,7 @@ connect<> net_rhs_in{{col}}_L{{layer}} (platform.src[{{col + port_pre + port_tot
 {% for i in range(A) -%}
 {% for j in range(C) -%}
 {% set out = j+i*C -%}
-connect<> net_out{{out}}_L{{layer}} (vit_graph{{layer}}.out[{{out}}], platform.sink[{{out + port_pre}}]);
+connect<> net_out{{out}}_L{{layer}} (mm_graph{{layer}}.out[{{out}}], platform.sink[{{out + port_pre}}]);
 {% endfor -%}
 {% endfor -%}
 {% endfor -%}
@@ -141,15 +141,15 @@ connect<> net_out{{out}}_L{{layer}} (vit_graph{{layer}}.out[{{out}}], platform.s
 #ifdef __AIESIM__
 int main(int argc, char** argv) {
     {% for layer in L_list -%}
-    vit_graph{{layer}}.init();
+    mm_graph{{layer}}.init();
     {% endfor -%}
     
     {% for layer in L_list -%}
-    vit_graph{{layer}}.run(4);
+    mm_graph{{layer}}.run(4);
     {% endfor -%}
 
     {% for layer in L_list -%}
-    vit_graph{{layer}}.end();
+    mm_graph{{layer}}.end();
     {% endfor -%}
 
     

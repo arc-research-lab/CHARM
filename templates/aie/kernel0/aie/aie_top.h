@@ -8,7 +8,7 @@ const int L{{layer}}_C={{C}};
 const int L{{layer}}_A_BRO={{A_BRO}};
 const int L{{layer}}_C_BRO={{C_BRO}};
 
-class vit_x{{A}}_x{{B}}_x{{C}}_graph{{layer}} : public adf::graph {
+class mm_x{{A}}_x{{B}}_x{{C}}_graph{{layer}} : public adf::graph {
 public:
     input_port in_lhs[(L{{layer}}_A*L{{layer}}_C/L{{layer}}_A_BRO)][L{{layer}}_B];
     input_port in_rhs[(L{{layer}}_A*L{{layer}}_C/L{{layer}}_C_BRO)][L{{layer}}_B];
@@ -22,7 +22,7 @@ public:
     {% endfor -%}
     {% endfor %}
 
-    vit_x{{A}}_x{{B}}_x{{C}}_graph{{layer}} () {
+    mm_x{{A}}_x{{B}}_x{{C}}_graph{{layer}} () {
 
         {% for i in range(A) -%}
         {% for j in range(C) -%}
