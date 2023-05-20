@@ -7,7 +7,7 @@ import sys
 sys.path.append('/home/pittzhou/Jinming/Pitts_CHARM/CACG/gen_pl')
 from gen_krl import*
 
-prj_dir= '/home/pittzhou/Jinming/Pitts_CHARM/CACG/prj_view'
+prj_dir= '/home/pittzhou/Jinming/Pitts_CHARM/CACG/prj_new'
 template_dir = "/home/pittzhou/Jinming/Pitts_CHARM/templates/pl_kernel"
 pl_dir= prj_dir + '/kernel'
 subprocess.run(['mkdir','-p' ,f'{pl_dir}'])
