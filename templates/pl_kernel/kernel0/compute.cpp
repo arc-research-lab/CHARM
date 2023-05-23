@@ -43,7 +43,7 @@ void compute(axis_stream_A& dataA_out, axis_stream_B& dataB_out, axis_stream_C& 
     #pragma HLS ARRAY_PARTITION variable=buff0_C cyclic factor=BUFFC_FACTOR dim=5
 
     ap_uint<PLIO_WIDTH> buff1_C[C*A][Z][X][W2][(H1/NUM_PER_TRA)];
-    #pragma HLS bind_storage variable=buff1_C type=RAM_1P impl={{BUFF_SEL[2]}}
+    #pragma HLS bind_storage variable=buff1_C type=RAM_T2P impl={{BUFF_SEL[2]}}
     #pragma HLS ARRAY_PARTITION variable=buff1_C complete dim=1
     #pragma HLS ARRAY_PARTITION variable=buff1_C cyclic factor=BUFFC_FACTOR dim=5
 
