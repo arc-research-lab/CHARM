@@ -92,6 +92,6 @@ def gen_conn(environment,A,B,C,A_BRO,C_BRO,layer,prj_folder):
         NUM_TXR=(A//C_BRO),
         layer=layer
     )
-    with open(filename, mode="a", encoding="utf-8") as message:
+    with open(filename, mode="w", encoding="utf-8") as message:
         message.write(content)
         print(f"... wrote {filename}")
