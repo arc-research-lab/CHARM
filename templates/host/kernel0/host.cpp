@@ -144,10 +144,10 @@ int main(int argc, char** argv) {
     memset(out_bomapped, 0xABCDEF00, sizeOut * sizeof(float));
     
     //int graph_iter=X*Y*Z*TX*TY*TZ;
-    vit_graph0.init();
+    mm_graph0.init();
            
     printf("graph run\n");
-    vit_graph0.run(-1);
+    mm_graph0.run(-1);
 
     std::cout << "Kernel run\n";
     xrtKernelHandle dma_khdl = xrtPLKernelOpen(dhdl, top->m_header.uuid, "dma");
