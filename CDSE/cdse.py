@@ -122,8 +122,11 @@ config=np.zeros([num_design_best+num_design_choice,num_term+sample_num-1])
 ############################ DSE Kernel0 ###############################
 
 for c in range(1, 8+1):      ##Row Constaint
+    print("DSE Processes ------------ " + str(12.5*c) + "%")
     for b in range(1, 50+1): ##Col Constaint
-        for a in range(1, AIE_NUM//(c*b)+1):    
+        for a in range(1, AIE_NUM//(c*b)+1):  
+            if (b>8 and b%4!=0) or b>16:
+                continue
             ############ Determine A_BRO and C_BRO ###########
             A_BRO=c
             C_BRO, height = broadC_factor(a,b,c)
@@ -133,7 +136,7 @@ for c in range(1, 8+1):      ##Row Constaint
             plio_in_rhs= c*b*a//C_BRO
             plio_in=plio_in_lhs + plio_in_rhs
             plio_out=a*c
-            if plio_in>PLIO_IN or plio_out>PLIO_OUT or b!=8:
+            if plio_in>PLIO_IN or plio_out>PLIO_OUT:
                 continue
 
             ############ Verify Placement ###########
