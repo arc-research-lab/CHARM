@@ -16,7 +16,7 @@ public:
 
     {% for i in range(A) -%}
     {% for j in range(C) -%}
-    {% set col = pos_col + ((j+i*C)//height)*B + ((j+i*C)%2)*(B-1) + (A*B*C//height) -%}
+    {% set col = pos_col + ((j+i*C)//height)*B + (((j+i*C)%height)%2)*(B-1) -%}
     {% set row = pos_row + (j+i*C)%height -%}
     simpleGraph_k1_B{{B}}_L{{layer}} <{{col}}, {{row}}>  vit_{{i}}_{{j}};
     {% endfor -%}
