@@ -79,6 +79,7 @@ void receiveC(ap_uint<PLIO_WIDTH> c_buf[Z][X][W2][(H1/NUM_PER_TRA)],axis_stream&
                         for (int j = 0; j < W2; j++){ 
                             for (int h2=0; h2<2; h2++){    
                             #pragma HLS PIPELINE II = 1
+                            #pragma HLS dependence variable=c_buf type=inter false
                                 int pos=h2+i*2;
                                 tmp=rxC.read();
                                 data_temp0[0].data_uint=tmp.data(31,0);
