@@ -5,7 +5,7 @@ import subprocess
 import os
 from .gen_host_func import*
 
-def gen_host_top(prj_dir,template_dir,hw_config):
+def gen_host_top(prj_dir,template_dir,hw_config,device):
     host_dir= prj_dir + '/host'
     subprocess.run(['mkdir','-p' ,f'{host_dir}'])
 
@@ -24,4 +24,4 @@ def gen_host_top(prj_dir,template_dir,hw_config):
 
     host_folder= Path(host_dir)
 
-    gen_host(environment[0],h1,w1,w2,A,B,C,A_BRO,C_BRO,X,Y,Z,host_folder)
+    gen_host(environment[0],device,h1,w1,w2,A,B,C,A_BRO,C_BRO,X,Y,Z,host_folder)

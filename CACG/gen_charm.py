@@ -7,7 +7,7 @@ from .gen_pl import *
 from .gen_aie import *
 from .gen_host import *
 
-def gen_charm_top(prj_dir,final_config):
+def gen_charm_top(prj_dir,final_config,device):
     Versal_HW=final_config[0]
     placement=final_config[1]
     BUFF_SEL=final_config[2]
@@ -30,14 +30,14 @@ def gen_charm_top(prj_dir,final_config):
     pl_dir= prj_dir + '/kernel'
 
     # ### Copy Makefile
-    copy_makefile = Path(template_dir +"/Makefile")
-    subprocess.run(['cp', '-r', copy_makefile, f'{prj_dir}'])
+    copy_makefile = Path(template_dir +"/Makefile_" + device)
+    subprocess.run(['cp', '-r', copy_makefile, f'{prj_dir+"/Makefile"}'])
 
     ### Code Gen
     #########################
     gen_aie_top(prj_dir,template_dir_aie,AIE_Conf,placement)
     gen_pl_top(prj_dir,template_dir_pl,pl_dir,PL_Conf,BUFF_SEL)
-    gen_host_top(prj_dir,template_dir_host,Host_Conf)
+    gen_host_top(prj_dir,template_dir_host,Host_Conf,device)
 
 
 

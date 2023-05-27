@@ -1,8 +1,9 @@
-def gen_host(environment,h1,w1,w2,A,B,C,A_BRO,C_BRO,X,Y,Z,host_folder):
+def gen_host(environment,device,h1,w1,w2,A,B,C,A_BRO,C_BRO,X,Y,Z,host_folder):
     template = environment.get_template("host.cpp")
     file_tmp = "host.cpp"
     filename = host_folder / file_tmp
     content = template.render(
+        device=device,
         h1=h1,
         w1=w1,
         w2=w2,

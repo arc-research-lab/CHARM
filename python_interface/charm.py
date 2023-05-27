@@ -14,5 +14,6 @@ class charm:
         final_config=cdse_top(A,B)
         return final_config
     
-    def cacg(self,final_config):
-        gen_charm_top(self.prj_dir,final_config)
+    def cacg(self,final_config,device):
+        device=device.lower()
+        gen_charm_top(self.prj_dir,final_config,device)

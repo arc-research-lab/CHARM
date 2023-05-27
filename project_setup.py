@@ -16,4 +16,4 @@ automm=charm(prj_dir)
 
 Versal_config=automm.cdse(A,B)
 
-automm.cacg(Versal_config)
+automm.cacg(Versal_config,'VCK5000')
