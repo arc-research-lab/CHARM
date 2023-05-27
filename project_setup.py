@@ -24,5 +24,5 @@ Versal_config=automm.cdse(A,B)
 device='vck190' # Supported devices are vck190 and vck5000
 automm.cacg(Versal_config,device)
 
-#Run Compilation Flow
+#Run Vitis Compilation Flow
 automm.build()
