@@ -11,9 +11,15 @@
 #include "../aie/layer0/aie_top_L0.h"
 {% endif %}
 
+{% if device == "vck190" %}
 // This is used for the PL Kernels
 #include "xrt/xrt.h"
 #include "xrt/experimental/xrt_kernel.h"
+{% elif device == "vck5000" %}
+// This is used for the PL Kernels
+#include "xrt.h"
+#include "experimental/xrt_kernel.h"
+{% endif %}
 
 {% if device == "vck190" %}
 // Using the ADF API that call XRT API
