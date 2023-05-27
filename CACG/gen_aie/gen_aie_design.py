@@ -7,13 +7,13 @@ from .gen_array import*
 from .gen_kernel import*
 from .gen_combine import*
 
-def gen_aie_top(prj_dir,template_dir,Model_ViT,placement):
+def gen_aie_top(prj_dir,template_dir,Model_MM,placement):
     kernel_type_num=1
-    num_layer=Model_ViT.shape[0]
+    num_layer=Model_MM.shape[0]
     port_width=128
     freq=250
     L_list=[0]
-    HW_Conf=Model_ViT[:,3:]
+    HW_Conf=Model_MM[:,3:]
 
     aie_dir= prj_dir + '/aie'
     subprocess.run(['mkdir','-p' ,f'{aie_dir}'])
@@ -62,15 +62,15 @@ def gen_aie_top(prj_dir,template_dir,Model_ViT,placement):
 
     for i in L_list:
         layer=i
-        h1 = Model_ViT[layer][0]
-        w1 = Model_ViT[layer][1]
-        w2 = Model_ViT[layer][2]
-        A  = Model_ViT[layer][3]
-        B  = Model_ViT[layer][4]
-        C  = Model_ViT[layer][5]
-        A_BRO = Model_ViT[layer][6]
-        C_BRO = Model_ViT[layer][7]
-        kernel_type=Model_ViT[layer][8]
+        h1 = Model_MM[layer][0]
+        w1 = Model_MM[layer][1]
+        w2 = Model_MM[layer][2]
+        A  = Model_MM[layer][3]
+        B  = Model_MM[layer][4]
+        C  = Model_MM[layer][5]
+        A_BRO = Model_MM[layer][6]
+        C_BRO = Model_MM[layer][7]
+        kernel_type=Model_MM[layer][8]
         file_dir=aie_dir + "/layer" + str(layer)
         layer_name=str(layer)
 
@@ -79,7 +79,6 @@ def gen_aie_top(prj_dir,template_dir,Model_ViT,placement):
         height   = placement[i][3]
         subprocess.run(['mkdir','-p' ,file_dir])
         aie_folder = Path(file_dir)
-        print()
         gen_para(environment[kernel_type],h1,w1,w2,A,B,C,A_BRO,C_BRO,layer_name,aie_folder)
         gen_krnl(environment_kernel[kernel_type],w1,kernel_type,layer_name,aie_folder)
         gen_grah(environment[kernel_type],B,layer_name,aie_folder)
