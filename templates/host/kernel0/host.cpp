@@ -7,15 +7,20 @@
 #include <vector>
 #include <math.h>
 #include <string>
+{% if device == "vck190" %}
 #include "../aie/layer0/aie_top_L0.h"
+{% endif %}
 
 // This is used for the PL Kernels
 #include "xrt/xrt.h"
 #include "xrt/experimental/xrt_kernel.h"
 
+{% if device == "vck190" %}
 // Using the ADF API that call XRT API
 #include "adf/adf_api/XRTConfig.h"
 mm_x{{A}}_x{{B}}_x{{C}}_graph0 mm_graph0;
+{% endif %}
+
 using namespace std;
 
 static std::vector<char> load_xclbin(xrtDeviceHandle device, const std::string& fnm) {
@@ -92,7 +97,9 @@ int main(int argc, char** argv) {
     if (dhdl == nullptr) throw std::runtime_error("No valid device handle found. Make sure using right xclOpen index.");
     auto xclbin = load_xclbin(dhdl, xclbinFilename);
     auto top = reinterpret_cast<const axlf*>(xclbin.data());
+    {% if device == "vck190" %}
     adf::registerXRT(dhdl, top->m_header.uuid);
+    {% endif %}
 
     float temp_m=(float)(M1)/(float)(X*A*H1);
     float temp_k=(float)(K1)/(float)(Y*B*W1);
@@ -143,11 +150,11 @@ int main(int argc, char** argv) {
     auto out_bomapped = reinterpret_cast<float*>(xrtBOMap(out_bohdl));
     memset(out_bomapped, 0xABCDEF00, sizeOut * sizeof(float));
     
-    //int graph_iter=X*Y*Z*TX*TY*TZ;
+    {% if device == "vck190" %}
     mm_graph0.init();
-           
     printf("graph run\n");
     mm_graph0.run(-1);
+    {% endif %}
 
     std::cout << "Kernel run\n";
     xrtKernelHandle dma_khdl = xrtPLKernelOpen(dhdl, top->m_header.uuid, "dma");
