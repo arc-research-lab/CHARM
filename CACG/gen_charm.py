@@ -8,10 +8,11 @@ from .gen_aie import *
 from .gen_host import *
 
 def gen_charm_top(prj_dir,final_config,device):
-    Versal_HW=final_config[0]
-    placement=final_config[1]
-    BUFF_SEL=final_config[2]
     
+    Versal_HW=np.array(final_config[0]).astype(int)
+    placement=np.array(final_config[1]).astype(int)
+    BUFF_SEL=np.array(final_config[2])
+
     AIE_Conf=np.zeros([1,9]).astype(int)
     AIE_Conf[0,:]= np.append(Versal_HW[0,0:8],Versal_HW[0,12]).astype(int)
 

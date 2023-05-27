@@ -1,6 +1,7 @@
 import numpy as np
 import os
 import sys
+import subprocess
 directory = os.path.dirname(os.path.abspath(__file__)) + "/../"
 sys.path.append(directory)
 from CACG import*
@@ -17,3 +18,7 @@ class charm:
     def cacg(self,final_config,device):
         device=device.lower()
         gen_charm_top(self.prj_dir,final_config,device)
+    
+    def build(self):
+        os.chdir(self.prj_dir)
+        subprocess.call('make all', shell=True)
