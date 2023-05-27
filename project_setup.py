@@ -14,7 +14,7 @@ subprocess.run(['mkdir','-p' ,f'{prj_dir}'])
 A=np.random.rand(4096, 4096).astype(np.float32)
 B=np.random.rand(4096, 4096).astype(np.float32)
 
-#define the object of class charm
+#Create the object of the class charm
 automm=charm(prj_dir)
 
 #Launch charm dse to find optimized hardware configuration
