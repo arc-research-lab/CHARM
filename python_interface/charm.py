@@ -6,12 +6,13 @@ sys.path.append(directory)
 from CACG import*
 from CDSE import*
 
-prj_dir= '/home/pittzhou/Jinming/Pitts_CHARM/CACG/prj_try'
-subprocess.run(['mkdir','-p' ,f'{prj_dir}'])
-
-A=np.random.rand(4096, 4096).astype(np.float32)
-B=np.random.rand(4096, 4096).astype(np.float32)
-
-final_config=cdse_top(A,B)
-
-gen_charm_top(prj_dir,final_config)
+class charm:
+    def __init__(self, prj_dir='.'):  
+        self.prj_dir = prj_dir  
+        
+    def cdse(self,A,B):
+        final_config=cdse_top(A,B)
+        return final_config
+    
+    def cacg(self,final_config):
+        gen_charm_top(self.prj_dir,final_config)
