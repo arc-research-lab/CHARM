@@ -75,7 +75,8 @@ cd /mnt/sd-mmcblk0p1
 # **New Release  ! &emsp;  !  &emsp; !**
 ## **Python Based Automatical Framework for Matrix Multiply**:<br>
 + **What's new ?:** In this release we create an entire python interface for matrix multiply under floating-point 32 data type for Versal ACAP VCK190 and VCK5000 Platforms.
-+ **Overall Compilation Flow**:<br>
++ **Overall Compilation Flow**:<br><br>
+<img src="https://github.com/JinmingZhuang/Pitts_CHARM/assets/77606152/a9baf30c-41bb-48c1-8068-b63ce6f337b5" width="800" height="300"><br><br>
 + **Python Interface Introduction**:<br>
 **Quick Start: Running project_setup.py**
 ```bash
