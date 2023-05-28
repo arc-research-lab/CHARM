@@ -234,7 +234,6 @@ def cdse_top(Op0,Op1):
     config = config[config[:,0].argsort()[::-1]]
 
     Versal_HW_temp=config[0,:]
-    print(Versal_HW_temp)
     Versal_HW=np.zeros([1,13]) # h1,   w1,   w2,   A,   B,   C,  A_BRO, C_BRO,   X,   Y,   Z,  data_type  kernel_type
     Versal_HW[0,0:3]=[H1,W1,W2]
     Versal_HW[0,3:11]=Versal_HW_temp[1:9]
