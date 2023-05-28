@@ -4,7 +4,7 @@
 
 void mm0_kernel3_L{{layer}}(input_window_float* __restrict matA, 
         input_window_float* __restrict matB,
-		output_window_float* __restrict matC){
+		output_stream_float* __restrict matC){
 
 	v16float buf_matB = undef_v16float();
 	v16float buf_matA = undef_v16float();
@@ -137,15 +137,15 @@ void mm0_kernel3_L{{layer}}(input_window_float* __restrict matA,
 			acc1 = fpmac(acc1,buf_matA,0,0x76543210,ext_w(buf_matB,1),6,0x0);
 	
 			acc0 = fpmac(acc0,buf_matA,8,0x76543210,ext_w(buf_matB,1),3,0x0);
-			window_write(matC,acc0);
-            window_incr(matC,8);
+			writeincr_v4(matC,ext_lo(acc0));
+            writeincr_v4(matC,ext_hi(acc0));
 			buf_matA = upd_w(buf_matA,0,window_read_v8(matA));
 			window_incr(matA,L{{layer}}_h1);
 			buf_matB = upd_v(buf_matB,0,window_read_v4(matB));
 			window_incr(matB,L{{layer}}_w1);
 			acc1 = fpmac(acc1,buf_matA,8,0x76543210,ext_w(buf_matB,1),7,0x0);
-			window_write(matC,acc1);
-            window_incr(matC,8);
+			writeincr_v4(matC,ext_lo(acc1));
+            writeincr_v4(matC,ext_hi(acc1));
 			buf_matB = upd_v(buf_matB,1,window_read_v4(matB));
 			window_decr(matB,L{{layer}}_jump_B0);	
 		}

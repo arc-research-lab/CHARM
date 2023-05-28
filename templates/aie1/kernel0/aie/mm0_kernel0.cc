@@ -1,10 +1,9 @@
 #include <adf.h>
 #include <stdio.h>
 #include "para_L{{layer}}.h"
-
-void mm0_kernel3_L{{layer}}(input_window_float* __restrict matA, 
+void mm0_kernel0_L{{layer}}(input_window_float* __restrict matA, 
         input_window_float* __restrict matB,
-		output_window_float* __restrict matC){
+		output_stream_accfloat* __restrict matC){
 
 	v16float buf_matB = undef_v16float();
 	v16float buf_matA = undef_v16float();
@@ -25,8 +24,8 @@ void mm0_kernel3_L{{layer}}(input_window_float* __restrict matA,
 		for (unsigned int j=0;j<L{{layer}}_boundary_j;j++)
 		chess_prepare_for_pipelining
 		chess_loop_range(L{{layer}}_boundary_j,){
-			v8float  acc0=null_v8float();
-			v8float  acc1=null_v8float();
+			v8float  acc0=null_v8float();//For first output column
+			v8float  acc1=null_v8float();//For second output column
 			int jump=L{{layer}}_h1;
 			if (j==L{{layer}}_judge_j){
 				if(i==L{{layer}}_judge_i){
@@ -137,15 +136,13 @@ void mm0_kernel3_L{{layer}}(input_window_float* __restrict matA,
 			acc1 = fpmac(acc1,buf_matA,0,0x76543210,ext_w(buf_matB,1),6,0x0);
 	
 			acc0 = fpmac(acc0,buf_matA,8,0x76543210,ext_w(buf_matB,1),3,0x0);
-			window_write(matC,acc0);
-            window_incr(matC,8);
+			writeincr_v8(matC,acc0);
 			buf_matA = upd_w(buf_matA,0,window_read_v8(matA));
 			window_incr(matA,L{{layer}}_h1);
 			buf_matB = upd_v(buf_matB,0,window_read_v4(matB));
 			window_incr(matB,L{{layer}}_w1);
 			acc1 = fpmac(acc1,buf_matA,8,0x76543210,ext_w(buf_matB,1),7,0x0);
-			window_write(matC,acc1);
-            window_incr(matC,8);
+			writeincr_v8(matC,acc1);
 			buf_matB = upd_v(buf_matB,1,window_read_v4(matB));
 			window_decr(matB,L{{layer}}_jump_B0);	
 		}

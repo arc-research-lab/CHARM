@@ -17,7 +17,7 @@ const int L{{layer}}_judge_j=L{{layer}}_boundary_j-1;
 
 void mm0_kernel0_L{{layer}}(input_window_float* __restrict matA, input_window_float*  __restrict matB, output_stream_accfloat* __restrict matC);
 void mm0_kernel1_L{{layer}}(input_window_float* __restrict matA, input_window_float*  __restrict matB, input_stream_accfloat* __restrict acc_in, output_stream_accfloat* __restrict matC);
-void mm0_kernel2_L{{layer}}(input_window_float* __restrict matA, input_window_float*  __restrict matB, input_stream_accfloat* __restrict acc_in, output_window_float * __restrict matC);
-void mm0_kernel3_L{{layer}}(input_window_float* __restrict matA, input_window_float*  __restrict matB, output_window_float* __restrict matC);
+void mm0_kernel2_L{{layer}}(input_window_float* __restrict matA, input_window_float*  __restrict matB, input_stream_accfloat* __restrict acc_in, output_stream_float * __restrict matC);
+void mm0_kernel3_L{{layer}}(input_window_float* __restrict matA, input_window_float*  __restrict matB, output_stream_float* __restrict matC);
 
 #endif

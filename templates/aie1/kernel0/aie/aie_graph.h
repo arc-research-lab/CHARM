@@ -23,7 +23,7 @@ class simpleGraph_k1_B{{B}}_L{{layer}}: public graph {
       runtime<ratio>(mm[0]) = 1;
       connect<window<L{{layer}}_h1*L{{layer}}_w1*4>>(in0[0], mm[0].in[0]);
       connect<window<L{{layer}}_w1*L{{layer}}_w2*4>>(in1[0], mm[0].in[1]);
-      connect<window<L{{layer}}_h1*L{{layer}}_w2*4>>(mm[0].out[0], out);
+      connect<stream>(mm[0].out[0], out);
       adf::location<kernel>(mm[0]) = adf::tile(COL_OFFSET,ROW_OFFSET);
       {% elif B > 1 %}
       for (int i=0; i<L{{layer}}_NUM_KERNEL;i++){
@@ -58,12 +58,7 @@ class simpleGraph_k1_B{{B}}_L{{layer}}: public graph {
           location<buffer>(mm[i].in[1]) =
           { address(COL_OFFSET+i, ROW_OFFSET, 0x4000), 
             address(COL_OFFSET+i, ROW_OFFSET, 0x6000)};
-          if(i==L{{layer}}_NUM_KERNEL-1){
-            location<buffer>(mm[i].out[0]) =
-            { address(COL_OFFSET+i-1, ROW_OFFSET, 0x5000), 
-              address(COL_OFFSET+i-1, ROW_OFFSET, 0x7000)};
-          }  
-          location<stack>(mm[i]) = address(COL_OFFSET+i, ROW_OFFSET, 0x3000);
+          location<stack>(mm[i]) = address(COL_OFFSET+i, ROW_OFFSET, 0x7000);
         }
         else{
           location<buffer>(mm[i].in[0]) =
@@ -72,12 +67,7 @@ class simpleGraph_k1_B{{B}}_L{{layer}}: public graph {
           location<buffer>(mm[i].in[1]) =
           { address(COL_OFFSET-i, ROW_OFFSET, 0x4000), 
             address(COL_OFFSET-i, ROW_OFFSET, 0x6000)};
-          if(i==L{{layer}}_NUM_KERNEL-1){
-            location<buffer>(mm[i].out[0]) =
-            { address(COL_OFFSET-i+1, ROW_OFFSET, 0x5000), 
-              address(COL_OFFSET-i+1, ROW_OFFSET, 0x7000)};
-          }
-          location<stack>(mm[i]) = address(COL_OFFSET-i, ROW_OFFSET, 0x3000);
+          location<stack>(mm[i]) = address(COL_OFFSET-i, ROW_OFFSET, 0x7000);
         }
       }
 
@@ -89,7 +79,7 @@ class simpleGraph_k1_B{{B}}_L{{layer}}: public graph {
 
       for (int i=0; i<L{{layer}}_NUM_KERNEL;i++){
         if(i==L{{layer}}_NUM_KERNEL-1){
-          connect<window<L{{layer}}_h1*L{{layer}}_w2*4>>(mm[i].out[0], out);
+          connect<stream>(mm[i].out[0], out);
         }
         else{
           connect<cascade>(mm[i].out[0], mm[i+1].in[2]);
