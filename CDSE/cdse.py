@@ -134,10 +134,10 @@ def cdse_top(Op0,Op1):
 
     ############################ DSE Kernel0 ###############################
 
-    for c in [5]:#range(1, 8+1):      ##Row Constaint
+    for c in range(1, 8+1):      ##Row Constaint
         print("DSE Processes ------------ " + str(12.5*c) + "%")
-        for b in [8]:#range(1, 50+1): ##Col Constaint
-            for a in [4]:#range(1, AIE_NUM//(c*b)+1):  
+        for b in range(1, 50+1): ##Col Constaint
+            for a in range(1, AIE_NUM//(c*b)+1):  
                 if (b>8 and b%4!=0) or b>16:
                     continue
                 ############ Determine A_BRO and C_BRO ###########
@@ -150,19 +150,19 @@ def cdse_top(Op0,Op1):
                 plio_in=plio_in_lhs + plio_in_rhs
                 plio_out=a*c
                 if plio_in>PLIO_IN or plio_out>PLIO_OUT:
-                    continue
+                    break
 
                 ############ Verify Placement ###########
                 length=placement_verify(a,b,c,height)
                 if length > 50:
                     continue
 
-                for x in [8]:#range(1, 16+1):
-                    for y in [2]:#range(1, 16+1): 
-                        for z in [4]:#range(1, 16+1):
+                for x in range(1, 16+1):
+                    for y in range(1, 16+1): 
+                        for z in range(1, 16+1):
                             bram_use,uram_use,buf_index=buff_count_0(BRAM,URAM,PART_A,PART_B,PART_C,LEFT_SIZE,RIGHT_SIZE,OUT_SIZE,a,b,c,x,y,z,DBUFF_L,DBUFF_R,DBUFF_O,RAM_TYPE_A,RAM_TYPE_B,RAM_TYPE_C)
                             if (bram_use>BRAM or uram_use>URAM):
-                                continue
+                                break
 
                             for large_t in range(sample_num):
                                 TILEL_SIZE=a*b*LEFT_SIZE*DATA_TYPE*NUM_PER_PORT_A
@@ -234,6 +234,7 @@ def cdse_top(Op0,Op1):
     config = config[config[:,0].argsort()[::-1]]
 
     Versal_HW_temp=config[0,:]
+    print(Versal_HW_temp)
     Versal_HW=np.zeros([1,13]) # h1,   w1,   w2,   A,   B,   C,  A_BRO, C_BRO,   X,   Y,   Z,  data_type  kernel_type
     Versal_HW[0,0:3]=[H1,W1,W2]
     Versal_HW[0,3:11]=Versal_HW_temp[1:9]
