@@ -127,11 +127,11 @@ int main(int argc, char** argv) {
 
     srand (time(0));
     for (int k = 0; k < sizeIn1; k++) {
-        DataInput0[k]= (float)(rand()*1.0);
+        DataInput0[k]= (float)(rand()%5);
     } 
 
     for (int k = 0; k < sizeIn2; k++) {
-        DataInput1[k]= (float)(rand()*1.0);
+        DataInput1[k]= (float)(rand()%5);
     }
 
     //Allocate input mem
