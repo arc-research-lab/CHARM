@@ -4,7 +4,7 @@ import subprocess
 import numpy as np
 cur_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(cur_dir)
-from python_interface import* 
+from charm import* 
 
 #Set the design project path
 prj_dir= cur_dir + '/prj_try'
