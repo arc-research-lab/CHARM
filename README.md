@@ -83,7 +83,7 @@ cd /mnt/sd-mmcblk0p1
 python project_setup.py
 ```
 ```Python
-from python_interface import* 
+from charm import* 
 
 #Define the left-hand-side(A) and right-hide-side(B) operands
 A=np.random.rand(4096, 4096).astype(np.float32)
