@@ -1,0 +1,1 @@
+kernel0: MAC8, fp32
