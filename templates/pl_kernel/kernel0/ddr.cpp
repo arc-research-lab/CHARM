@@ -164,6 +164,10 @@ void storeC(axis_stream_C& dataC_out, ap_uint<PLIO_WIDTH> c_buf[C*A][Z][X][W2][(
                                 temp_data(383,256)=c_buf[pos1][z][x][w2][pos0+2];
                                 temp_data(511,384)=c_buf[pos1][z][x][w2][pos0+3];
                                 dataC_out.write(temp_data);
+                                c_buf[pos1][z][x][w2][pos0]=0;
+                                c_buf[pos1][z][x][w2][pos0+1]=0;
+                                c_buf[pos1][z][x][w2][pos0+2]=0;
+                                c_buf[pos1][z][x][w2][pos0+3]=0;
                             }
                         }
                     }

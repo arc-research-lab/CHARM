@@ -10,7 +10,7 @@ def cdse_top(Op0,Op1):
     MODEL_IN[0,0]=Op0.shape[0]
     MODEL_IN[0,1]=Op0.shape[1]
     MODEL_IN[0,2]=Op1.shape[1]
-    if Op0.shape[1]!=Op0.shape[0]:
+    if Op0.shape[1]!=Op1.shape[0]:
         print("\n\n")
         sys.exit("Dim 1 of Matix 0 doesn't match Dim 0 of Matrix 1\n\n")
     if Op0.dtype!=np.float32 or Op1.dtype!=np.float32:
