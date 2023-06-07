@@ -87,18 +87,10 @@ void receiveC(ap_uint<PLIO_WIDTH> c_buf[Z][X][W2][(H1/NUM_PER_TRA)],axis_stream&
                                 data_temp0[2].data_uint=tmp.data(95,64);
                                 data_temp0[3].data_uint=tmp.data(127,96);
 
-                                if (y==0){
-                                    data_temp1[0].data_uint=0;
-                                    data_temp1[1].data_uint=0;
-                                    data_temp1[2].data_uint=0;
-                                    data_temp1[3].data_uint=0;
-                                }
-                                else{
-                                    data_temp1[0].data_uint=c_buf[z][x][j][pos](31,0);
-                                    data_temp1[1].data_uint=c_buf[z][x][j][pos](63,32);
-                                    data_temp1[2].data_uint=c_buf[z][x][j][pos](95,64);
-                                    data_temp1[3].data_uint=c_buf[z][x][j][pos](127,96);
-                                }
+                                data_temp1[0].data_uint=c_buf[z][x][j][pos](31,0);
+                                data_temp1[1].data_uint=c_buf[z][x][j][pos](63,32);
+                                data_temp1[2].data_uint=c_buf[z][x][j][pos](95,64);
+                                data_temp1[3].data_uint=c_buf[z][x][j][pos](127,96);
 
 
                                 data_temp2[0].data_float=data_temp0[0].data_float + data_temp1[0].data_float; 
