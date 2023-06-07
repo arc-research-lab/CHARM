@@ -164,6 +164,26 @@ void storeC(axis_stream_C& dataC_out, ap_uint<PLIO_WIDTH> c_buf[C*A][Z][X][W2][(
                                 temp_data(383,256)=c_buf[pos1][z][x][w2][pos0+2];
                                 temp_data(511,384)=c_buf[pos1][z][x][w2][pos0+3];
                                 dataC_out.write(temp_data);
+                                // c_buf[pos1][z][x][w2][pos0]=0;
+                                // c_buf[pos1][z][x][w2][pos0+1]=0;
+                                // c_buf[pos1][z][x][w2][pos0+2]=0;
+                                // c_buf[pos1][z][x][w2][pos0+3]=0;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        for(int z=0;z<Z;z++){
+            for(int c=0;c<C;c++){
+                for(int w2=0;w2<W2;w2++){
+                    for(int x=0;x<X;x++){
+                        for (int a=0;a<A;a++){
+                            for (int n=0; n<H1/C_PER_TRA;n++){
+                            #pragma HLS PIPELINE II = 1
+                            #pragma HLS dependence variable=c_buf type=intra false
+                                int pos0=n*4;
+                                int pos1=c+a*C;
                                 c_buf[pos1][z][x][w2][pos0]=0;
                                 c_buf[pos1][z][x][w2][pos0+1]=0;
                                 c_buf[pos1][z][x][w2][pos0+2]=0;
