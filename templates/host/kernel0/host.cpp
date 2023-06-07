@@ -47,7 +47,17 @@ static std::vector<char> load_xclbin(xrtDeviceHandle device, const std::string& 
     return header;
 }
 
-void sw_mm(std::vector<float> DataInput0,std::vector<float> DataInput1,std::vector<float> &golden,const int M,const int K,const int N){
+void post_pro(float *Data_hw, std::vector<float> final_result, const int M1, const int N1, const int M){
+    for (int n = 0; n < N1; n++) {
+        for (int m = 0; m < M1; m++) { 
+            int pos0=m+n*M;
+            int pos1=m+n*M1;
+            final_result[pos1]=Data_hw[pos0];
+        } 
+    }
+}
+
+void sw_mm(std::vector<float> DataInput0,std::vector<float> DataInput1,float *golden,const int M,const int K,const int N){
     float sum = 0;
     for (int m = 0; m < M; m++) {
         for (int n = 0; n < N; n++) {
@@ -120,18 +130,39 @@ int main(int argc, char** argv) {
     int sizeIn1 = M * K;
     int sizeIn2 = K * N;
     int sizeOut = M * N;
+    int sizeOut1 = M1 * N1;
     
     std::vector<float> DataInput0(sizeIn1,1);
     std::vector<float> DataInput1(sizeIn2,1);
-    std::vector<float> golden(sizeOut,1);
+    float* golden = new float[sizeOut];
+    std::vector<float> final_result_sw(sizeOut1,1);
+    std::vector<float> final_result_hw(sizeOut1,1);
 
     srand (time(0));
-    for (int k = 0; k < sizeIn1; k++) {
-        DataInput0[k]= (float)(rand()%5);
+    for (int k = 0; k < K; k++) {
+        for (int m = 0; m < M; m++) {
+            int pos = m + k*M;
+            if (m>=M1||k>=K1){
+                DataInput0[pos]= 0;
+            }
+            else{
+                DataInput0[pos]= (float)(rand()%5);
+            }
+            
+        }
     } 
 
-    for (int k = 0; k < sizeIn2; k++) {
-        DataInput1[k]= (float)(rand()%5);
+    for (int n = 0; n < N; n++) {
+        for (int k = 0; k < K; k++) {
+            int pos = k + n * K;
+            if (k>=K1||n>=N1){
+                DataInput1[pos]= 0;
+            }
+            else{
+                DataInput1[pos]= (float)(rand()%5);
+            }
+            
+        }
     }
 
     //Allocate input mem
@@ -214,17 +245,17 @@ int main(int argc, char** argv) {
     ////////////////////////////////////////////
     if(verify){
         
+        post_pro(out_bomapped, final_result_hw, M1, N1, M);
         sw_mm(DataInput0,DataInput1,golden,M,K,N);
-    
+        post_pro(golden, final_result_sw, M1, N1, M);
         int errorCount = 0;  
-        for (int len = 0; len < sizeOut; len++) {
+        for (int len = 0; len < sizeOut1; len++) {
 
-            if(abs((float)(out_bomapped[len])-golden[len])>=1e-4){
-                printf("Error found out_bomapped[%d]!=golden[%d], %f!=%f \n", len,len,out_bomapped[len],golden[len]);
+            if(abs((float)(final_result_hw[len])-final_result_sw[len])>=1e-4){
+                printf("Error found final_result_hw[%d]!=final_result_sw[%d], %f!=%f \n", len,len,final_result_hw[len],final_result_sw[len]);
                 errorCount++;
             }
-
-            
+   
         }
         if (errorCount)
             printf("Test failed with %d errors\n", errorCount);
