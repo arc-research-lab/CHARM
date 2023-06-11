@@ -1,12 +1,48 @@
 [![DOI](https://zenodo.org/badge/558491173.svg)](https://zenodo.org/badge/latestdoi/558491173)
 
 # CHARM: Composing Heterogeneous Accelerators for Matrix Multiply on Versal ACAP Architecture (FPGA'23)
+# High Performance, Low Power Matrix Multiply Design on ACAP: from Architecture, Design Challenges and DSE Perspectives (DAC'23). 
 
-## ACM Reference Format
-Jinming Zhuang, Jason Lau, Hanchen Ye, Zhuoping Yang, Yubo Du, Jack Lo, Kristof Denolf, Stephen Neuendorffer, Alex Jones, Jingtong Hu, Deming
+## ACM/IEEE Reference Format
+1. Jinming Zhuang, Jason Lau, Hanchen Ye, Zhuoping Yang, Yubo Du, Jack Lo, Kristof Denolf, Stephen Neuendorffer, Alex Jones, Jingtong Hu, Deming
 Chen, Jason Cong, Peipei Zhou. 2023. CHARM: Composing Heterogeneous Accelerators for Matrix Multiply on Versal ACAP Architecture. In Proceedings of the 2023 ACM/SIGDA International Symposium on Field Programmable Gate Arrays (FPGA ’23), February 12–14, 2023, Monterey, CA, USA. ACM, New York, NY, USA, 12 pages. https://doi.org/10.1145/3543622.3573210
 
 Author Version PDF: https://peipeizhou-eecs.github.io/publication/fpga23/
+
+2. Jinming Zhuang, Zhuoping Yang, Peipei Zhou. 2023. High Performance, Low Power Matrix Multiply Design on ACAP: from Architecture, Design Challenges and DSE Perspectives. In Proceedings of the 60th ACM/IEEE Design Automation Conference, San Francisco, California, USA, (DAC ’23), July 9–13, 2023, San Francisco, CA, USA. 
+
+Author Version PDF: https://arxiv.org/pdf/2305.18698.pdf
+
+# **New Release  ! &emsp;  !  &emsp; !** 2023.05.29
+## **Python Based Automatic Framework for Matrix Multiply**:<br>
++ **What's new ?:** In this release we create an entire python interface for matrix multiply under floating-point 32 data type for Versal ACAP VCK190 and VCK5000 Platforms.
++ **Overall Compilation Flow**:<br><br>
+<img src="https://github.com/arc-research-lab/CHARM/assets/77606152/c001c316-e310-49ec-9495-7bb01a718656" width="800" height="300"><br><br>
++ **Python Interface Introduction**:<br>
+**Quick Start: Running project_setup.py**
+```bash
+python project_setup.py
+```
+```Python
+from charm import* 
+
+#Define the left-hand-side(A) and right-hide-side(B) operands
+A=np.random.rand(4096, 4096).astype(np.float32)
+B=np.random.rand(4096, 4096).astype(np.float32)
+
+#Create the object of the class charm
+automm=charm(prj_dir)
+
+#Launch charm dse to find optimized hardware configuration
+Versal_config=automm.cdse(A,B)
+
+#Launch charm automatic code generator to emit the code for AIE, PL and Host CPU
+device='vck190' # Supported devices are vck190 and vck5000
+automm.cacg(Versal_config,device)
+
+#Run Vitis Compilation Flow
+automm.build()
+```
 
 ## Overview
 In this repo, we use general-purpose Matrix-Matrix Multiplication (GEMM) applications as an example and provide a detailed description of how to build a system-level design on AMD Versal VCK190 Platform. By going through this repo, users can get knowledge on:
@@ -72,36 +108,7 @@ cd /mnt/sd-mmcblk0p1
 ./hostexe mm_hw.xclbin {M} {K} {N} {iteration} {verify}
 ```
 
-# **New Release  ! &emsp;  !  &emsp; !**
-## **Python Based Automatic Framework for Matrix Multiply**:<br>
-+ **What's new ?:** In this release we create an entire python interface for matrix multiply under floating-point 32 data type for Versal ACAP VCK190 and VCK5000 Platforms.
-+ **Overall Compilation Flow**:<br><br>
-<img src="https://github.com/arc-research-lab/CHARM/assets/77606152/c001c316-e310-49ec-9495-7bb01a718656" width="800" height="300"><br><br>
-+ **Python Interface Introduction**:<br>
-**Quick Start: Running project_setup.py**
-```bash
-python project_setup.py
-```
-```Python
-from charm import* 
 
-#Define the left-hand-side(A) and right-hide-side(B) operands
-A=np.random.rand(4096, 4096).astype(np.float32)
-B=np.random.rand(4096, 4096).astype(np.float32)
-
-#Create the object of the class charm
-automm=charm(prj_dir)
-
-#Launch charm dse to find optimized hardware configuration
-Versal_config=automm.cdse(A,B)
-
-#Launch charm automatic code generator to emit the code for AIE, PL and Host CPU
-device='vck190' # Supported devices are vck190 and vck5000
-automm.cacg(Versal_config,device)
-
-#Run Vitis Compilation Flow
-automm.build()
-```
 
 ## Step by Step Tutorial
 In this part, we first introduce the overall MM tiling strategy including four levels of tilings. Then in the later parts, we illustrate the methodology of how we handle each of these level of tilings.<br>
