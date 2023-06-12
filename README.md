@@ -14,7 +14,7 @@ Author Version PDF: https://peipeizhou-eecs.github.io/publication/fpga23/
 Author Version PDF: https://arxiv.org/pdf/2305.18698.pdf
 
 # **New Release  ! &emsp;  !  &emsp; !** 2023.05.29
-## **PyCHARM: Python Based Automatic Code Generation for Versal ACAP**:<br>
+## **PyACAP 1.0: Python Based Automatic Code Generation for Versal ACAP**:<br> 
 + **What's new ?:** In this release we create an entire python interface for matrix multiply under floating-point 32 data type for Versal ACAP VCK190 and VCK5000 Platforms.
 + **Overall Compilation Flow**:<br><br>
 <img src="https://github.com/arc-research-lab/CHARM/assets/77606152/c001c316-e310-49ec-9495-7bb01a718656" width="800" height="300"><br><br>
