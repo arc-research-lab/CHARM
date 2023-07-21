@@ -1,6 +1,6 @@
 [![DOI](https://zenodo.org/badge/558491173.svg)](https://zenodo.org/badge/latestdoi/558491173)
 
-# CHARM: Composing Heterogeneous Accelerators for Matrix Multiply on Versal ACAP Architecture (FPGA'23)
+# CHARM: Composing Heterogeneous AcceleRators for Matrix Multiply on Versal ACAP Architecture (FPGA'23)
 # High Performance, Low Power Matrix Multiply Design on ACAP: from Architecture, Design Challenges and DSE Perspectives (DAC'23). 
 
 ## ACM/IEEE Reference Format
