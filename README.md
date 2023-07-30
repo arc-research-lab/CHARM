@@ -47,14 +47,14 @@ automm.build()
 ## Overview
 In this repo, we use general-purpose Matrix-Matrix Multiplication (GEMM) applications as an example and provide a detailed description of how to build a system-level design on AMD Versal VCK190 Platform. By going through this repo, users can get knowledge on:
 
-+ How to design a high efficient single AIE kernel by leveraging the 7-way very long instruction words (VLIW)?
-+ How to sustain 400 AIEs with the limited I/O interfaces between AIE and PL by using broadcast-packet mechanism?
-+ How to transfer data from PL/AIE to AIE/PL by using bubble-free pipeline strategy?
++ How to design a highly efficient single AIE kernel by leveraging the 7-way very long instruction words (VLIW)?
++ How to sustain 400 AIEs with the limited I/O interfaces between AIE and PL by using a broadcast-packet mechanism?
++ How to transfer data from PL/AIE to AIE/PL by using a bubble-free pipeline strategy?
 
 We provide an automatic code generation and compilation flow that users can build the system on Versal step by step by changing the configuration files.
 
 ## Dependencies 
-To play with the Charming Accelerators, following software and hardware dependencies are required:
+To play with the Charming Accelerators, the following software and hardware dependencies are required:
 + Linux System with "tar" installed
 + **AMD/Xilinx Vitis 2021.1** (Version 2021.1 guarantees the designs in the example folder to be compiled correctly)
 + AMD/Xilinx XRT Library
@@ -65,7 +65,7 @@ To play with the Charming Accelerators, following software and hardware dependen
 ### 1. To quickly boost and run experiments on the board instead of building the platform and Linux from scratch, users can download the platform package (VCK190 Base 2021.1) and petalinux common image(Versal common image) from the following link:<br/>
 https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/embedded-platforms/2021-1.html
 
-### 2. Install platform and petalinux
+### 2. Install the platform and Petalinux
 ```bash
 unzip xilinx_vck190_base_202110_1.zip
 ```
@@ -110,7 +110,7 @@ cd /mnt/sd-mmcblk0p1
 
 
 
-## Step by Step Tutorial
+## Step-by-Step Tutorial
 In this part, we first introduce the overall MM tiling strategy including four levels of tilings. Then in the later parts, we illustrate the methodology of how we handle each of these level of tilings.<br>
 ### Overall MM Tiling Strategy:<br>
 Given a large Matrix Multiplication(MM) with size (M\*K) * (K\*N) refer as M\*K\*N, the listing bellow shows four level of tilings to handle this MM (from innermost to outermost):<br>
@@ -129,7 +129,7 @@ In this part, we demonstrate the coding style of calculating MM with size **TI\*
 AIE is a very-long instruction word (VLIW) processor which can issue upto seven operations in parallel using one VLIW word:<br>
 + **Two Load** Operations: Load upto (the width of data could change) two 256bits data from AIE local memory to AIE register.<br>
 + **One Store** Operation: Store upto one 256bits data from AIE register to AIE local memory.<br>
-+ **One Vector** Operation : Calculating a vector matrix multiplt or add.<br>
++ **One Vector** Operation: Calculating a vector matrix multiply or add.<br>
 + **One Scalar** Operation<br>
 + **Two Move** Operations: Two move operations that move the data from scalar/vector to scalar/vector.<br> $~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$
 
@@ -140,17 +140,17 @@ AIE is a very-long instruction word (VLIW) processor which can issue upto seven 
 We provide our source code that achieves 95% efficiency when calculating 32\*32\*32 MM in src/aie/mm_kernel0.cc. The visualization of the algorithm is shown below:<br>
 
 **The insights of programming AIE are:**
-+ **Mannually unroll the innermost loop to make it fully pipelined**: View the report under "Work/aie/xx_xx/xx_xx.log" (here xx_xx is the position of AIE) after compilation and make sure 1) "Critical cycle of length" equals the number of vector operations. 2) The cycle after folding achieves the cycle due to"Critical cycle of length". The following figure is reported from a cycle accurate simulator (Vitis Analyzer) provided by AMD. In our innermost loop (line 43), we mannually unrolled 16 vector mac operations and after checking we fully pipelined them.<br>
++ **Mannually unroll the innermost loop to make it fully pipelined**: View the report under "Work/aie/xx_xx/xx_xx.log" (here xx_xx is the position of AIE) after compilation and make sure 1) "Critical cycle of length" equals the number of vector operations. 2) The cycle after folding achieves the cycle due to"Critical cycle of length". The following figure is reported from a cycle-accurate simulator (Vitis Analyzer) provided by AMD. In our innermost loop (line 43), we manually unrolled 16 vector mac operations and after checking we fully pipelined them.<br>
 <img src="https://user-images.githubusercontent.com/77606152/198856298-b6f5b92b-9a5a-4eb1-8e43-bca0ce992e69.png" width="1000" height="200"><br>
-+ **Avoid of using judgement statement in the inner most loop**: The judgement statement will prevent the compiler to acheive fully pipelined mac instructions. As can be seen in line 98, since we need to store the data from register back to the local memory when finishing the last iteraion of reduction dimension (K loop), to avoid of using the judgement in the innermost loop we mannually write the last iteration of the innermost loop out of the "for loop" region. <br>
++ **Avoid of using judgment statement in the innermost loop**: The judgment statement will prevent the compiler to achieve fully pipelined MAC instructions. As can be seen in line 98, since we need to store the data from the register back to the local memory when finishing the last iteration of the reduction dimension (K loop), to avoid using the judgment in the innermost loop we manually write the last iteration of the innermost loop out of the "for loop" region. <br>
 + **Using __restrict and chess_prepare_for_pipelining pragma to improve the efficiency**: [Software pipelining](https://www.xilinx.com/content/dam/xilinx/support/documents/sw_manuals/xilinx2022_1/ug1079-ai-engine-kernel-coding.pdf)**<br>
 
 ## Automatic Code Generation (ACG):<br>
-The tools for automatically generate the source code is under ""src_gen"" folder
+The tools for automatically generating the source code are under ""src_gen"" folder
 
-**ACG** takes platform information and user-specified design point as input, and automatically generated the systen-level design by launching the following 4 template based components sequentially:<br>
+**ACG** takes platform information and user-specified design point as input and automatically generated the system-level design by launching the following 4 template based components sequentially:<br>
 
-**Kerne_lGen:** Kernel_Gen is launched to generate both the single AI Engine(AIE) C code and adaptive data flow (ADF) graph code in C++ for verfying the correctness of single kernel design. MM kernels with fp32 data type in different shape that can be fit in single kernel are supported in current version.<br>
+**Kerne_lGen:** Kernel_Gen is launched to generate both the single AI Engine(AIE) C code and adaptive data flow (ADF) graph code in C++ for verifying the correctness of a single kernel design. MM kernels with fp32 data type in different shapes that can be fit in a single kernel are supported in current version.<br>
 
 **AIE_ArrGen:** AIE_ArrGen is launched to generate new ADF graph code that defines how packet-switch streams are connected to AIE array which contains 400 AIEs. Single kernel calculating 32x32x32 MM with fp32 data type is supported to scale out to the AIE array. <br>
 
@@ -159,18 +159,18 @@ The tools for automatically generate the source code is under ""src_gen"" folder
 **Host_Gen:** Host_Gen is launched to generate the system control logic running on the ARM CPU by using AMD XRT APIs.<br>
 
 **Compilation**
-After code generation, the vendor tools AIE compiler and V++ compiler take ADF gragh and HLS C/C++ as input respectively. Their output object file libadf.a and kernel.xo will be linked into xclbin file which includes the hardware information of the design for the target platform. C++ compiler compiles XRT API based host code to executable file runs on CPU.<br>
+After code generation, the vendor tools AIE compiler and V++ compiler take ADF gragh and HLS C/C++ as input respectively. Their output object file libadf.a and kernel.xo will be linked into xclbin file which includes the hardware information of the design for the target platform. C++ compiler compiles XRT API-based host code to executable file runs on CPU.<br>
 
 ### Configuration File 
-We provide a configuration file template under "./config_files/input.cfg", users can specify platform, data type, kernel type and mapping strategy of each level in this file. The feasible option of each parameter are illustrated in **( )** The rules of using this configuration file are listed below:
+We provide a configuration file template under "./config_files/input.cfg", users can specify the platform, data type, kernel type, and mapping strategy of each level in this file. The feasible option of each parameter are illustrated in **( )** The rules of using this configuration file are listed below:
 - **Platform** refers to the hardware platform used in the project. VCK5000 and VCK190 are supported in the current framework.
 - **DATA_TYPE** the framework currently support fp32, int16 and int8 data types.
 - **KernelGen, AIEArrGen, SysGen** decide if the corresponding ACG should be launched (1 refers to launch). 
-- **KRL_TYPE** refers two types of MM kernels provided in our source file.
+- **KRL_TYPE** refers to two types of MM kernels provided in our source file.
 - **I, K, J** refers to the MM size stored and calculated in a single AIE.
 - **A, B, C** refers to the BATCH level parameter.
 - **X, Y, Z** refers to the on-chip level parameter.
-- **LHS_BUFF, RHS_BUFF, OUT_BUFF** dicide the implmentation option for LHS, RHS and output buffers. 1 refers to URAM and 0 refers to BRAM. For example, LHS_BUFF=1 means LHS buffer is implemented by URAM.
+- **LHS_BUFF, RHS_BUFF, OUT_BUFF** decide the implementation option for LHS, RHS, and output buffers. 1 refers to URAM and 0 refers to BRAM. For example, LHS_BUFF=1 means the LHS buffer is implemented by URAM.
 ```sh
 Platform:VCK190;
 DATA_TYPE:fp32;
@@ -196,18 +196,22 @@ SysGen:1;
 ```
 
 # Applications
-We provide four applications under example folder including BERT for natural language processing, NCF for recommendations, ViT for vision classification, MLP for multi-layer perceptron classification or regression. The expected throughput should be the same as the results shown in the following figure: <br> 
+We provide four applications under the example folder including BERT for natural language processing, NCF for recommendations, ViT for vision classification, MLP for multi-layer perceptron classification or regression. The expected throughput should be the same as the results shown in the following figure: <br> 
 
 ![image](https://user-images.githubusercontent.com/77606152/197424370-bc03e3f3-cc04-4876-85ec-a59a006b7319.png)<br>
 
-To quickly reproduce the results, we provide the pre-built object files of AIE, PL and ARM CPU in pre_built folder. Users can go to the corresponding folder and run the following command to create the sd card image for on board execution.
+To quickly reproduce the results, we provide the pre-built object files of AIE, PL, and ARM CPU in the pre_built folder. Users can go to the corresponding folder and run the following command to create the sd card image for onboard execution.
 ```
 make package EDGE_COMMON_SW_PATH=${PATH} SYSROOT_PATH={PATH}
 ```
 
 # Errata Sheet
-1) A typo appears in the Table 6 of the paper. The latency for MLP should be "119ms" instead of "11.9ms". <br>
+1) A typo appears in Table 6 of the paper. The latency for MLP should be "119ms" instead of "11.9ms". <br>
 2) In Table 5, the size of the fifth layer of ViT should be 3072\*1024\*3072 instead of 3072\*1024\*3048.
+
+# Acknowledgement
+We acknowledge the support from the University of Pittsburgh New Faculty Start-up Grant, NSF awards #2213701, #2217003, and the support from CRISP, one of six SRC JUMP centers. We thank AMD/Xilinx for FPGA and software donation, and support from the AMD/Xilinx Center of Excellence
+at UIUC, the AMD/Xilinx Heterogeneous Accelerated Compute Cluster at UCLA, and the Center for Research Computing (CRC) at the University of Pittsburgh.
 
 **References:**<br>
 [1] **[AIE Architecture(AM009 2021.1)](https://docs.xilinx.com/r/en-US/am009-versal-ai-engine)**<br>
