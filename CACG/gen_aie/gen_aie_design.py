@@ -3,12 +3,13 @@ from pathlib import Path
 import numpy as np
 import subprocess
 import os
+import sys
 from .gen_array import*
 from .gen_kernel import*
 from .gen_combine import*
 
 def gen_aie_top(prj_dir,template_dir,Model_MM,placement):
-    kernel_type_num=1
+    kernel_type_num=2
     num_layer=Model_MM.shape[0]
     port_width=128
     freq=250
@@ -40,9 +41,9 @@ def gen_aie_top(prj_dir,template_dir,Model_MM,placement):
 
     Port_Conf_All = np.zeros((HW_Conf.shape[0],3)).astype(int)
     for i in range(HW_Conf.shape[0]):
-        Port_Conf_All[i][0]=HW_Conf[i][0]*(HW_Conf[i][2]//HW_Conf[i][3])*HW_Conf[i][1]  #lhs_port
-        Port_Conf_All[i][1]=HW_Conf[i][2]*(HW_Conf[i][0]//HW_Conf[i][4])*HW_Conf[i][1]  #rhs_port
-        Port_Conf_All[i][2]=HW_Conf[i][0]*HW_Conf[i][2]                                 #out_port
+        Port_Conf_All[i][0]=HW_Conf[i][0]*(HW_Conf[i][2]//HW_Conf[i][3])*(HW_Conf[i][1]//HW_Conf[i][5])  #lhs_port
+        Port_Conf_All[i][1]=HW_Conf[i][2]*(HW_Conf[i][0]//HW_Conf[i][4])*(HW_Conf[i][1]//HW_Conf[i][5])  #rhs_port
+        Port_Conf_All[i][2]=HW_Conf[i][0]*HW_Conf[i][2]//HW_Conf[i][6]                                   #out_port
 
 
 
@@ -70,7 +71,10 @@ def gen_aie_top(prj_dir,template_dir,Model_MM,placement):
         C  = Model_MM[layer][5]
         A_BRO = Model_MM[layer][6]
         C_BRO = Model_MM[layer][7]
-        kernel_type=Model_MM[layer][8]
+        PACK_IN = Model_MM[layer][8]
+        PACK_OUT = Model_MM[layer][9]
+        data_type=Model_MM[layer][10]
+        kernel_type=Model_MM[layer][11]
         file_dir=aie_dir + "/layer" + str(layer)
         layer_name=str(layer)
 
@@ -79,8 +83,8 @@ def gen_aie_top(prj_dir,template_dir,Model_MM,placement):
         height   = placement[i][3]
         subprocess.run(['mkdir','-p' ,file_dir])
         aie_folder = Path(file_dir)
-        gen_para(environment[kernel_type],h1,w1,w2,A,B,C,A_BRO,C_BRO,layer_name,aie_folder)
+        gen_para(environment[kernel_type],h1,w1,w2,A,B,C,A_BRO,C_BRO,PACK_IN,data_type,layer_name,aie_folder)
         gen_krnl(environment_kernel[kernel_type],w1,kernel_type,layer_name,aie_folder)
         gen_grah(environment[kernel_type],B,layer_name,aie_folder)
-        gen_toph(environment[kernel_type],A,B,C,A_BRO,C_BRO,pos_col,pos_row,height,layer_name,aie_folder)
+        gen_toph(environment[kernel_type],A,B,C,A_BRO,C_BRO,PACK_IN,PACK_OUT,pos_col,pos_row,height,layer_name,aie_folder)
 

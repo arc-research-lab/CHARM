@@ -9,10 +9,11 @@ using namespace adf;
 {% set B = HW_Conf[layer][1] -%}
 {% set C = HW_Conf[layer][2] -%}
 {% set A_BRO = HW_Conf[layer][3] -%}
+{% set PACK_IN = HW_Conf[layer][5] -%}
 {% for i in range(A) -%}
 {% for j in range(C//A_BRO) -%}
-{% for k in range(B) -%}
-{% set row = k+j*B+i*(C//A_BRO)*B -%}
+{% for k in range(B//PACK_IN) -%}
+{% set row = k+j*(B//PACK_IN)+i*(C//A_BRO)*(B//PACK_IN) -%}
 PLIO* LHS_in{{row}}_L{{layer}} = new PLIO("LHS_in{{row}}_L{{layer}}", adf::plio_{{port_width}}_bits, "data/input0.txt",{{freq}});
 {% endfor -%}
 {% endfor -%}
@@ -24,10 +25,11 @@ PLIO* LHS_in{{row}}_L{{layer}} = new PLIO("LHS_in{{row}}_L{{layer}}", adf::plio_
 {% set B = HW_Conf[layer][1] -%}
 {% set C = HW_Conf[layer][2] -%}
 {% set C_BRO = HW_Conf[layer][4] -%}
+{% set PACK_IN = HW_Conf[layer][5] -%}
 {% for j in range(C) -%}
 {% for i in range(A//C_BRO) -%}
-{% for k in range(B) -%}
-{% set col = k+i*B+j*(A//C_BRO)*B -%}
+{% for k in range(B//PACK_IN) -%}
+{% set col = k+i*(B//PACK_IN)+j*(A//C_BRO)*(B//PACK_IN) -%}
 PLIO* RHS_in{{col}}_L{{layer}} = new PLIO("RHS_in{{col}}_L{{layer}}", adf::plio_{{port_width}}_bits, "data/input1.txt",{{freq}});
 {% endfor -%}
 {% endfor -%}
@@ -39,10 +41,11 @@ PLIO* RHS_in{{col}}_L{{layer}} = new PLIO("RHS_in{{col}}_L{{layer}}", adf::plio_
 {% set port_pre = Port_Conf_Pre[layer][2] -%}
 {% set A = HW_Conf[layer][0] -%}
 {% set C = HW_Conf[layer][2] -%}
+{% set PACK_OUT = HW_Conf[layer][6] -%}
 {% for i in range(A) -%}
-{% for j in range(C) -%}
-{% set out = j+i*C -%}
-PLIO* out{{j+i*C}}_L{{layer}} = new PLIO("out{{j+i*C}}_L{{layer}}", adf::plio_{{port_width}}_bits, "data/output{{out + port_pre}}.txt",{{freq}});
+{% for j in range(C//PACK_OUT) -%}
+{% set out = j+i*(C//PACK_OUT) -%}
+PLIO* out{{out}}_L{{layer}} = new PLIO("out{{out}}_L{{layer}}", adf::plio_{{port_width}}_bits, "data/output{{out + port_pre}}.txt",{{freq}});
 {% endfor -%}
 {% endfor %}
 {% endfor -%}
@@ -54,7 +57,8 @@ simulation::platform<{{port_total[0]+port_total[1]}}, {{port_total[2]}}> platfor
 {% set C = HW_Conf[layer][2] -%}
 {% set A_BRO = HW_Conf[layer][3] -%}
 {% set C_BRO = HW_Conf[layer][4] -%}
-{% for i in range(A*(C//A_BRO)*B) -%} 
+{% set PACK_IN = HW_Conf[layer][5] -%}
+{% for i in range(A*(C//A_BRO)*(B//PACK_IN)) -%} 
 LHS_in{{i}}_L{{layer}},
 {% endfor-%}
 {% endfor -%}
@@ -65,19 +69,18 @@ LHS_in{{i}}_L{{layer}},
 {% set C = HW_Conf[layer][2] -%}
 {% set A_BRO = HW_Conf[layer][3] -%}
 {% set C_BRO = HW_Conf[layer][4] -%}
-{% for i in range(C*(A//C_BRO)*B) -%} 
+{% set PACK_IN = HW_Conf[layer][5] -%}
+{% for i in range(C*(A//C_BRO)*(B//PACK_IN)) -%} 
 RHS_in{{i}}_L{{layer}}, 
 {% endfor -%}
 {% endfor -%}
 
 {% for layer in L_list -%}
 {% set A = HW_Conf[layer][0] -%}
-{% set B = HW_Conf[layer][1] -%}
 {% set C = HW_Conf[layer][2] -%}
-{% set A_BRO = HW_Conf[layer][3] -%}
-{% set C_BRO = HW_Conf[layer][4] -%}
-{% for i in range(A*C) -%} 
-{% if layer==L_list[-1] and i==(A*C-1) -%}
+{% set PACK_OUT = HW_Conf[layer][6] -%}
+{% for i in range(A*C//PACK_OUT) -%} 
+{% if layer==L_list[-1] and i==((A*C//PACK_OUT)-1) -%}
 out{{i}}_L{{layer}} 
 {% else -%}
 out{{i}}_L{{layer}},
@@ -100,10 +103,11 @@ mm_x{{A}}_x{{B}}_x{{C}}_graph{{layer}}  mm_graph{{layer}};
 {% set B = HW_Conf[layer][1] -%}
 {% set C = HW_Conf[layer][2] -%}
 {% set A_BRO = HW_Conf[layer][3] -%}
+{% set PACK_IN = HW_Conf[layer][5] -%}
 {% for i in range(A) -%}
 {% for j in range(C//A_BRO) -%}
-{% for k in range(B) -%}
-{% set row = k+j*B+i*(C//A_BRO)*B -%}
+{% for k in range(B//PACK_IN) -%}
+{% set row = k+j*(B//PACK_IN)+i*(C//A_BRO)*(B//PACK_IN) -%}
 connect<> net_lhs_in{{row}}_L{{layer}} (platform.src[{{row + port_pre}}], mm_graph{{layer}}.in_lhs[{{j+i*(C//A_BRO)}}][{{k}}]);
 {% endfor -%}
 {% endfor -%}
@@ -116,10 +120,11 @@ connect<> net_lhs_in{{row}}_L{{layer}} (platform.src[{{row + port_pre}}], mm_gra
 {% set B = HW_Conf[layer][1] -%}
 {% set C = HW_Conf[layer][2] -%}
 {% set C_BRO = HW_Conf[layer][4] -%}
+{% set PACK_IN = HW_Conf[layer][5] -%}
 {% for j in range(C) -%}
 {% for i in range(A//C_BRO) -%}
-{% for k in range(B) -%}
-{% set col = k+i*B+j*(A//C_BRO)*B -%}
+{% for k in range(B//PACK_IN) -%}
+{% set col = k+i*(B//PACK_IN)+j*(A//C_BRO)*(B//PACK_IN) -%}
 connect<> net_rhs_in{{col}}_L{{layer}} (platform.src[{{col + port_pre + port_total[0]}}], mm_graph{{layer}}.in_rhs[{{i+j*(A//C_BRO)}}][{{k}}]);
 {% endfor -%}
 {% endfor -%}
@@ -130,9 +135,10 @@ connect<> net_rhs_in{{col}}_L{{layer}} (platform.src[{{col + port_pre + port_tot
 {% set port_pre = Port_Conf_Pre[layer][2] -%}
 {% set A = HW_Conf[layer][0] -%}
 {% set C = HW_Conf[layer][2] -%}
+{% set PACK_OUT = HW_Conf[layer][6] -%}
 {% for i in range(A) -%}
-{% for j in range(C) -%}
-{% set out = j+i*C -%}
+{% for j in range(C//PACK_OUT) -%}
+{% set out = j+i*(C//PACK_OUT) -%}
 connect<> net_out{{out}}_L{{layer}} (mm_graph{{layer}}.out[{{out}}], platform.sink[{{out + port_pre}}]);
 {% endfor -%}
 {% endfor -%}

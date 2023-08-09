@@ -157,9 +157,9 @@ def cdse_top(Op0,Op1):
                 if length > 50:
                     continue
 
-                for x in range(1, 16+1):
-                    for y in range(1, 16+1): 
-                        for z in range(1, 16+1):
+                for x in range(1, 16):
+                    for y in range(1, 16): 
+                        for z in range(1, 16):
                             bram_use,uram_use,buf_index=buff_count_0(BRAM,URAM,PART_A,PART_B,PART_C,LEFT_SIZE,RIGHT_SIZE,OUT_SIZE,a,b,c,x,y,z,DBUFF_L,DBUFF_R,DBUFF_O,RAM_TYPE_A,RAM_TYPE_B,RAM_TYPE_C)
                             if (bram_use>BRAM or uram_use>URAM):
                                 break
@@ -231,29 +231,36 @@ def cdse_top(Op0,Op1):
                                     # print("\n\n")
 
 
+    PACK_IN=1
+    PACK_OUT=1
     config = config[config[:,0].argsort()[::-1]]
 
     Versal_HW_temp=config[0,:]
-    Versal_HW=np.zeros([1,13]) # h1,   w1,   w2,   A,   B,   C,  A_BRO, C_BRO,   X,   Y,   Z,  data_type  kernel_type
+    Versal_HW=np.zeros([1,15]) # h1,   w1,   w2,   A,   B,   C,  A_BRO, C_BRO,  PACK_IN, PACK_OUT, X,   Y,   Z,  data_type  kernel_type
     Versal_HW[0,0:3]=[H1,W1,W2]
-    Versal_HW[0,3:11]=Versal_HW_temp[1:9]
-    Versal_HW[0,11]=DATA_TYPE*8
-    Versal_HW[0,12]=0  
+    Versal_HW[0,3:8]=Versal_HW_temp[1:6]
+    Versal_HW[0,8]=PACK_IN
+    Versal_HW[0,9]=PACK_OUT
+    Versal_HW[0,10:13]=Versal_HW_temp[6:9]
+    Versal_HW[0,13]=DATA_TYPE*8
+    Versal_HW[0,14]=0  
 
     placement=np.zeros([1,4]) #layer,col,row,height 
     col=(50-Versal_HW_temp[9])//2
     row=0
     placement[0,1:4]=[col,row,Versal_HW_temp[10]] 
 
-    BUFF_SEL=[None]*3
+    BUFF_SEL=np.zeros([1,3])
     buff_sel_temp=np.binary_repr(Versal_HW_temp[16].astype(int), width=3)
     for i in range(3):
         if buff_sel_temp[i]=="0":
-            BUFF_SEL[i]="BRAM"
+            BUFF_SEL[0,i]=0
         else:
-            BUFF_SEL[i]="URAM"          
+            BUFF_SEL[0,i]=1         
+    
+    final_temp=np.concatenate((Versal_HW, placement), axis=1)
+    final_config=np.concatenate((final_temp,BUFF_SEL),axis=1)
 
-    final_config=[Versal_HW,placement,BUFF_SEL]
     return final_config
         
             

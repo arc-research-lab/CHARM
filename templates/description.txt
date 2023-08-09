@@ -1,1 +1,3 @@
-kernel0: MAC8, fp32
+kernel0: MAC8, fp32, window
+kernel1: MAC8, fp32, window, packet
+aie1: MAC8, fp32, stream
