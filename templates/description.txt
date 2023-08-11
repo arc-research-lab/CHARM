@@ -1,3 +1,5 @@
-kernel0: MAC8, fp32, window
-kernel1: MAC8, fp32, window, packet
-aie1: MAC8, fp32, stream
+kernel0: MAC8, fp32, window           //matA: [W1][H1]  matB [W2][W1] matC [H1/8][W2][8]
+kernel1: MAC8, fp32, window, packet   //matA: [W1][H1]  matB [W2][W1] matC [W2]H1]
+kernel5: MAC16, int16, window, packet  //matA: [W1][H1]  matB [W2][W1] matC [W2][H1]
+kernel7: MAC16, int8, window, packet
+aie1/kernel0: MAC8, fp32, stream
