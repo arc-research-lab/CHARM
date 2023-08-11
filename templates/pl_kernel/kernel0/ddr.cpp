@@ -170,13 +170,13 @@ void storeC(axis_stream_C& dataC_out, ap_uint<PLIO_WIDTH> c_buf[C*A][Z][X][W2][(
                 }
             }
         }
-        for(int c=0;c<C;c++){
+        for(int z=0;z<Z;z++){
             for(int w2=0;w2<W2;w2++){
                 for(int x=0;x<X;x++){
                     for (int n=0; n<H1/C_PER_TRA;n++){
                     #pragma HLS PIPELINE II = 1
                     #pragma HLS dependence variable=c_buf type=intra false
-                        for(int z=0;z<Z;z++){
+                        for(int c=0;c<C;c++){
                             for (int a=0;a<A;a++){
                                 int pos0=n*4;
                                 int pos1=c+a*C;
