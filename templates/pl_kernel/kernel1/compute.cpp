@@ -27,32 +27,32 @@ void compute(axis_stream_A& dataA_out, axis_stream_B& dataB_out, axis_stream_C& 
 
              const int TX, const int TY, const int TZ){
 
-    ap_uint<PLIO_WIDTH> buff0_A[A*(B/PACK_IN)][X*Y][PACK_IN*W1*(H1/NUM_PER_TRA)];
+    ap_uint<PLIO_WIDTH> buff0_A[A*(B/PACK_IN)][X*Y][PACK_IN*LEFT_SIZE];
     #pragma HLS bind_storage variable=buff0_A type=RAM_T2P impl={{BUFF_SEL[0]}}
     #pragma HLS ARRAY_PARTITION variable=buff0_A complete dim=1
     #pragma HLS ARRAY_PARTITION variable=buff0_A cyclic factor=BUFFA_FACTOR dim=3
     
-    ap_uint<PLIO_WIDTH> buff1_A[A*(B/PACK_IN)][X*Y][PACK_IN*W1*(H1/NUM_PER_TRA)];
+    ap_uint<PLIO_WIDTH> buff1_A[A*(B/PACK_IN)][X*Y][PACK_IN*LEFT_SIZE];
     #pragma HLS bind_storage variable=buff1_A type=RAM_T2P impl={{BUFF_SEL[0]}}
     #pragma HLS ARRAY_PARTITION variable=buff1_A complete dim=1
     #pragma HLS ARRAY_PARTITION variable=buff1_A cyclic factor=BUFFA_FACTOR dim=3
 
-    ap_uint<PLIO_WIDTH> buff0_B[(B/PACK_IN)*C][Z*Y][PACK_IN*W2*(W1/NUM_PER_TRA)];
+    ap_uint<PLIO_WIDTH> buff0_B[(B/PACK_IN)*C][Z*Y][PACK_IN*RIGHT_SIZE];
     #pragma HLS bind_storage variable=buff0_B type=RAM_T2P impl={{BUFF_SEL[1]}}
     #pragma HLS ARRAY_PARTITION variable=buff0_B complete dim=1
     #pragma HLS ARRAY_PARTITION variable=buff0_B cyclic factor=BUFFB_FACTOR dim=3
 
-    ap_uint<PLIO_WIDTH> buff1_B[(B/PACK_IN)*C][Z*Y][PACK_IN*W2*(W1/NUM_PER_TRA)];
+    ap_uint<PLIO_WIDTH> buff1_B[(B/PACK_IN)*C][Z*Y][PACK_IN*RIGHT_SIZE];
     #pragma HLS bind_storage variable=buff1_B type=RAM_T2P impl={{BUFF_SEL[1]}}
     #pragma HLS ARRAY_PARTITION variable=buff1_B complete dim=1
     #pragma HLS ARRAY_PARTITION variable=buff1_B cyclic factor=BUFFB_FACTOR dim=3
 
-    ap_uint<PLIO_WIDTH> buff0_C[(C/PACK_OUT)*A][Z*X][PACK_OUT][W2*(H1/NUM_PER_TRA)];
+    ap_uint<PLIO_WIDTH> buff0_C[(C/PACK_OUT)*A][Z*X][PACK_OUT][OUT_SIZE];
     #pragma HLS bind_storage variable=buff0_C type=RAM_T2P impl={{BUFF_SEL[2]}}
     #pragma HLS ARRAY_PARTITION variable=buff0_C complete dim=1
     #pragma HLS ARRAY_PARTITION variable=buff0_C cyclic factor=BUFFC_FACTOR dim=4
 
-    ap_uint<PLIO_WIDTH> buff1_C[(C/PACK_OUT)*A][Z*X][PACK_OUT][W2*(H1/NUM_PER_TRA)];
+    ap_uint<PLIO_WIDTH> buff1_C[(C/PACK_OUT)*A][Z*X][PACK_OUT][OUT_SIZE];
     #pragma HLS bind_storage variable=buff1_C type=RAM_T2P impl={{BUFF_SEL[2]}}
     #pragma HLS ARRAY_PARTITION variable=buff1_C complete dim=1
     #pragma HLS ARRAY_PARTITION variable=buff1_C cyclic factor=BUFFC_FACTOR dim=4

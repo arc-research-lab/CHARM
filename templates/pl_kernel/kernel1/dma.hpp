@@ -48,6 +48,10 @@ typedef hls::stream<ap_uint<AXI_WIDTH_A>> axis_stream_A;
 typedef hls::stream<ap_uint<AXI_WIDTH_B>> axis_stream_B;
 typedef hls::stream<ap_uint<AXI_WIDTH_C>> axis_stream_C;
 
+const int LEFT_SIZE=W1*(H1/NUM_PER_TRA);
+const int RIGHT_SIZE=W2*(W1/NUM_PER_TRA);
+const int OUT_SIZE=W2*(H1/NUM_PER_TRA);
+
 const int boundA=M*K/A_PER_TRA;
 const int boundB=K*N/B_PER_TRA;
 const int boundC=M*N/C_PER_TRA;
