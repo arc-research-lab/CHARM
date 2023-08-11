@@ -77,7 +77,7 @@ void sendB(ap_uint<PLIO_WIDTH> b_buf[Z*Y][PACK_IN*W2*(W1/NUM_PER_TRA)],
                         data(127,0) = (ap_uint<96>(0),header);
                         tmp.data   = data;
                         tmp.keep   = 0x000f;
-                        tmp.last   = 0
+                        tmp.last   = 0;
                         {% for i in range(NUM_TXR) -%} 
                         txB{{i}}.write(tmp);
                         {% endfor%}
