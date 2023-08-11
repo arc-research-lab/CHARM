@@ -37,6 +37,7 @@ void sendA(ap_uint<PLIO_WIDTH> a_buf[X*Y][PACK_IN*W1*(H1/NUM_PER_TRA)],
                     data(127,0) = (ap_uint<96>(0),header);
                     tmp.data   = data;
                     tmp.keep   = 0x000f;
+                    tmp.last   = 0;
                     {% for i in range(NUM_TXL) -%} 
                     txA{{i}}.write(tmp);
                     {% endfor %}
@@ -46,6 +47,7 @@ void sendA(ap_uint<PLIO_WIDTH> a_buf[X*Y][PACK_IN*W1*(H1/NUM_PER_TRA)],
                         data = a_buf[xy][pos];
                         tmp.data   = data;
                         tmp.keep   = -1;
+                        tmp.last   = (i==(W1*(H1/NUM_PER_TRA))-1);
                         {% for i in range(NUM_TXL) -%} 
                         txA{{i}}.write(tmp);
                         {% endfor %}
@@ -75,6 +77,7 @@ void sendB(ap_uint<PLIO_WIDTH> b_buf[Z*Y][PACK_IN*W2*(W1/NUM_PER_TRA)],
                         data(127,0) = (ap_uint<96>(0),header);
                         tmp.data   = data;
                         tmp.keep   = 0x000f;
+                        tmp.last   = 0
                         {% for i in range(NUM_TXR) -%} 
                         txB{{i}}.write(tmp);
                         {% endfor%}
@@ -85,6 +88,7 @@ void sendB(ap_uint<PLIO_WIDTH> b_buf[Z*Y][PACK_IN*W2*(W1/NUM_PER_TRA)],
                             data = b_buf[pos1][pos0];
                             tmp.data   = data;
                             tmp.keep   = -1;
+                            tmp.last   = (i==(W2*(W1/NUM_PER_TRA))-1);
                             {% for i in range(NUM_TXR) -%} 
                             txB{{i}}.write(tmp);
                             {% endfor%}  
@@ -133,24 +137,6 @@ void receiveC(ap_uint<PLIO_WIDTH> c_buf[Z*X][PACK_OUT][W2*(H1/NUM_PER_TRA)],axis
                         ID=getPacketId(header);
                         tile_x=cnt[ID]/Y;
                         cnt[ID]=cnt[ID]+1;
-                        /*
-                        for (int i = 0; i < W2*(H1/NUM_PER_TRA); i++){ 
-                        #pragma HLS PIPELINE II = 1
-                        #pragma HLS dependence variable=c_buf type=inter false
-                            int pos0=i%2;
-                            int pos1=(i/2)%W2; //2 is (H1_P/NUM_PER_TRA)
-                            int pos2=i/(2*W2);
-                            int pos3=pos0+pos2*2;
-                            int pos4=x+z*X;
-                            tmp=rxC.read();
-                            for(int un=0; un<NUM_PER_TRA; un++){
-                            #pragma HLS UNROLL factor=NUM_PER_TRA
-                                data_temp0[un].data_uint=tmp.data(32*un+31,32*un);
-                                data_temp1[un].data_uint=c_buf[pos4][tile_x][pos3](32*un+31,32*un);
-                                data_temp2[un].data_float=data_temp0[un].data_float + data_temp1[un].data_float; 
-                                c_buf[pos4][tile_x][pos3](32*un+31,32*un)   =  data_temp2[un].data_uint;
-                            }
-                        }*/
 
                         for (int i = 0; i < (H1/NUM_PER_TRA/2); i++){ 
                             for (int j = 0; j < W2; j++){ 
