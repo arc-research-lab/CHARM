@@ -149,9 +149,9 @@ void receiveC(ap_uint<PLIO_WIDTH> c_buf[Z*X][PACK_OUT][W2*(H1/NUM_PER_TRA)],axis
                                     for(int un=0; un<NUM_PER_TRA; un++){
                                     #pragma HLS UNROLL factor=NUM_PER_TRA
                                         data_temp0[un].data_uint=tmp.data(32*un+31,32*un);
-                                        data_temp1[un].data_uint=c_buf[pos1][tile_x][pos0](32*un+31,32*un);
+                                        data_temp1[un].data_uint=c_buf[tile_x][ID][pos0](32*un+31,32*un);
                                         data_temp2[un].data_float=data_temp0[un].data_float + data_temp1[un].data_float; 
-                                        c_buf[pos1][tile_x][pos0](32*un+31,32*un)   =  data_temp2[un].data_uint;
+                                        c_buf[tile_x][ID][pos0](32*un+31,32*un)   =  data_temp2[un].data_uint;
                                     }
                                 }
                             }
