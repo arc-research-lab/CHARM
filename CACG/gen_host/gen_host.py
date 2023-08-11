@@ -10,7 +10,7 @@ def gen_host_top(prj_dir,template_dir,hw_config,data_type,device):
     subprocess.run(['mkdir','-p' ,f'{host_dir}'])
 
     #########################
-    h1,w1,w2,A,B,C,A_BRO,C_BRO,X,Y,Z=hw_config[0,:]
+    h1,w1,w2,A,B,C,A_BRO,C_BRO,PACK_IN,PACK_OUT,X,Y,Z=hw_config[0,:]
     #########################
 
     kernel_type_num=1
@@ -33,4 +33,4 @@ def gen_host_top(prj_dir,template_dir,hw_config,data_type,device):
     else:
         print("\n\n\nWrong data type\n\n\n")
 
-    gen_host(environment[0],device,h1,w1,w2,A,B,C,A_BRO,C_BRO,X,Y,Z,data_type_str,host_folder)
+    gen_host(environment[0],device,h1,w1,w2,A,B,C,A_BRO,C_BRO,PACK_IN,PACK_OUT,X,Y,Z,data_type_str,host_folder)

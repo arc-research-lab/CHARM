@@ -205,21 +205,29 @@ int main(int argc, char** argv) {
     for (int i=0;i<iter;i++){
     // start input kernels run handles
     dma_rhdl = xrtKernelRun(dma_khdl, in_bohdl0, in_bohdl1,out_bohdl,
-            {% for k in range(A) -%}
-            {% for j in range(NUM_TXL) -%}
-            {% for i in range(B) -%} nullptr, {% endfor%}
+            {% set num_lhs=A*NUM_TXL*(B//PACK_IN) -%}
+            {% set div_lhs=num_lhs//4 -%}
+            {% set left_lhs=num_lhs%4 -%}
+            {% for i in range(div_lhs) -%}
+            nullptr, nullptr, nullptr, nullptr,
             {% endfor-%}
-            {% endfor-%}
+            {% for i in range(left_lhs)%} nullptr,{% endfor-%}
 
-            {% for k in range(C) -%}
-            {% for j in range(NUM_TXR) -%}
-            {% for i in range(B) -%}  nullptr, {% endfor%}
+            {% set num_rhs=C*NUM_TXR*(B//PACK_IN) -%}
+            {% set div_rhs=num_rhs//4 -%}
+            {% set left_rhs=num_rhs%4 -%}
+            {% for i in range(div_rhs) -%}
+            nullptr, nullptr, nullptr, nullptr,
             {% endfor-%}
-            {% endfor-%}
+            {% for i in range(left_rhs)%} nullptr,{% endfor-%}
 
-            {% for j in range(A) -%}
-            {% for i in range(C) -%} nullptr, {% endfor%}
+            {% set num_out=A*(C//PACK_OUT) -%}
+            {% set div_out=num_out//4 -%}
+            {% set left_out=num_out%4 -%}
+            {% for i in range(div_out) -%}
+            nullptr, nullptr, nullptr, nullptr,
             {% endfor-%}
+            {% for i in range(left_out)%} nullptr,{% endfor-%}
             TX,TY,TZ);
         xrtRunWait(dma_rhdl);
     }
