@@ -91,27 +91,24 @@ void storeC_ddr(ap_uint<AXI_WIDTH_C>* outc, axis_stream_32& addrC_in,axis_stream
     
 }
 
-void loadA(axis_stream_A& dataA_in, ap_uint<PLIO_WIDTH> a_buf[A*(B/PACK_IN)][X][Y][PACK_IN][W1*(H1/NUM_PER_TRA)],bool enable){
+void loadA(axis_stream_A& dataA_in, ap_uint<PLIO_WIDTH> a_buf[A*(B/PACK_IN)][X*Y][PACK_IN*W1*(H1/NUM_PER_TRA)],bool enable){
 #pragma HLS inline off
     if(enable){
         for(int y=0;y<Y;y++){
-            for(int b=0;b<(B/PACK_IN);b++){
-                for(int pack=0;pack<PACK_IN;pack++){
-                    for(int k=0;k<W1;k++){
-                        for(int x=0;x<X;x++){
-                            for(int a=0;a<A;a++){
-                                for(int i=0;i<(H1/A_PER_TRA);i++){
-                                #pragma HLS PIPELINE II = 1
-                                #pragma HLS dependence variable=a_buf type=intra false
-                                    int pos0=i*4+k*(H1/NUM_PER_TRA);
-                                    int pos1=b+a*(B/PACK_IN);
-                                    ap_uint<AXI_WIDTH_A> temp_data=dataA_in.read();
-                                    a_buf[pos1][x][y][pack][pos0]=temp_data(127,0);
-                                    a_buf[pos1][x][y][pack][pos0+1]=temp_data(255,128);
-                                    a_buf[pos1][x][y][pack][pos0+2]=temp_data(383,256);
-                                    a_buf[pos1][x][y][pack][pos0+3]=temp_data(511,384);
-                                }
-                            }
+            for(int k=0;k<W1*B;k++){
+                for(int x=0;x<X;x++){
+                    for(int a=0;a<A;a++){
+                        for(int i=0;i<(H1/A_PER_TRA);i++){
+                        #pragma HLS PIPELINE II = 1
+                        #pragma HLS dependence variable=a_buf type=intra false
+                            int pos0=i*4+(k%(W1*PACK_IN))*(H1/NUM_PER_TRA);
+                            int pos1=x*Y+y;
+                            int pos2=(k/(W1*PACK_IN))+a*(B/PACK_IN);
+                            ap_uint<AXI_WIDTH_A> temp_data=dataA_in.read();
+                            a_buf[pos2][pos1][pos0]=temp_data(127,0);
+                            a_buf[pos2][pos1][pos0+1]=temp_data(255,128);
+                            a_buf[pos2][pos1][pos0+2]=temp_data(383,256);
+                            a_buf[pos2][pos1][pos0+3]=temp_data(511,384);
                         }
                     }
                 }
@@ -120,27 +117,26 @@ void loadA(axis_stream_A& dataA_in, ap_uint<PLIO_WIDTH> a_buf[A*(B/PACK_IN)][X][
     }
 }
 
-void loadB(axis_stream_B& dataB_in, ap_uint<PLIO_WIDTH> b_buf[(B/PACK_IN)*C][Z][Y][PACK_IN][W2*(W1/NUM_PER_TRA)],bool enable){
+void loadB(axis_stream_B& dataB_in, ap_uint<PLIO_WIDTH> b_buf[(B/PACK_IN)*C][Z*Y][PACK_IN*W2*(W1/NUM_PER_TRA)],bool enable){
 #pragma HLS inline off
     if(enable){
         for(int z=0;z<Z;z++){
             for(int c=0;c<C;c++){
                 for(int w2=0;w2<W2;w2++){
                     for(int y=0;y<Y;y++){
-                        for(int b=0;b<(B/PACK_IN);b++){
-                            for(int pack=0;pack<PACK_IN;pack++){
-                                for (int m=0;m<(W1/B_PER_TRA);m++){
-                                #pragma HLS PIPELINE II = 1
-                                #pragma HLS dependence variable=b_buf type=intra false
-                                    int pos0=m*4+w2*(W1/NUM_PER_TRA);
-                                    int pos1=b+c*(B/PACK_IN);
-                                    ap_uint<AXI_WIDTH_B> temp_data=dataB_in.read();
-                                    b_buf[pos1][z][y][pack][pos0]=temp_data(127,0);
-                                    b_buf[pos1][z][y][pack][pos0+1]=temp_data(255,128);
-                                    b_buf[pos1][z][y][pack][pos0+2]=temp_data(383,256);
-                                    b_buf[pos1][z][y][pack][pos0+3]=temp_data(511,384);
-                                }
-                            }
+                        for(int b=0;b<B;b++){
+                            for (int m=0;m<(W1/B_PER_TRA);m++){
+                            #pragma HLS PIPELINE II = 1
+                            #pragma HLS dependence variable=b_buf type=intra false
+                                int pos0=m*4+w2*(W1/NUM_PER_TRA)+(b%PACK_IN)*W2*(W1/NUM_PER_TRA);
+                                int pos1=y+z*Y;
+                                int pos2=(b/PACK_IN)+c*(B/PACK_IN);
+                                ap_uint<AXI_WIDTH_B> temp_data=dataB_in.read();
+                                b_buf[pos2][pos1][pos0]=temp_data(127,0);
+                                b_buf[pos2][pos1][pos0+1]=temp_data(255,128);
+                                b_buf[pos2][pos1][pos0+2]=temp_data(383,256);
+                                b_buf[pos2][pos1][pos0+3]=temp_data(511,384);
+                            }  
                         }
                     }
                 }
@@ -149,7 +145,7 @@ void loadB(axis_stream_B& dataB_in, ap_uint<PLIO_WIDTH> b_buf[(B/PACK_IN)*C][Z][
     }
 }
 
-void storeC(axis_stream_C& dataC_out, ap_uint<PLIO_WIDTH> c_buf[(C/PACK_OUT)*A][Z][X][PACK_OUT][W2*(H1/NUM_PER_TRA)], bool enable){
+void storeC(axis_stream_C& dataC_out, ap_uint<PLIO_WIDTH> c_buf[(C/PACK_OUT)*A][Z*X][PACK_OUT][W2*(H1/NUM_PER_TRA)], bool enable){
 #pragma HLS inline off
     if(enable){
         for(int z=0;z<Z;z++){
@@ -162,12 +158,13 @@ void storeC(axis_stream_C& dataC_out, ap_uint<PLIO_WIDTH> c_buf[(C/PACK_OUT)*A][
                                 #pragma HLS PIPELINE II = 1
                                 #pragma HLS dependence variable=c_buf type=intra false
                                     int pos0=n*4+w2*(H1/NUM_PER_TRA);
-                                    int pos1=c+a*(C/PACK_OUT);
+                                    int pos1=x+z*X;
+                                    int pos2=c+a*(C/PACK_OUT);
                                     ap_uint<AXI_WIDTH_C> temp_data;
-                                    temp_data(127,0)  =c_buf[pos1][z][x][pack][pos0];
-                                    temp_data(255,128)=c_buf[pos1][z][x][pack][pos0+1];
-                                    temp_data(383,256)=c_buf[pos1][z][x][pack][pos0+2];
-                                    temp_data(511,384)=c_buf[pos1][z][x][pack][pos0+3];
+                                    temp_data(127,0)  =c_buf[pos2][pos1][pack][pos0];
+                                    temp_data(255,128)=c_buf[pos2][pos1][pack][pos0+1];
+                                    temp_data(383,256)=c_buf[pos2][pos1][pack][pos0+2];
+                                    temp_data(511,384)=c_buf[pos2][pos1][pack][pos0+3];
                                     dataC_out.write(temp_data);
                                 }
                             }
@@ -187,11 +184,12 @@ void storeC(axis_stream_C& dataC_out, ap_uint<PLIO_WIDTH> c_buf[(C/PACK_OUT)*A][
                             for (int a=0;a<A;a++){
                                 for(int c=0;c<(C/PACK_OUT);c++){
                                     int pos0=n*4+w2*(H1/NUM_PER_TRA);
-                                    int pos1=c+a*(C/PACK_OUT);
-                                    c_buf[pos1][z][x][pack][pos0]=0;
-                                    c_buf[pos1][z][x][pack][pos0+1]=0;
-                                    c_buf[pos1][z][x][pack][pos0+2]=0;
-                                    c_buf[pos1][z][x][pack][pos0+3]=0;
+                                    int pos1=x+z*X;
+                                    int pos2=c+a*(C/PACK_OUT);
+                                    c_buf[pos2][pos1][pack][pos0]=0;
+                                    c_buf[pos2][pos1][pack][pos0+1]=0;
+                                    c_buf[pos2][pos1][pack][pos0+2]=0;
+                                    c_buf[pos2][pos1][pack][pos0+3]=0;
                                 }
                             }
                         }
