@@ -14,12 +14,13 @@ def gen_charm_top(prj_dir,final_config,device):
     Versal_HW=np.array(final_config[:,0:15]).astype(int)
     placement=np.array(final_config[:,15:19]).astype(int)
     BUFF_SEL=np.array(final_config[:,19:22])
-
+    data_type=Versal_HW[0,13]
+    
     AIE_Conf=np.zeros([1,12]).astype(int)
     AIE_Conf[0,:]= np.append(Versal_HW[0,0:10],Versal_HW[0,13:15]).astype(int)
 
-    PL_Conf=np.zeros([1,12]).astype(int)
-    PL_Conf[0,:]= Versal_HW[0,0:12].astype(int)
+    PL_Conf=np.zeros([1,15]).astype(int)
+    PL_Conf[0,:]= Versal_HW[0,0:15].astype(int)
 
     Host_Conf=np.zeros([1,11]).astype(int)
     Host_Conf[0,:]= Versal_HW[0,0:11].astype(int)
@@ -39,8 +40,8 @@ def gen_charm_top(prj_dir,final_config,device):
     ### Code Gen
     #########################
     gen_aie_top(prj_dir,template_dir_aie,AIE_Conf,placement)
-    #gen_pl_top(prj_dir,template_dir_pl,pl_dir,PL_Conf,BUFF_SEL)
-    #gen_host_top(prj_dir,template_dir_host,Host_Conf,device)
+    gen_pl_top(prj_dir,template_dir_pl,pl_dir,PL_Conf,BUFF_SEL)
+    gen_host_top(prj_dir,template_dir_host,Host_Conf,data_type,device)
 
 
 

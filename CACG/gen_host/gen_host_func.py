@@ -1,4 +1,4 @@
-def gen_host(environment,device,h1,w1,w2,A,B,C,A_BRO,C_BRO,X,Y,Z,host_folder):
+def gen_host(environment,device,h1,w1,w2,A,B,C,A_BRO,C_BRO,X,Y,Z,data_type_str,host_folder):
     template = environment.get_template("host.cpp")
     file_tmp = "host.cpp"
     filename = host_folder / file_tmp
@@ -13,6 +13,7 @@ def gen_host(environment,device,h1,w1,w2,A,B,C,A_BRO,C_BRO,X,Y,Z,host_folder):
         X=X,
         Y=Y,
         Z=Z,
+        data_type=data_type_str,
         NUM_TXL=(C//A_BRO),
         NUM_TXR=(A//C_BRO)
     )
