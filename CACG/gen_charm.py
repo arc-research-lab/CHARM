@@ -22,8 +22,8 @@ def gen_charm_top(prj_dir,final_config,device):
     PL_Conf=np.zeros([1,15]).astype(int)
     PL_Conf[0,:]= Versal_HW[0,0:15].astype(int)
 
-    Host_Conf=np.zeros([1,11]).astype(int)
-    Host_Conf[0,:]= Versal_HW[0,0:11].astype(int)
+    Host_Conf=np.zeros([1,13]).astype(int)
+    Host_Conf[0,:]= Versal_HW[0,0:13].astype(int)
 
     ### Create Paths
     #########################
