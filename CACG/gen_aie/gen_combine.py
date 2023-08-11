@@ -1,6 +1,3 @@
-from jinja2 import Environment, FileSystemLoader
-from pathlib import Path
-import numpy as np
 def gen_combine(environment,port_width,freq,L_list,HW_Conf,Port_Conf_All,Port_Conf_Pre,port_total,aie_folder):
     template = environment.get_template("aie_top.cpp")
     file_tmp = "aie_top_all.cpp"

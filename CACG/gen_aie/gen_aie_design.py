@@ -7,6 +7,7 @@ import sys
 from .gen_array import*
 from .gen_kernel import*
 from .gen_combine import*
+from .gen_plio_place import*
 
 def gen_aie_top(prj_dir,template_dir,Model_MM,placement):
     kernel_type_num=2
@@ -61,6 +62,8 @@ def gen_aie_top(prj_dir,template_dir,Model_MM,placement):
 
     gen_combine(environment_combine,port_width,freq,L_list,HW_Conf,Port_Conf_All,Port_Conf_Pre,port_total,Path(aie_dir))
 
+    
+    num=0
     for i in L_list:
         layer=i
         h1 = Model_MM[layer][0]
@@ -83,6 +86,13 @@ def gen_aie_top(prj_dir,template_dir,Model_MM,placement):
         height   = placement[i][3]
         subprocess.run(['mkdir','-p' ,file_dir])
         aie_folder = Path(file_dir)
+        if kernel_type==1:
+            Place_config=np.array([A,B,C,A_BRO,C_BRO,PACK_IN,PACK_OUT,pos_col,pos_row,height])
+            json_object=plio_placement(Place_config,layer)
+            oper = "w" if num==0 else "w+"
+            with open(prj_dir+'/aie_top_all_aie_mapped.aiecst', oper) as outfile:
+                outfile.write(json_object)
+            num=num+1
         gen_para(environment[kernel_type],h1,w1,w2,A,B,C,A_BRO,C_BRO,PACK_IN,data_type,layer_name,aie_folder)
         gen_krnl(environment_kernel[kernel_type],w1,kernel_type,layer_name,aie_folder)
         gen_grah(environment[kernel_type],B,layer_name,aie_folder)
