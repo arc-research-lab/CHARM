@@ -13,7 +13,7 @@ def gen_aie_top(prj_dir,template_dir,Model_MM,placement):
     kernel_type_num=8
     num_layer=Model_MM.shape[0]
     port_width=128
-    freq=250
+    freq=230
     L_list=[0]
     HW_Conf=Model_MM[:,3:]
 
