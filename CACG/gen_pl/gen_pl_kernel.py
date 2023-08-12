@@ -6,7 +6,7 @@ import os
 from .gen_krl import*
 
 def gen_pl_top(prj_dir,template_dir,pl_dir,hw_config,BUFF_SEL):
-    kernel_type_num=2
+    kernel_type_num=8
     size=hw_config.shape[1]
     h1,w1,w2,A,B,C,A_BRO,C_BRO,PACK_IN,PACK_OUT,X,Y,Z,data_type,kernel_type=hw_config[0,:]
     subprocess.run(['mkdir','-p' ,f'{pl_dir}'])
