@@ -186,71 +186,86 @@ template<int NC>
 void receiveC(ap_uint<PLIO_WIDTH> c_buf[Z*X][PACK_OUT][OUT_SIZE],axis_stream& rxC, bool enable){ 
 
 #pragma HLS inline off
-    if(enable){
-        axis_pkt tmp;
-        data_t data;
+if (enable){
+        
+    axis_pkt tmp; 
+    int cnt[2];
+    #pragma HLS ARRAY_PARTITION variable=cnt complete dim=0
+    comb_32 data_temp[2][4];
+    #pragma HLS ARRAY_PARTITION variable=data_temp complete dim=0
+    comb_32 d0,d1,d2,d3;
+    ap_uint<32> header;
+    unsigned int ID;
+    unsigned int tile_x;
 
-        fp_int data_temp0[2][NUM_PER_TRA];
-        #pragma HLS ARRAY_PARTITION variable=data_temp0 complete dim=0
+    for(int i=0;i<PACK_OUT;i++){
+    #pragma HLS unroll
+        cnt[i]=0;
+    }
+    
+    for(int z = 0; z < Z; z++){
+        for(int x = 0; x < X; x++){
+            for (int n = 0; n < Y; n++){
+                for(int pack=0;pack<PACK_OUT;pack++){
+                    tmp=rxC.read();
+                    header=tmp.data(31,0);
 
-        fp_int data_temp1[NUM_PER_TRA];
-        #pragma HLS ARRAY_PARTITION variable=data_temp1 complete dim=1
+                    data_temp[0][1].low=tmp.data(47,32);
+                    data_temp[0][1].high=tmp.data(63,48);
+                    data_temp[0][2].low=tmp.data(79,64);
+                    data_temp[0][2].high=tmp.data(95,80);
+                    data_temp[0][3].low=tmp.data(111,96);
+                    data_temp[0][3].high=tmp.data(127,112);
+                    
+                    ID=getPacketId(header);
+                    tile_x=cnt[ID]/Y;
+                    cnt[ID]=cnt[ID]+1;
 
-        fp_int data_temp2[NUM_PER_TRA];
-        #pragma HLS ARRAY_PARTITION variable=data_temp2 complete dim=1
-
-        int cnt[PACK_OUT];
-        #pragma HLS ARRAY_PARTITION variable=cnt complete dim=0
-
-        unsigned int ID;
-        unsigned int tile_x;
-        ap_uint<32> header;
-
-        for(int i=0;i<PACK_OUT;i++){
-        #pragma HLS unroll
-            cnt[i]=0;
-        }
-
-        for (int z = 0; z < Z; z++) {
-            for (int x = 0; x < X; x++) {
-                for (int y = 0; y < Y; y++){
-                    for (int pack = 0; pack < PACK_OUT; pack++){
+                    for(int i=0;i<OUT_SIZE;i++){
+                    #pragma HLS PIPELINE II = 1
+                    #pragma HLS dependence variable=c_buf type=inter false
                         tmp=rxC.read();
-                        header=tmp.data(31,0);
                         
-                        data_temp0[0][1].data_uint=tmp.data(63,32);
-                        data_temp0[0][2].data_uint=tmp.data(95,64);
-                        data_temp0[0][3].data_uint=tmp.data(127,96);
+                        data_temp[(i+1)%2][0].low=tmp.data(15,0);
+                        data_temp[(i+1)%2][0].high=tmp.data(31,16);
+                        data_temp[(i+1)%2][1].low=tmp.data(47,32);
+                        data_temp[(i+1)%2][1].high=tmp.data(63,48);
+                        data_temp[(i+1)%2][2].low=tmp.data(79,64);
+                        data_temp[(i+1)%2][2].high=tmp.data(95,80);
+                        data_temp[(i+1)%2][3].low=tmp.data(111,96);
+                        data_temp[(i+1)%2][3].high=tmp.data(127,112);
+                        
+                        d0.low =c_buf[tile_x][ID][i](15,0)  ;
+                        d0.high=c_buf[tile_x][ID][i](31,16) ;
+                        d1.low =c_buf[tile_x][ID][i](47,32) ;
+                        d1.high=c_buf[tile_x][ID][i](63,48) ;
+                        d2.low =c_buf[tile_x][ID][i](79,64) ;
+                        d2.high=c_buf[tile_x][ID][i](95,80) ;
+                        d3.low =c_buf[tile_x][ID][i](111,96);
+                        d3.high=c_buf[tile_x][ID][i](127,112);
 
-                        ID=getPacketId(header);
-                        tile_x=cnt[ID]/Y;
-                        cnt[ID]=cnt[ID]+1;
 
-                        for (int i = 0; i < OUT_SIZE; i++){ 
-                        #pragma HLS PIPELINE II = 1
-                        #pragma HLS dependence variable=c_buf type=inter false
-                            tmp=rxC.read();
-
-                            for(int un=0; un<NUM_PER_TRA; un++){
-                            #pragma HLS UNROLL factor=NUM_PER_TRA
-                                data_temp0[(i+1)%2][un].data_uint=tmp.data(un*32+31,un*32);
-                                data_temp1[un].data_uint= c_buf[tile_x][ID][i](un*32+31,un*32);
-                                
-                            }
-                            data_temp2[0].data_float= data_temp0[i%2][1].data_float+data_temp1[0].data_float;
-                            data_temp2[1].data_float= data_temp0[i%2][2].data_float+data_temp1[1].data_float;
-                            data_temp2[2].data_float= data_temp0[i%2][3].data_float+data_temp1[2].data_float;
-                            data_temp2[3].data_float= data_temp0[(i+1)%2][0].data_float+data_temp1[3].data_float;
-
-                            c_buf[tile_x][ID][i](31,0)   =  data_temp2[0].data_uint;  
-                            c_buf[tile_x][ID][i](63,32)  =  data_temp2[1].data_uint;
-                            c_buf[tile_x][ID][i](95,64)  =  data_temp2[2].data_uint;
-                            c_buf[tile_x][ID][i](127,96) =  data_temp2[3].data_uint;
-                                
-                        }
+                        d0.low = data_temp[i%2][1].low       + d0.low;
+                        d0.high= data_temp[i%2][1].high      + d0.high;
+                        d1.low = data_temp[i%2][2].low       + d1.low;
+                        d1.high= data_temp[i%2][2].high      + d1.high;
+                        d2.low = data_temp[i%2][3].low       + d2.low;
+                        d2.high= data_temp[i%2][3].high      + d2.high;
+                        d3.low = data_temp[(i+1)%2][0].low   + d3.low;
+                        d3.high= data_temp[(i+1)%2][0].high  + d3.high;
+                        
+                        c_buf[tile_x][ID][i](15,0)   = d0.low ;
+                        c_buf[tile_x][ID][i](31,16)  = d0.high;
+                        c_buf[tile_x][ID][i](47,32)  = d1.low ;
+                        c_buf[tile_x][ID][i](63,48)  = d1.high;
+                        c_buf[tile_x][ID][i](79,64)  = d2.low ;
+                        c_buf[tile_x][ID][i](95,80)  = d2.high;
+                        c_buf[tile_x][ID][i](111,96) = d3.low ;
+                        c_buf[tile_x][ID][i](127,112)= d3.high;
                     }
                 }
             }
-        }
+        } 
     }
+}  
 }
