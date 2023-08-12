@@ -139,14 +139,14 @@ void mm1_kernel2_L{{layer}}(input_window_float* __restrict matA,
 	
 			acc0 = fpmac(acc0,buf_matA,8,0x76543210,ext_w(buf_matB,1),3,0x0);
 			window_write(matC,acc0);
-            window_incr(matC,8);
+            window_incr(matC,L{{layer}}_h1);
 			buf_matA = upd_w(buf_matA,0,window_read_v8(matA));
 			window_incr(matA,L{{layer}}_h1);
 			buf_matB = upd_v(buf_matB,0,window_read_v4(matB));
 			window_incr(matB,L{{layer}}_w1);
 			acc1 = fpmac(acc1,buf_matA,8,0x76543210,ext_w(buf_matB,1),7,0x0);
 			window_write(matC,acc1);
-            window_incr(matC,8);
+            window_incr(matC,jump);
 			buf_matB = upd_v(buf_matB,1,window_read_v4(matB));
 			window_decr(matB,L{{layer}}_jump_B0);	
 		}
