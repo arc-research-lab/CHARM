@@ -10,7 +10,7 @@ from .gen_combine import*
 from .gen_plio_place import*
 
 def gen_aie_top(prj_dir,template_dir,Model_MM,placement):
-    kernel_type_num=2
+    kernel_type_num=8
     num_layer=Model_MM.shape[0]
     port_width=128
     freq=250
@@ -19,8 +19,12 @@ def gen_aie_top(prj_dir,template_dir,Model_MM,placement):
 
     aie_dir= prj_dir + '/aie'
     subprocess.run(['mkdir','-p' ,f'{aie_dir}'])
-    data_dir = template_dir +"/data"
 
+    ### Copy Data 
+    data_dir = template_dir +"/data/kernel" + str(Model_MM[0][11]) ##### Fix Me For Multiple Kernels#####
+    copy_data = Path(data_dir)
+    subprocess.run(['cp', '-r', copy_data, f'{prj_dir + "/data"}'])
+    
     template_path=[None]*kernel_type_num
     template_name=[None]*kernel_type_num
     environment=[None]*kernel_type_num
@@ -36,10 +40,7 @@ def gen_aie_top(prj_dir,template_dir,Model_MM,placement):
 
     environment_combine = Environment(loader=FileSystemLoader(template_dir))
 
-    ### Copy Data
-    copy_data = Path(data_dir)
-    subprocess.run(['cp', '-r', copy_data, f'{prj_dir + "/data"}'])
-
+    
     Port_Conf_All = np.zeros((HW_Conf.shape[0],3)).astype(int)
     for i in range(HW_Conf.shape[0]):
         Port_Conf_All[i][0]=HW_Conf[i][0]*(HW_Conf[i][2]//HW_Conf[i][3])*(HW_Conf[i][1]//HW_Conf[i][5])  #lhs_port
@@ -86,7 +87,7 @@ def gen_aie_top(prj_dir,template_dir,Model_MM,placement):
         height   = placement[i][3]
         subprocess.run(['mkdir','-p' ,file_dir])
         aie_folder = Path(file_dir)
-        if kernel_type==1:
+        if kernel_type%2==1:
             Place_config=np.array([A,B,C,A_BRO,C_BRO,PACK_IN,PACK_OUT,pos_col,pos_row,height])
             json_object=plio_placement(Place_config,layer)
             oper = "w" if num==0 else "w+"
