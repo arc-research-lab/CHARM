@@ -13,25 +13,27 @@ def cdse_top(Op0,Op1):
     if Op0.shape[1]!=Op1.shape[0]:
         print("\n\n")
         sys.exit("Dim 1 of Matix 0 doesn't match Dim 0 of Matrix 1\n\n")
-    if Op0.dtype!=np.float32 or Op1.dtype!=np.float32:
-        print("\n\n")
-        sys.exit("Currently FP32 data type is supported, other data types will be released later\n\n")
     if Op0.dtype!=Op1.dtype:
         print("\n\n")
         sys.exit("Currently operands with the same data types are supported\n\n")
     if Op0.dtype==np.float32:
         DATA_TYPE=4
+    elif Op0.dtype==np.int16:
+        DATA_TYPE=2
+    elif Op0.dtype==np.int8:
+        DATA_TYPE=1
 
     total_ops = np.sum(np.multiply(np.multiply(np.multiply(MODEL_IN[:,0],MODEL_IN[:,1]),MODEL_IN[:,2]),MODEL_IN[:,3]))*2
 
     ################ Hardware Constraints ################
     portion=1
+    force_assign=0
     DDR_BANK=1*portion
     AIE_NUM=400*portion
     BRAM=(967-100)*portion #100 for AXI bound consumpssion
     URAM=(463-43)*portion
-    PLIO_IN=156*portion
-    PLIO_OUT=117*portion
+    PLIO_IN=100*portion
+    PLIO_OUT=80*portion
 
 
     ################ Hardware Setting ################
@@ -46,25 +48,28 @@ def cdse_top(Op0,Op1):
         W1=64
         W2=64
         mac=128
-        PAC_LR = 2
-        PAC_OUT= 2
+        PACK_IN = 2
+        PACK_OUT= 2
+        kernel_type=7
         EFF_SINGLE=0.80
     elif DATA_TYPE==2:
         H1=48
         W1=32
         W2=48
         mac=32
-        PAC_LR = 3
-        PAC_OUT= 2
-        EFF_SINGLE=0.80
+        PACK_IN = 3
+        PACK_OUT= 2
+        kernel_type=5
+        EFF_SINGLE=0.85
     elif DATA_TYPE==4:
         H1=32
         W1=32
         W2=32
         mac=8
-        PAC_LR = 1
-        PAC_OUT= 1
-        EFF_SINGLE=0.80
+        PACK_IN = 4
+        PACK_OUT= 4
+        kernel_type=1
+        EFF_SINGLE=0.85
 
     #Buffer Configurations
     RAM_TYPE_A=2 #"1":1P "2":T2P
@@ -131,24 +136,40 @@ def cdse_top(Op0,Op1):
     temp_cycle=np.zeros([1,sample_num])
     config=np.zeros([num_design_best+num_design_choice,num_term+sample_num-1])
 
-
+    A,B,C,X,Y,Z,buf_sel=[12,4,8,4,2,2,5]
     ############################ DSE Kernel0 ###############################
 
     for c in range(1, 8+1):      ##Row Constaint
         print("DSE Processes ------------ " + str(12.5*c) + "%")
         for b in range(1, 50+1): ##Col Constaint
-            for a in range(1, AIE_NUM//(c*b)+1):  
-                if (b>8 and b%4!=0) or b>16:
+            for a in range(1, AIE_NUM//(c*b)+1): 
+                if (force_assign==1) and ((a!=A) or (b!=B) or (c!=C)):
                     continue
+                if kernel_type%2==1:
+                    A_BRO = c//2
+                    height=min(c,8)
+                    if  a%2==0:
+                        C_BRO=2
+                    elif a%3==0:
+                        C_BRO=3
+                    else:
+                        C_BRO=1
+                    if (b%PACK_IN!=0) or (c%PACK_OUT!=0):
+                        continue
+                else:
+                    A_BRO= c
+                    C_BRO, height = broadC_factor(a,b,c)
+                    if ((b>8 and b%4!=0) or b>16):
+                        continue
                 ############ Determine A_BRO and C_BRO ###########
-                A_BRO=c
-                C_BRO, height = broadC_factor(a,b,c)
+                
+                
 
                 ############ Calculate PLIO ###########
-                plio_in_lhs= a*b*c//A_BRO
-                plio_in_rhs= c*b*a//C_BRO
+                plio_in_lhs= a*(b//PACK_IN)*(c//A_BRO)
+                plio_in_rhs= c*(b//PACK_IN)*(a//C_BRO)
                 plio_in=plio_in_lhs + plio_in_rhs
-                plio_out=a*c
+                plio_out=a*(c//PACK_OUT)
                 if plio_in>PLIO_IN or plio_out>PLIO_OUT:
                     break
 
@@ -160,7 +181,9 @@ def cdse_top(Op0,Op1):
                 for x in range(1, 16):
                     for y in range(1, 16): 
                         for z in range(1, 16):
-                            bram_use,uram_use,buf_index=buff_count_0(BRAM,URAM,PART_A,PART_B,PART_C,LEFT_SIZE,RIGHT_SIZE,OUT_SIZE,a,b,c,x,y,z,DBUFF_L,DBUFF_R,DBUFF_O,RAM_TYPE_A,RAM_TYPE_B,RAM_TYPE_C)
+                            if (force_assign==1) and ((x!=X) or (y!=Y) or (z!=Z)):
+                                continue
+                            bram_use,uram_use,buf_index=buff_count_0(BRAM,URAM,PART_A,PART_B,PART_C,PACK_IN,PACK_OUT,LEFT_SIZE,RIGHT_SIZE,OUT_SIZE,a,b,c,x,y,z,DBUFF_L,DBUFF_R,DBUFF_O,RAM_TYPE_A,RAM_TYPE_B,RAM_TYPE_C,force_assign)
                             if (bram_use>BRAM or uram_use>URAM):
                                 break
 
@@ -179,7 +202,7 @@ def cdse_top(Op0,Op1):
                                 store_O_S = math.ceil(TILEO_SIZE*x*z/BW_O_S)
                                 store_O_D = math.ceil(TILEO_SIZE*x*z/BW_O_D)
                                 store_O_T = math.ceil(TILEO_SIZE*x*z/BW_O_T)
-                                COMP_CYCLE=math.ceil(max([(H1*W1//4),(W1*W2//4),((H1*W1*W2/mac)/EFF_SINGLE)]))*x*y*z
+                                COMP_CYCLE=math.ceil(max([(H1*W1//4),(W1*W2//4),((H1*W1*W2/mac)/EFF_SINGLE)]))*x*y*z+(H1*W1//4)+(H1*W2//4)
 
                                 M=MODEL_IN[large_t,0]
                                 K=MODEL_IN[large_t,1]
@@ -231,8 +254,7 @@ def cdse_top(Op0,Op1):
                                     # print("\n\n")
 
 
-    PACK_IN=1
-    PACK_OUT=1
+    
     config = config[config[:,0].argsort()[::-1]]
 
     Versal_HW_temp=config[0,:]
@@ -242,8 +264,8 @@ def cdse_top(Op0,Op1):
     Versal_HW[0,8]=PACK_IN
     Versal_HW[0,9]=PACK_OUT
     Versal_HW[0,10:13]=Versal_HW_temp[6:9]
-    Versal_HW[0,13]=DATA_TYPE*8
-    Versal_HW[0,14]=0  
+    Versal_HW[0,13]=DATA_TYPE
+    Versal_HW[0,14]=kernel_type  
 
     placement=np.zeros([1,4]) #layer,col,row,height 
     col=(50-Versal_HW_temp[9])//2
@@ -260,7 +282,11 @@ def cdse_top(Op0,Op1):
     
     final_temp=np.concatenate((Versal_HW, placement), axis=1)
     final_config=np.concatenate((final_temp,BUFF_SEL),axis=1)
-
+    bram_use,uram_use,buf_index=buff_count_0(BRAM,URAM,PART_A,PART_B,PART_C,PACK_IN,PACK_OUT,LEFT_SIZE,RIGHT_SIZE,OUT_SIZE,Versal_HW[0,3],Versal_HW[0,4],Versal_HW[0,5],Versal_HW[0,10],Versal_HW[0,11],Versal_HW[0,12],DBUFF_L,DBUFF_R,DBUFF_O,RAM_TYPE_A,RAM_TYPE_B,RAM_TYPE_C,force_assign,buf_sel)
+    print(bram_use)   
+    print(uram_use)
+    print(buf_index)
+    print('Estimated Throughput is: ' + str(Versal_HW_temp[0]) + 'GOPS' )
     return final_config
         
             
