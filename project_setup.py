@@ -11,8 +11,8 @@ prj_dir= cur_dir + '/prj_try'
 subprocess.run(['mkdir','-p' ,f'{prj_dir}'])
 
 #Define the left-hand-side(A) and right-hide-side(B) operands
-A=np.random.rand(4096, 4096).astype(np.float32)
-B=np.random.rand(4096, 4096).astype(np.float32)
+A=np.random.rand(8192, 8192).astype(np.float32)
+B=np.random.rand(8192, 8192).astype(np.float32)
 
 #Create the object of the class charm
 automm=charm(prj_dir)
@@ -24,5 +24,5 @@ Versal_config=automm.cdse(A,B)
 device='vck190' # Supported devices are vck190 and vck5000
 automm.cacg(Versal_config,device)
 
-#Run Vitis Compilation Flow
-automm.build()
+# #Run Vitis Compilation Flow
+# automm.build()

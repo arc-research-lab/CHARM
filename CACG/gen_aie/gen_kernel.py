@@ -1,4 +1,4 @@
-def gen_para(environment,h1,w1,w2,A,B,C,A_BRO,C_BRO,layer,aie_folder):
+def gen_para(environment,h1,w1,w2,A,B,C,A_BRO,C_BRO,PACK_IN,data_type,layer,aie_folder):
     template = environment.get_template("para.h")
     file_tmp = "para_L" + str(layer) + ".h"
     filename = aie_folder / file_tmp
@@ -11,6 +11,8 @@ def gen_para(environment,h1,w1,w2,A,B,C,A_BRO,C_BRO,layer,aie_folder):
         C=C,
         A_BRO=A_BRO,
         C_BRO=C_BRO,
+        PACK_IN=PACK_IN,
+        data_type=data_type,
         layer=layer
     )
     with open(filename, mode="w", encoding="utf-8") as message:

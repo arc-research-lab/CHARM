@@ -8,7 +8,7 @@ using namespace adf;
 
 
 template <int COL_OFFSET, int ROW_OFFSET>
-class simpleGraph_k1_B{{B}}_L{{layer}}: public graph {
+class mm_k1_B{{B}}_L{{layer}}: public graph {
   private:
     kernel mm[L{{layer}}_NUM_KERNEL];
 
@@ -16,7 +16,7 @@ class simpleGraph_k1_B{{B}}_L{{layer}}: public graph {
     port<input> in0[L{{layer}}_NUM_KERNEL],in1[L{{layer}}_NUM_KERNEL];
     port<output> out;
     
-    simpleGraph_k1_B{{B}}_L{{layer}}() {
+    mm_k1_B{{B}}_L{{layer}}() {
       {% if B ==1 %}
       mm[0] = kernel::create(mm0_kernel3_L{{layer}});
       source(mm[0]) = "mm0_kernel3_L{{layer}}.cc";

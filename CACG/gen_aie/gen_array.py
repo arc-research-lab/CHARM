@@ -1,4 +1,4 @@
-def gen_toph(environment,A,B,C,A_BRO,C_BRO,pos_col,pos_row,height,layer,aie_folder):
+def gen_toph(environment,A,B,C,A_BRO,C_BRO,PACK_IN,PACK_OUT,pos_col,pos_row,height,layer,aie_folder):
     template = environment.get_template("aie_top.h")
     file_tmp = "aie_top_L"+ str(layer) + ".h"
     filename = aie_folder / file_tmp
@@ -8,6 +8,8 @@ def gen_toph(environment,A,B,C,A_BRO,C_BRO,pos_col,pos_row,height,layer,aie_fold
         C=C,
         A_BRO=A_BRO,
         C_BRO=C_BRO,
+        PACK_IN=PACK_IN,
+        PACK_OUT=PACK_OUT,
         layer=layer,
         pos_col=pos_col,
         pos_row=pos_row,

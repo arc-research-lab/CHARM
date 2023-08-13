@@ -6,9 +6,9 @@ import os
 from .gen_krl import*
 
 def gen_pl_top(prj_dir,template_dir,pl_dir,hw_config,BUFF_SEL):
-    kernel_type_num=1
+    kernel_type_num=8
     size=hw_config.shape[1]
-    h1,w1,w2,A,B,C,A_BRO,C_BRO,X,Y,Z,data_type=hw_config[0,:]
+    h1,w1,w2,A,B,C,A_BRO,C_BRO,PACK_IN,PACK_OUT,X,Y,Z,data_type,kernel_type=hw_config[0,:]
     subprocess.run(['mkdir','-p' ,f'{pl_dir}'])
     template_path=[None]*kernel_type_num
     template_name=[None]*kernel_type_num
@@ -21,10 +21,16 @@ def gen_pl_top(prj_dir,template_dir,pl_dir,hw_config,BUFF_SEL):
     layer=0
     krl_folder = Path(pl_dir)
     prj_folder = Path(prj_dir)
+    BUFF_SEL_TEXT=['BRAM','BRAM','BRAM']
+    for i in range(3):
+        if BUFF_SEL[0,i]==0:
+            BUFF_SEL_TEXT[i]='BRAM'
+        else:
+            BUFF_SEL_TEXT[i]='URAM'
     
-    gen_para(environment[0],h1,w1,w2,A,B,C,A_BRO,C_BRO,X,Y,Z,data_type,krl_folder)
-    gen_ddr (environment[0], krl_folder)
-    gen_send(environment[0],A,C,A_BRO,C_BRO,krl_folder)
-    gen_compute(environment[0],A,B,C,A_BRO,C_BRO,BUFF_SEL,krl_folder)
-    gen_krl_top(environment[0],A,B,C,A_BRO,C_BRO,krl_folder)
-    gen_conn(environment[0],A,B,C,A_BRO,C_BRO,layer,prj_folder)
+    gen_para(environment[kernel_type],h1,w1,w2,A,B,C,A_BRO,C_BRO,PACK_IN,PACK_OUT,X,Y,Z,data_type,krl_folder)
+    gen_ddr (environment[kernel_type], krl_folder)
+    gen_send(environment[kernel_type],A,C,A_BRO,C_BRO,PACK_IN,PACK_OUT,krl_folder)
+    gen_compute(environment[kernel_type],A,B,C,A_BRO,C_BRO,PACK_IN,PACK_OUT,BUFF_SEL_TEXT,krl_folder)
+    gen_krl_top(environment[kernel_type],A,B,C,A_BRO,C_BRO,PACK_IN,PACK_OUT,krl_folder)
+    gen_conn(environment[kernel_type],A,B,C,A_BRO,C_BRO,PACK_IN,PACK_OUT,layer,prj_folder)
