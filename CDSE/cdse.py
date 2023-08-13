@@ -38,9 +38,9 @@ def cdse_top(Op0,Op1):
 
     ################ Hardware Setting ################
     #AXI Port Width in Bytes from PL <-> DDR
-    AXI_WIDTH_A=512//8 
-    AXI_WIDTH_B=512//8
-    AXI_WIDTH_C=512//8
+    AXI_WIDTH_A=512 
+    AXI_WIDTH_B=512
+    AXI_WIDTH_C=512
 
     #Single AIE Workload Settings
     if DATA_TYPE==1:
@@ -81,24 +81,24 @@ def cdse_top(Op0,Op1):
 
     #PLIO Width Configurations
     if DATA_TYPE==1:
-        AXIS_WIDTH_A=64//8   # PLIO Port Width from PL <-> AIE
-        AXIS_WIDTH_B=128//8
-        AXIS_WIDTH_C=64//8
+        AXIS_WIDTH_A=64     # PLIO Port Width from PL <-> AIE
+        AXIS_WIDTH_B=128
+        AXIS_WIDTH_C=64
         PART_A=AXI_WIDTH_A//(AXIS_WIDTH_A*RAM_TYPE_A)
         PART_B=AXI_WIDTH_B//(AXIS_WIDTH_B*RAM_TYPE_B)
         PART_C=AXI_WIDTH_C*2//(AXIS_WIDTH_C*RAM_TYPE_C)
     else:
-        AXIS_WIDTH_A=128//8  # PLIO Port Width from PL <-> AIE
-        AXIS_WIDTH_B=128//8
-        AXIS_WIDTH_C=128//8
+        AXIS_WIDTH_A=128   # PLIO Port Width from PL <-> AIE
+        AXIS_WIDTH_B=128
+        AXIS_WIDTH_C=128
         PART_A=AXI_WIDTH_A//(AXIS_WIDTH_A*RAM_TYPE_A)
         PART_B=AXI_WIDTH_B//(AXIS_WIDTH_B*RAM_TYPE_B)
         PART_C=AXI_WIDTH_C//(AXIS_WIDTH_C*RAM_TYPE_C)
 
     #Num of Elements during PL <-> AIE Transmission
-    NUM_PER_PORT_A=AXIS_WIDTH_A//DATA_TYPE
-    NUM_PER_PORT_B=AXIS_WIDTH_B//DATA_TYPE
-    NUM_PER_PORT_C=AXIS_WIDTH_C//DATA_TYPE
+    NUM_PER_PORT_A=AXIS_WIDTH_A//(DATA_TYPE*8)
+    NUM_PER_PORT_B=AXIS_WIDTH_B//(DATA_TYPE*8)
+    NUM_PER_PORT_C=AXIS_WIDTH_C//(DATA_TYPE*8)
 
     #Data Transmission During One Iteration of Graph
     LEFT_SIZE =H1*W1//NUM_PER_PORT_A
@@ -106,23 +106,23 @@ def cdse_top(Op0,Op1):
     OUT_SIZE  =H1*W2//NUM_PER_PORT_C
 
     # PL Frequency
-    freq_rate=220/250
+    freq_rate=230/250
 
     # One-Time Profling of DDR Bandwidth
-    BW_L_S=(12*DDR_BANK)*freq_rate
-    BW_R_S=(12*DDR_BANK)*freq_rate
-    BW_O_S=(8.5*DDR_BANK)*freq_rate
+    BW_L_S=(14*DDR_BANK)*freq_rate
+    BW_R_S=(14*DDR_BANK)*freq_rate
+    BW_O_S=(10*DDR_BANK)*freq_rate
 
-    BW_L_DR=(8*DDR_BANK)*freq_rate
-    BW_R_DL=(8*DDR_BANK)*freq_rate
+    BW_L_DR=(10*DDR_BANK)*freq_rate
+    BW_R_DL=(10*DDR_BANK)*freq_rate
 
-    BW_L_DO=(8*DDR_BANK)*freq_rate
-    BW_R_DO=(8*DDR_BANK)*freq_rate
-    BW_O_D=(6*DDR_BANK)*freq_rate
+    BW_L_DO=(10*DDR_BANK)*freq_rate
+    BW_R_DO=(10*DDR_BANK)*freq_rate
+    BW_O_D=(10*DDR_BANK)*freq_rate
 
-    BW_L_T=(7*DDR_BANK)*freq_rate
-    BW_R_T=(7*DDR_BANK)*freq_rate
-    BW_O_T=(7*DDR_BANK)*freq_rate
+    BW_L_T=(8*DDR_BANK)*freq_rate
+    BW_R_T=(8*DDR_BANK)*freq_rate
+    BW_O_T=(8*DDR_BANK)*freq_rate
 
 
     ###################### Initialization ###########################
@@ -136,7 +136,7 @@ def cdse_top(Op0,Op1):
     temp_cycle=np.zeros([1,sample_num])
     config=np.zeros([num_design_best+num_design_choice,num_term+sample_num-1])
 
-    A,B,C,X,Y,Z,buf_sel=[12,4,8,4,2,2,5]
+    A,B,C,X,Y,Z,buf_sel=[6,8,8,6,1,4,5]
     ############################ DSE Kernel0 ###############################
 
     for c in range(1, 8+1):      ##Row Constaint
@@ -183,7 +183,7 @@ def cdse_top(Op0,Op1):
                         for z in range(1, 16):
                             if (force_assign==1) and ((x!=X) or (y!=Y) or (z!=Z)):
                                 continue
-                            bram_use,uram_use,buf_index=buff_count_0(BRAM,URAM,PART_A,PART_B,PART_C,PACK_IN,PACK_OUT,LEFT_SIZE,RIGHT_SIZE,OUT_SIZE,a,b,c,x,y,z,DBUFF_L,DBUFF_R,DBUFF_O,RAM_TYPE_A,RAM_TYPE_B,RAM_TYPE_C,force_assign)
+                            bram_use,uram_use,buf_index=buff_count_0(BRAM,URAM,PART_A,PART_B,PART_C,PACK_IN,PACK_OUT,LEFT_SIZE,RIGHT_SIZE,OUT_SIZE,a,b,c,x,y,z,DBUFF_L,DBUFF_R,DBUFF_O,RAM_TYPE_A,RAM_TYPE_B,RAM_TYPE_C,force_assign,buf_sel)
                             if (bram_use>BRAM or uram_use>URAM):
                                 break
 
@@ -202,8 +202,7 @@ def cdse_top(Op0,Op1):
                                 store_O_S = math.ceil(TILEO_SIZE*x*z/BW_O_S)
                                 store_O_D = math.ceil(TILEO_SIZE*x*z/BW_O_D)
                                 store_O_T = math.ceil(TILEO_SIZE*x*z/BW_O_T)
-                                COMP_CYCLE=math.ceil(max([(H1*W1//4),(W1*W2//4),((H1*W1*W2/mac)/EFF_SINGLE)]))*x*y*z+(H1*W1//4)+(H1*W2//4)
-
+                                COMP_CYCLE=math.ceil(max([(H1*W1*DATA_TYPE//4),(W1*W2*DATA_TYPE//4),((H1*W1*W2/mac)/EFF_SINGLE)]))*x*y*z+(H1*W1*DATA_TYPE//4)+(H1*W2*DATA_TYPE//4)    
                                 M=MODEL_IN[large_t,0]
                                 K=MODEL_IN[large_t,1]
                                 N=MODEL_IN[large_t,2]
@@ -282,11 +281,11 @@ def cdse_top(Op0,Op1):
     
     final_temp=np.concatenate((Versal_HW, placement), axis=1)
     final_config=np.concatenate((final_temp,BUFF_SEL),axis=1)
-    bram_use,uram_use,buf_index=buff_count_0(BRAM,URAM,PART_A,PART_B,PART_C,PACK_IN,PACK_OUT,LEFT_SIZE,RIGHT_SIZE,OUT_SIZE,Versal_HW[0,3],Versal_HW[0,4],Versal_HW[0,5],Versal_HW[0,10],Versal_HW[0,11],Versal_HW[0,12],DBUFF_L,DBUFF_R,DBUFF_O,RAM_TYPE_A,RAM_TYPE_B,RAM_TYPE_C,force_assign,buf_sel)
+    bram_use,uram_use,buf_index=buff_count_0(BRAM,URAM,PART_A,PART_B,PART_C,PACK_IN,PACK_OUT,LEFT_SIZE,RIGHT_SIZE,OUT_SIZE,Versal_HW[0,3],Versal_HW[0,4],Versal_HW[0,5],Versal_HW[0,10],Versal_HW[0,11],Versal_HW[0,12],DBUFF_L,DBUFF_R,DBUFF_O,RAM_TYPE_A,RAM_TYPE_B,RAM_TYPE_C,force_assign,buf_sel) 
     print(bram_use)   
     print(uram_use)
     print(buf_index)
-    print('Estimated Throughput is: ' + str(Versal_HW_temp[0]) + 'GOPS' )
+    print('Estimated Throughput is: ' + str(Versal_HW_temp[0]) + ' GOPS' )
     return final_config
         
             
