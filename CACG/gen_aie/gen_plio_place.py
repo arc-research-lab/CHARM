@@ -24,14 +24,14 @@ def find_col_in(col_sel,chl_cnt,chl_lhs_flag,reverse,op):#op: 0->lhs, 1->rhs
     lhs_flag=chl_lhs_flag[cnt_pos]
     if lhs_flag==0:
         if op==0:
-            num_channel=4
+            num_channel=2
         else:
             num_channel=4
     else:
         if op==0:
             num_channel=2
         else:
-            num_channel=4
+            num_channel=2
 
     if chl_num < num_channel:
         return col_sel,chl_num
