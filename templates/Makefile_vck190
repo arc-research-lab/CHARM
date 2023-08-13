@@ -38,7 +38,7 @@ BUILD_DIR := ./build_dir.$(TARGET).xilinx_vck190_base_202110_1
 KERNEL_XO := $(TEMP_DIR)/dma.xo
 GRAPH   := aie/aie_top_all.cpp
 LIBADF  = libadf.a
-AIE_CMPL_CMD = aiecompiler -platform=${PLATFORM} --target=hw --stacksize=1024 --pl-register-threshold=250 --pl-freq=230  -include="./aie" -include="./aie/layer0" -include="./aie/layer1" -include="./aie/layer2" -include="./aie/layer3" -include="./aie/layer4" -include="./aie/layer5" -include="./aie/layer6" -include="./aie/layer7" -include="./aie/layer8" --constraints ./aie_top_all_aie_mapped.aiecst -workdir=./Work ${GRAPH}#-v
+AIE_CMPL_CMD = aiecompiler -platform=${PLATFORM} --target=hw --stacksize=1024 --pl-register-threshold=250 --pl-freq=230  -include="./aie" -include="./aie/layer0" -include="./aie/layer1" -include="./aie/layer2" -include="./aie/layer3" -include="./aie/layer4" -include="./aie/layer5" -include="./aie/layer6" -include="./aie/layer7" -include="./aie/layer8" --constraints ./aie_top_all_aie_mapped.aiecst -workdir=./Work ${GRAPH}
 AIE_SIM_CMD = aiesimulator --pkg-dir=./Work --dump-vcd foo --profile
 AIE_HOSTEXE = aie_control_xrt.o
 ifeq ($(PRE_BUILT),1)
