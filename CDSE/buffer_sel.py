@@ -2,13 +2,17 @@ import numpy as np
 import math
 
 
-def buff_count_0(BRAM,URAM,PART_A,PART_B,PART_C,PACK_IN,PACK_OUT,LEFT_SIZE,RIGHT_SIZE,OUT_SIZE,a,b,c,x,y,z,left_buf,right_buf,out_buf,RAM_TYPE_A,RAM_TYPE_B,RAM_TYPE_C,force_assign,index_assign=0):
+def buff_count_0(BRAM,URAM,PART_A,PART_B,PART_C,PACK_IN,PACK_OUT,LEFT_SIZE,RIGHT_SIZE,OUT_SIZE,a,b,c,x,y,z,left_buf,right_buf,out_buf,RAM_TYPE_A,RAM_TYPE_B,RAM_TYPE_C,DATA_TYPE,force_assign,index_assign=0):
+    if DATA_TYPE==1:
+        fact=2
+    else:
+        fact=1
     if RAM_TYPE_A==1:
-        bank_Lb=(a*math.ceil(b/PACK_IN))*(PART_A)*math.ceil(128/72)*math.ceil(x*y*LEFT_SIZE*PACK_IN/PART_A/512)
-        bank_Lu=(a*math.ceil(b/PACK_IN))*(PART_A)*math.ceil(128/72)*math.ceil(x*y*LEFT_SIZE*PACK_IN/PART_A/4096)
+        bank_Lb=(a*math.ceil(b/PACK_IN))*(PART_A)*math.ceil((128/fact)/72)*math.ceil(x*y*LEFT_SIZE*PACK_IN/PART_A/512)
+        bank_Lu=(a*math.ceil(b/PACK_IN))*(PART_A)*math.ceil((128/fact)/72)*math.ceil(x*y*LEFT_SIZE*PACK_IN/PART_A/4096)
     elif RAM_TYPE_A==2:
-        bank_Lb=(a*math.ceil(b/PACK_IN))*(PART_A)*math.ceil(128/36)*math.ceil(x*y*LEFT_SIZE*PACK_IN/PART_A/1024)
-        bank_Lu=(a*math.ceil(b/PACK_IN))*(PART_A)*math.ceil(128/72)*math.ceil(x*y*LEFT_SIZE*PACK_IN/PART_A/4096)
+        bank_Lb=(a*math.ceil(b/PACK_IN))*(PART_A)*math.ceil((128/fact)/36)*math.ceil(x*y*LEFT_SIZE*PACK_IN/PART_A/1024)
+        bank_Lu=(a*math.ceil(b/PACK_IN))*(PART_A)*math.ceil((128/fact)/72)*math.ceil(x*y*LEFT_SIZE*PACK_IN/PART_A/4096)
 
     if RAM_TYPE_B==1:
         bank_Rb=(c*math.ceil(b/PACK_IN))*(PART_B)*math.ceil(128/72)*math.ceil(y*z*RIGHT_SIZE*PACK_IN/PART_B/512)
@@ -18,11 +22,11 @@ def buff_count_0(BRAM,URAM,PART_A,PART_B,PART_C,PACK_IN,PACK_OUT,LEFT_SIZE,RIGHT
         bank_Ru=(c*math.ceil(b/PACK_IN))*(PART_B)*math.ceil(128/72)*math.ceil(y*z*RIGHT_SIZE*PACK_IN/PART_B/4096)
 
     if RAM_TYPE_C==1:
-        bank_Ob=(a*math.ceil(c/PACK_OUT))*(PART_C)*math.ceil(128/72)*math.ceil(x*z*OUT_SIZE*PACK_OUT/PART_C/512)
-        bank_Ou=(a*math.ceil(c/PACK_OUT))*(PART_C)*math.ceil(128/72)*math.ceil(x*z*OUT_SIZE*PACK_OUT/PART_C/4096)
+        bank_Ob=(a*math.ceil(c/PACK_OUT))*(PART_C)*math.ceil((128/fact)/72)*math.ceil(x*z*OUT_SIZE*PACK_OUT/PART_C/512)
+        bank_Ou=(a*math.ceil(c/PACK_OUT))*(PART_C)*math.ceil((128/fact)/72)*math.ceil(x*z*OUT_SIZE*PACK_OUT/PART_C/4096)
     elif RAM_TYPE_C==2:
-        bank_Ob=(a*math.ceil(c/PACK_OUT))*(PART_C)*math.ceil(128/36)*math.ceil(x*z*OUT_SIZE*PACK_OUT/PART_C/1024)
-        bank_Ou=(a*math.ceil(c/PACK_OUT))*(PART_C)*math.ceil(128/72)*math.ceil(x*z*OUT_SIZE*PACK_OUT/PART_C/4096)
+        bank_Ob=(a*math.ceil(c/PACK_OUT))*(PART_C)*math.ceil((128/fact)/36)*math.ceil(x*z*OUT_SIZE*PACK_OUT/PART_C/1024)
+        bank_Ou=(a*math.ceil(c/PACK_OUT))*(PART_C)*math.ceil((128/fact)/72)*math.ceil(x*z*OUT_SIZE*PACK_OUT/PART_C/4096)
 
     on_chip_bram= np.zeros([8])
     on_chip_uram= np.zeros([8])
