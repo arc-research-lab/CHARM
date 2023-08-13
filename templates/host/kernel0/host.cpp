@@ -117,9 +117,9 @@ int main(int argc, char** argv) {
     adf::registerXRT(dhdl, top->m_header.uuid);
     {% endif %}
 
-    {{data_type}} temp_m=({{data_type}})(M1)/({{data_type}})(X*A*H1);
-    {{data_type}} temp_k=({{data_type}})(K1)/({{data_type}})(Y*B*W1);
-    {{data_type}} temp_n=({{data_type}})(N1)/({{data_type}})(Z*C*W2);
+    float temp_m=(float)(M1)/(float)(X*A*H1);
+    float temp_k=(float)(K1)/(float)(Y*B*W1);
+    float temp_n=(float)(N1)/(float)(Z*C*W2);
     TX=ceil(temp_m);
     TY=ceil(temp_k);
     TZ=ceil(temp_n);
