@@ -248,4 +248,39 @@ int main(int argc, char** argv) {
     xrtRunClose(dma_rhdl);
     xrtKernelClose(dma_khdl);
 
-    ///////
+    ////////////////////////////////////////////
+    //// Comparing the execution data to the golden data
+    ////////////////////////////////////////////
+    if(verify){
+        
+        post_pro(out_bomapped, final_result_hw, M1, N1, M);
+        sw_mm(DataInput0,DataInput1,golden,M,K,N);
+        post_pro(golden, final_result_sw, M1, N1, M);
+        int errorCount = 0;  
+        for (int len = 0; len < sizeOut1; len++) {
+
+            if(abs(({{data_type}})(final_result_hw[len])-final_result_sw[len])>=1e-4){
+                printf("Error found final_result_hw[%d]!=final_result_sw[%d], {{format}}!={{format}} \n", len,len,final_result_hw[len],final_result_sw[len]);
+                errorCount++;
+            }
+   
+        }
+        if (errorCount)
+            printf("Test failed with %d errors\n", errorCount);
+        else
+            printf("TEST PASSED\n");
+    }
+
+    //////////////////////////////////////////
+    // clean up XRT
+    //////////////////////////////////////////
+
+    std::cout << "Releasing remaining XRT objects...\n";
+    
+    xrtBOFree(out_bohdl);
+    xrtBOFree(in_bohdl0);
+    xrtBOFree(in_bohdl1);
+    xrtDeviceClose(dhdl);
+    return 0;
+}
+
