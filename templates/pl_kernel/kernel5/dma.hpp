@@ -1,6 +1,6 @@
 
-#ifndef _DMA_H_
-#define _DMA_H_
+#ifndef _DMA{{layer}}_H_
+#define _DMA{{layer}}_H_
 #include <cstring>
 #include <ap_int.h>
 #include <hls_stream.h>

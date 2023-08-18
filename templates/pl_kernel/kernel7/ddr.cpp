@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include "dma.hpp"
+#include "dma{{layer}}.hpp"
 
 void address_A_ddr(axis_stream_32& addrA_out,const int TX,const int TY,const int TZ) {
 #pragma HLS inline off

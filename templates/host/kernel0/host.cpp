@@ -8,7 +8,9 @@
 #include <math.h>
 #include <string>
 {% if device == "vck190" %}
-#include "../aie/layer0/aie_top_L0.h"
+{% for acc in range(num_layer) -%}
+#include "../aie/layer{{acc}}/aie_top_L{{acc}}.h"
+{% endfor-%}
 {% endif-%}
 
 {% if device == "vck190" %}
@@ -24,7 +26,9 @@
 {% if device == "vck190" %}
 // Using the ADF API that call XRT API
 #include "adf/adf_api/XRTConfig.h"
-mm_x{{A}}_x{{B}}_x{{C}}_graph0 mm_graph0;
+{% for acc in range(num_layer) -%}
+mm_x{{A}}_x{{B}}_x{{C}}_graph{{acc}} mm_graph{{acc}};
+{% endfor-%}
 {% endif-%}
 
 using namespace std;
@@ -117,9 +121,9 @@ int main(int argc, char** argv) {
     adf::registerXRT(dhdl, top->m_header.uuid);
     {% endif %}
 
-    {{data_type}} temp_m=({{data_type}})(M1)/({{data_type}})(X*A*H1);
-    {{data_type}} temp_k=({{data_type}})(K1)/({{data_type}})(Y*B*W1);
-    {{data_type}} temp_n=({{data_type}})(N1)/({{data_type}})(Z*C*W2);
+    float temp_m=(float)(M1)/(float)(X*A*H1);
+    float temp_k=(float)(K1)/(float)(Y*B*W1);
+    float temp_n=(float)(N1)/(float)(Z*C*W2);
     TX=ceil(temp_m);
     TY=ceil(temp_k);
     TZ=ceil(temp_n);
@@ -194,7 +198,7 @@ int main(int argc, char** argv) {
     {% endif %}
 
     std::cout << "Kernel run\n";
-    xrtKernelHandle dma_khdl = xrtPLKernelOpen(dhdl, top->m_header.uuid, "dma");
+    xrtKernelHandle dma_khdl = xrtPLKernelOpen(dhdl, top->m_header.uuid, "dma0");
     xrtRunHandle dma_rhdl;
     
     //profile aie mm 
@@ -260,7 +264,7 @@ int main(int argc, char** argv) {
         for (int len = 0; len < sizeOut1; len++) {
 
             if(abs(({{data_type}})(final_result_hw[len])-final_result_sw[len])>=1e-4){
-                printf("Error found final_result_hw[%d]!=final_result_sw[%d], %f!=%f \n", len,len,final_result_hw[len],final_result_sw[len]);
+                printf("Error found final_result_hw[%d]!=final_result_sw[%d], {{format}}!={{format}} \n", len,len,final_result_hw[len],final_result_sw[len]);
                 errorCount++;
             }
    

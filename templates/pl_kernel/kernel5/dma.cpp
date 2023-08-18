@@ -1,6 +1,6 @@
 
 
-void dma(ap_uint<AXI_WIDTH_A>* ina, ap_uint<AXI_WIDTH_B>* inb, ap_uint<AXI_WIDTH_C>* out0,
+void dma{{layer}}(ap_uint<AXI_WIDTH_A>* ina, ap_uint<AXI_WIDTH_B>* inb, ap_uint<AXI_WIDTH_C>* out0,
          {% set num_lhs=A*NUM_TXL*(B//PACK_IN) -%}
          {% set div_lhs=num_lhs//4 -%}
          {% set left_lhs=num_lhs%4 -%}
