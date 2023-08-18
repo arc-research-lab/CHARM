@@ -1,5 +1,5 @@
 
-void dma(ap_uint<AXI_WIDTH_A>* ina, ap_uint<AXI_WIDTH_B>* inb, ap_uint<AXI_WIDTH_C>* out0,
+void dma{{layer}}(ap_uint<AXI_WIDTH_A>* ina, ap_uint<AXI_WIDTH_B>* inb, ap_uint<AXI_WIDTH_C>* out0,
              {% for k in range(A) -%}
              {% for j in range(NUM_TXL) -%}
              {% for i in range(B) -%} {% set num=(i+j*B+k*NUM_TXL*B) -%} axis_stream& txA{{num}}, {% endfor%}

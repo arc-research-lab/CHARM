@@ -8,7 +8,9 @@
 #include <math.h>
 #include <string>
 {% if device == "vck190" %}
-#include "../aie/layer0/aie_top_L0.h"
+{% for acc in range(num_layer) -%}
+#include "../aie/layer{{acc}}/aie_top_L{{acc}}.h"
+{% endfor-%}
 {% endif-%}
 
 {% if device == "vck190" %}
@@ -24,7 +26,9 @@
 {% if device == "vck190" %}
 // Using the ADF API that call XRT API
 #include "adf/adf_api/XRTConfig.h"
-mm_x{{A}}_x{{B}}_x{{C}}_graph0 mm_graph0;
+{% for acc in range(num_layer) -%}
+mm_x{{A}}_x{{B}}_x{{C}}_graph{{acc}} mm_graph{{acc}};
+{% endfor-%}
 {% endif-%}
 
 using namespace std;
@@ -194,7 +198,7 @@ int main(int argc, char** argv) {
     {% endif %}
 
     std::cout << "Kernel run\n";
-    xrtKernelHandle dma_khdl = xrtPLKernelOpen(dhdl, top->m_header.uuid, "dma");
+    xrtKernelHandle dma_khdl = xrtPLKernelOpen(dhdl, top->m_header.uuid, "dma0");
     xrtRunHandle dma_rhdl;
     
     //profile aie mm 

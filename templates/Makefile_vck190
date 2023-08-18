@@ -34,11 +34,10 @@ IMAGE=${EDGE_COMMON_SW}/Image
 FINAL_XCLBIN=mm_${TARGET}.xclbin
 TEMP_DIR := ./_x.$(TARGET).xilinx_vck190_base_202110_1
 BUILD_DIR := ./build_dir.$(TARGET).xilinx_vck190_base_202110_1
-
-KERNEL_XO := $(TEMP_DIR)/dma.xo
+KERNEL_XO := {%- for acc in range(num_layer) -%}$(TEMP_DIR)/dma{{acc}}.xo {% endfor%}
 GRAPH   := aie/aie_top_all.cpp
 LIBADF  = libadf.a
-AIE_CMPL_CMD = aiecompiler -platform=${PLATFORM} --target=hw --stacksize=1024 --pl-register-threshold=250 --pl-freq=230  -include="./aie" -include="./aie/layer0" -include="./aie/layer1" -include="./aie/layer2" -include="./aie/layer3" -include="./aie/layer4" -include="./aie/layer5" -include="./aie/layer6" -include="./aie/layer7" -include="./aie/layer8" --constraints ./aie_top_all_aie_mapped.aiecst -workdir=./Work ${GRAPH}
+AIE_CMPL_CMD = aiecompiler -platform=${PLATFORM} --target=hw --stacksize=1024 --pl-register-threshold=250 --pl-freq=230  -include="./aie" {% for acc in range(num_layer) -%} -include="./aie/layer{{acc}}" {% endfor%} --constraints ./aie_top_all_aie_mapped.aiecst -workdir=./Work ${GRAPH}
 AIE_SIM_CMD = aiesimulator --pkg-dir=./Work --dump-vcd foo --profile
 AIE_HOSTEXE = aie_control_xrt.o
 ifeq ($(PRE_BUILT),1)
@@ -139,10 +138,12 @@ aiesim: ${LIBADF}
 	@echo "COMPLETE: aiesim success."
 
 kernels:$(KERNEL_XO)
-$(TEMP_DIR)/dma.xo: kernel/dma.cpp kernel/dma.hpp
+{% for acc in range(num_layer) -%}
+$(TEMP_DIR)/dma{{acc}}.xo: kernel{{acc}}/dma{{acc}}.cpp kernel{{acc}}/dma{{acc}}.hpp
 	mkdir -p $(TEMP_DIR)
-	$(VCC) $(VPP_XO_FLAGS) -k dma --hls.clock 300000000:dma $< -o $@ | tee $(TEMP_DIR)/dma.log
-	@echo "### ***** dma compilation done! *****"
+	$(VCC) $(VPP_XO_FLAGS) -k dma{{acc}} --hls.clock 300000000:dma{{acc}} $< -o $@ | tee $(TEMP_DIR)/dma{{acc}}.log
+	@echo "### ***** dma{{acc}} compilation done! *****"
+{% endfor-%}
 
 
 build: $(BINARY_CONTAINERS)
