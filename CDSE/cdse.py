@@ -111,14 +111,14 @@ def cdse_top(Op0,Op1):
     # One-Time Profling of DDR Bandwidth
     BW_L_S=(14*DDR_BANK)*freq_rate
     BW_R_S=(14*DDR_BANK)*freq_rate
-    BW_O_S=(10*DDR_BANK)*freq_rate
+    BW_O_S=(11*DDR_BANK)*freq_rate
 
-    BW_L_DR=(10*DDR_BANK)*freq_rate
-    BW_R_DL=(10*DDR_BANK)*freq_rate
+    BW_L_DR=(11*DDR_BANK)*freq_rate
+    BW_R_DL=(11*DDR_BANK)*freq_rate
 
-    BW_L_DO=(10*DDR_BANK)*freq_rate
-    BW_R_DO=(10*DDR_BANK)*freq_rate
-    BW_O_D=(10*DDR_BANK)*freq_rate
+    BW_L_DO=(11*DDR_BANK)*freq_rate
+    BW_R_DO=(11*DDR_BANK)*freq_rate
+    BW_O_D=(11*DDR_BANK)*freq_rate
 
     BW_L_T=(8*DDR_BANK)*freq_rate
     BW_R_T=(8*DDR_BANK)*freq_rate
@@ -136,7 +136,7 @@ def cdse_top(Op0,Op1):
     temp_cycle=np.zeros([1,sample_num])
     config=np.zeros([num_design_best+num_design_choice,num_term+sample_num-1])
 
-    A,B,C,X,Y,Z,buf_sel=[10,4,6,4,1,8,1]
+    A,B,C,X,Y,Z,buf_sel=[12,4,8,4,1,4,1]
     ############################ DSE Kernel0 ###############################
 
     for c in range(1, 8+1):      ##Row Constaint
