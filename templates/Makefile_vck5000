@@ -3,7 +3,7 @@ mkfile_dir := $(dir $(mkfile_path))
 TARGET   = hw
 MODE	 = linux
 HOST_ARCH = x86
-Frequency = 250
+Frequency = 230
 PLATFORM_REPO_PATHS=/opt/xilinx/platforms
 PLATFORM_NAME=xilinx_vck5000_gen3x16_xdma_1_202120_1
 PLATFORM = ${PLATFORM_REPO_PATHS}/${PLATFORM_NAME}/${PLATFORM_NAME}.xpfm
@@ -53,7 +53,7 @@ GCC_INCLUDES := -I $(SYSROOT)/usr/include/xrt \
 				-I /usr/bin/boost_1_63_0
 
 GCC_LIB := -lxrt_coreutil -lxrt_core -lxrt_coreutil \
-		   -L$(SYSROOT)/usr/lib \
+		   -L$(XILINX_XRT)/usr/lib \
 		   --sysroot=$(SYSROOT) \
 		   -L${XILINX_VITIS}/aietools/lib/lnx64.o/
 
