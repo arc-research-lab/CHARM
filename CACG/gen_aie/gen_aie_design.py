@@ -14,7 +14,7 @@ def gen_aie_top(prj_dir,template_dir,Model_MM,placement):
     num_layer=Model_MM.shape[0]
     port_width=128
     freq=230
-    L_list=[0]
+    L_list=list(range(0,num_layer,1))
     HW_Conf=Model_MM[:,3:]
 
     aie_dir= prj_dir + '/aie'
@@ -63,8 +63,13 @@ def gen_aie_top(prj_dir,template_dir,Model_MM,placement):
 
     gen_combine(environment_combine,port_width,freq,L_list,HW_Conf,Port_Conf_All,Port_Conf_Pre,port_total,Path(aie_dir))
 
-    
-    num=0
+    Place_config=np.zeros((Port_Conf.shape[0],10)).astype(int)
+    Place_config[:,0:7]=HW_Conf[:,0:7]
+    Place_config[:,7:10]=placement[:,1:4]
+    json_object=plio_placement(Place_config)
+    with open(prj_dir+'/aie_top_all_aie_mapped.aiecst', "w") as outfile:
+        outfile.write(json_object)
+
     for i in L_list:
         layer=i
         h1 = Model_MM[layer][0]
@@ -87,13 +92,6 @@ def gen_aie_top(prj_dir,template_dir,Model_MM,placement):
         height   = placement[i][3]
         subprocess.run(['mkdir','-p' ,file_dir])
         aie_folder = Path(file_dir)
-        if kernel_type%2==1:
-            Place_config=np.array([A,B,C,A_BRO,C_BRO,PACK_IN,PACK_OUT,pos_col,pos_row,height])
-            json_object=plio_placement(Place_config,layer)
-            oper = "w" if num==0 else "w+"
-            with open(prj_dir+'/aie_top_all_aie_mapped.aiecst', oper) as outfile:
-                outfile.write(json_object)
-            num=num+1
         gen_para(environment[kernel_type],h1,w1,w2,A,B,C,A_BRO,C_BRO,PACK_IN,data_type,layer_name,aie_folder)
         gen_krnl(environment_kernel[kernel_type],w1,kernel_type,layer_name,aie_folder)
         gen_grah(environment[kernel_type],B,layer_name,aie_folder)

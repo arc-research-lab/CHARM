@@ -1,6 +1,6 @@
-def gen_para(environment,h1,w1,w2,A,B,C,A_BRO,C_BRO,PACK_IN,PACK_OUT,X,Y,Z,data_type,krl_folder):
+def gen_para(environment,h1,w1,w2,A,B,C,A_BRO,C_BRO,PACK_IN,PACK_OUT,X,Y,Z,data_type,layer,krl_folder):
     template = environment.get_template("dma.hpp")
-    file_tmp = "dma.hpp"
+    file_tmp = 'dma' + str(layer) + '.hpp'
     filename = krl_folder / file_tmp
     content = template.render(
         h1=h1,
@@ -16,26 +16,28 @@ def gen_para(environment,h1,w1,w2,A,B,C,A_BRO,C_BRO,PACK_IN,PACK_OUT,X,Y,Z,data_
         Z=Z,
         PACK_IN=PACK_IN,
         PACK_OUT=PACK_OUT,
+        layer=layer,
         data_type=data_type*8
     )
     with open(filename, mode="w", encoding="utf-8") as message:
         message.write(content)
         print(f"... wrote {filename}")
 
-def gen_ddr(environment, krl_folder):
+def gen_ddr(environment,layer,krl_folder):
     template = environment.get_template("ddr.cpp")
-    file_tmp = "dma.cpp"
+    file_tmp = 'dma' + str(layer) + '.cpp'
     filename = krl_folder / file_tmp
     content = template.render(
+        layer=layer
     )
     with open(filename, mode="w", encoding="utf-8") as message:
         message.write(content)
         print(f"... wrote {filename}")
 
 
-def gen_send(environment,A,C,A_BRO,C_BRO,PACK_IN,PACK_OUT,krl_folder):
+def gen_send(environment,A,C,A_BRO,C_BRO,PACK_IN,PACK_OUT,layer,krl_folder):
     template = environment.get_template("send_receive.cpp")
-    file_tmp = "dma.cpp"
+    file_tmp = 'dma' + str(layer) + '.cpp'
     filename = krl_folder / file_tmp
     content = template.render(
         NUM_TXL=(C//A_BRO),
@@ -47,9 +49,9 @@ def gen_send(environment,A,C,A_BRO,C_BRO,PACK_IN,PACK_OUT,krl_folder):
         message.write(content)
         print(f"... wrote {filename}")
 
-def gen_compute(environment,A,B,C,A_BRO,C_BRO,PACK_IN,PACK_OUT,BUFF_SEL,krl_folder):
+def gen_compute(environment,A,B,C,A_BRO,C_BRO,PACK_IN,PACK_OUT,BUFF_SEL,layer,krl_folder):
     template = environment.get_template("compute.cpp")
-    file_tmp = "dma.cpp"
+    file_tmp = 'dma' + str(layer) + '.cpp'
     filename = krl_folder / file_tmp
     content = template.render(
         A=A,
@@ -67,29 +69,10 @@ def gen_compute(environment,A,B,C,A_BRO,C_BRO,PACK_IN,PACK_OUT,BUFF_SEL,krl_fold
         message.write(content)
         print(f"... wrote {filename}")
 
-def gen_krl_top(environment,A,B,C,A_BRO,C_BRO,PACK_IN,PACK_OUT,krl_folder):
+def gen_krl_top(environment,A,B,C,A_BRO,C_BRO,PACK_IN,PACK_OUT,layer,krl_folder):
     template = environment.get_template("dma.cpp")
-    file_tmp = "dma.cpp"
+    file_tmp = 'dma' + str(layer) + '.cpp'
     filename = krl_folder / file_tmp
-    content = template.render(
-        A=A,
-        B=B,
-        C=C,
-        A_BRO=A_BRO,
-        C_BRO=C_BRO,
-        NUM_TXL=(C//A_BRO),
-        NUM_TXR=(A//C_BRO),
-        PACK_IN=PACK_IN,
-        PACK_OUT=PACK_OUT
-    )
-    with open(filename, mode="a", encoding="utf-8") as message:
-        message.write(content)
-        print(f"... wrote {filename}")
-
-def gen_conn(environment,A,B,C,A_BRO,C_BRO,PACK_IN,PACK_OUT,layer,prj_folder):
-    template = environment.get_template("conn.cfg")
-    file_tmp = "conn.cfg"
-    filename = prj_folder / file_tmp
     content = template.render(
         A=A,
         B=B,
@@ -101,6 +84,18 @@ def gen_conn(environment,A,B,C,A_BRO,C_BRO,PACK_IN,PACK_OUT,layer,prj_folder):
         PACK_IN=PACK_IN,
         PACK_OUT=PACK_OUT,
         layer=layer
+    )
+    with open(filename, mode="a", encoding="utf-8") as message:
+        message.write(content)
+        print(f"... wrote {filename}")
+
+def gen_conn(environment,Conn_Array,num_layer,prj_folder):
+    template = environment.get_template("conn.cfg")
+    file_tmp = "conn.cfg"
+    filename = prj_folder / file_tmp
+    content = template.render(
+        Conn_Array=Conn_Array,
+        num_layer=num_layer
     )
     with open(filename, mode="w", encoding="utf-8") as message:
         message.write(content)
