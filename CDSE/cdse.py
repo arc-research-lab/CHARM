@@ -168,7 +168,7 @@ def cdse_top(Op0,Op1):
                 plio_in=plio_in_lhs + plio_in_rhs
                 plio_out=a*(c//PACK_OUT)
                 if plio_in>PLIO_IN or plio_out>PLIO_OUT:
-                    break
+                    continue
 
                 ############ Verify Placement ###########
                 length=placement_verify(a,b,c,height)
@@ -244,11 +244,6 @@ def cdse_top(Op0,Op1):
                                     config[index,15]=uram_use
                                     config[index,16]=buf_index
                                     config[index,num_term:num_term+sample_num-1]=temp0_cycle[:]
-                                    # print("\n\n")
-                                    # print("Index is " + str(index) + ":" )
-                                    # print(config[index,:])
-                                    # print("\n\n")
-
 
     
     config = config[config[:,0].argsort()[::-1]]
