@@ -44,32 +44,29 @@ def cdse_top(Op0,Op1):
 
     #Single AIE Workload Settings
     if DATA_TYPE==1:
-        H1=64
-        W1=64
-        W2=64
+        H1,W1,W2=[64,64,64]
+        PI,PK,PJ=[8,64,4]
         mac=128
+        COMPUTE_CYCLE=(PI*PK*PJ//mac+4)*(H1//PI)*(W1//PK)*(W2//PJ)+40 #60: Acc_stall
         PACK_IN = 2
         PACK_OUT= 2
         kernel_type=7
-        EFF_SINGLE=0.80
     elif DATA_TYPE==2:
-        H1=48
-        W1=32
-        W2=48
+        H1,W1,W2=[48,32,48]
+        PI,PK,PJ=[16,32,2]
         mac=32
+        COMPUTE_CYCLE=(PI*PK*PJ//mac+4)*(H1//PI)*(W1//PK)*(W2//PJ)+40 #50: Acc_stall
         PACK_IN = 3
         PACK_OUT= 2
         kernel_type=5
-        EFF_SINGLE=0.85
     elif DATA_TYPE==4:
-        H1=32
-        W1=32
-        W2=32
+        H1,W1,W2=[32,32,32]
+        PI,PK,PJ=[8,8,2]
         mac=8
+        COMPUTE_CYCLE=(PI*PK*PJ//mac+1)*(H1//PI)*(W1//PK)*(W2//PJ)+40 #40: Acc_stall
         PACK_IN = 4
         PACK_OUT= 4
         kernel_type=1
-        EFF_SINGLE=0.85
 
     #Buffer Configurations
     RAM_TYPE_A=2 #"1":1P "2":T2P
@@ -202,7 +199,7 @@ def cdse_top(Op0,Op1):
                                 store_O_S = math.ceil(TILEO_SIZE*x*z/BW_O_S)
                                 store_O_D = math.ceil(TILEO_SIZE*x*z/BW_O_D)
                                 store_O_T = math.ceil(TILEO_SIZE*x*z/BW_O_T)
-                                COMP_CYCLE=math.ceil(max([(H1*W1*DATA_TYPE//4),(W1*W2*DATA_TYPE//4),((H1*W1*W2/mac)/EFF_SINGLE)]))*x*y*z+(H1*W1*DATA_TYPE//4)+(H1*W2*DATA_TYPE//4)    
+                                AIE_CYCLE=math.ceil(max([(H1*W1*DATA_TYPE//4),(W1*W2*DATA_TYPE//4),COMPUTE_CYCLE]))*x*y*z+(H1*W1*DATA_TYPE//4)*PACK_IN+(H1*W2*DATA_TYPE//4)*PACK_OUT  
                                 M=MODEL_IN[large_t,0]
                                 K=MODEL_IN[large_t,1]
                                 N=MODEL_IN[large_t,2]
@@ -211,11 +208,11 @@ def cdse_top(Op0,Op1):
                                 Z_TILE=math.ceil(N/(z*c*W2))
 
                                 if Y_TILE==1 and X_TILE==1 and Z_TILE==1:
-                                    temp_cycle[0,large_t]=max([load_L_DR,load_R_DL])+COMP_CYCLE+store_O_S
+                                    temp_cycle[0,large_t]=max([load_L_DR,load_R_DL])+AIE_CYCLE+store_O_S
                                 elif Y_TILE==1:
-                                    temp_cycle[0,large_t]=max([load_L_DR,load_R_DL])+max([load_L_DR,load_R_DL,COMP_CYCLE])+max([COMP_CYCLE,store_O_S])+max([load_L_T,load_R_T,COMP_CYCLE,store_O_T])*(X_TILE*Y_TILE*Z_TILE-2)+store_O_S
+                                    temp_cycle[0,large_t]=max([load_L_DR,load_R_DL])+max([load_L_DR,load_R_DL,AIE_CYCLE])+max([AIE_CYCLE,store_O_S])+max([load_L_T,load_R_T,AIE_CYCLE,store_O_T])*(X_TILE*Y_TILE*Z_TILE-2)+store_O_S
                                 else:
-                                    temp_cycle[0,large_t]=max([load_L_DR,load_R_DL])+max([load_L_DR,load_R_DL,COMP_CYCLE])*((X_TILE*Y_TILE*Z_TILE-1)-(X_TILE*Z_TILE-1))+max([load_L_T,load_R_T,COMP_CYCLE,store_O_T])*(X_TILE*Z_TILE-1)+COMP_CYCLE+store_O_S
+                                    temp_cycle[0,large_t]=max([load_L_DR,load_R_DL])+max([load_L_DR,load_R_DL,AIE_CYCLE])*((X_TILE*Y_TILE*Z_TILE-1)-(X_TILE*Z_TILE-1))+max([load_L_T,load_R_T,AIE_CYCLE,store_O_T])*(X_TILE*Z_TILE-1)+AIE_CYCLE+store_O_S
 
                                 temp0_cycle=np.multiply(temp_cycle,np.transpose(MODEL_IN[:,3]))
                                 total_cycle=np.sum(temp0_cycle)
@@ -282,10 +279,6 @@ def cdse_top(Op0,Op1):
     final_temp=np.concatenate((Versal_HW, placement), axis=1)
     final_config=np.concatenate((final_temp,BUFF_SEL),axis=1)
     bram_use,uram_use,buf_index=buff_count_0(BRAM,URAM,PART_A,PART_B,PART_C,PACK_IN,PACK_OUT,LEFT_SIZE,RIGHT_SIZE,OUT_SIZE,Versal_HW[0,3],Versal_HW[0,4],Versal_HW[0,5],Versal_HW[0,10],Versal_HW[0,11],Versal_HW[0,12],DBUFF_L,DBUFF_R,DBUFF_O,RAM_TYPE_A,RAM_TYPE_B,RAM_TYPE_C,DATA_TYPE,force_assign,buf_sel) 
-    print(bram_use)   
-    print(uram_use)
-    print(buf_index)
-    print('Estimated Throughput is: ' + str(Versal_HW_temp[0]) + ' GOPS' )
     return final_config
         
             
