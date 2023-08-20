@@ -28,12 +28,12 @@ def cdse_top(Op0,Op1):
     ################ Hardware Constraints ################
     portion=1
     force_assign=0
-    DDR_BANK=1*portion
-    AIE_NUM=400*portion
-    BRAM=(967-100)*portion #100 for AXI bound consumpssion
-    URAM=(463-43)*portion
-    PLIO_IN=100*portion
-    PLIO_OUT=80*portion
+    DDR_BANK=1
+    AIE_NUM=400
+    BRAM=(967-100) #100 for AXI bound consumpssion
+    URAM=(463-43)
+    PLIO_IN=100
+    PLIO_OUT=80
 
 
     ################ Hardware Setting ################
