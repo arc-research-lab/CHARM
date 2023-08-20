@@ -11,12 +11,13 @@ def gen_host_top(prj_dir,template_dir,hw_config,data_type,device):
 
     #########################
     num_layer = hw_config.shape[0]
-    h1,w1,w2,A,B,C,A_BRO,C_BRO,PACK_IN,PACK_OUT,X,Y,Z=hw_config[0,:]
+    Host_cfg=hw_config
+    Host_cfg[:,6]=np.floor_divide(hw_config[:,5],hw_config[:,6])#NUM_TXL
+    Host_cfg[:,7]=np.floor_divide(hw_config[:,3],hw_config[:,7])#NUM_TXR
     #########################
 
     kernel_type_num=1
     template_path=[None]*kernel_type_num
-    template_name=[None]*kernel_type_num
     environment=[None]*kernel_type_num
     ### Define template PATH
     for i in range (kernel_type_num):
@@ -34,4 +35,4 @@ def gen_host_top(prj_dir,template_dir,hw_config,data_type,device):
     else:
         print("\n\n\nWrong data type\n\n\n")
 
-    gen_host(environment[0],device,h1,w1,w2,A,B,C,A_BRO,C_BRO,PACK_IN,PACK_OUT,X,Y,Z,data_type_str,num_layer,host_folder)
+    gen_host(environment[0],device,Host_cfg,data_type_str,num_layer,host_folder)
