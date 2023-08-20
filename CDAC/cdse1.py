@@ -5,35 +5,19 @@ from .broadcast_tuning import *
 from .buffer_sel import *
 
 
-def cdse_top(Op0,Op1):
-    MODEL_IN=np.ones([1,4])
-    MODEL_IN[0,0]=Op0.shape[0]
-    MODEL_IN[0,1]=Op0.shape[1]
-    MODEL_IN[0,2]=Op1.shape[1]
-    if Op0.shape[1]!=Op1.shape[0]:
-        print("\n\n")
-        sys.exit("Dim 1 of Matix 0 doesn't match Dim 0 of Matrix 1\n\n")
-    if Op0.dtype!=Op1.dtype:
-        print("\n\n")
-        sys.exit("Currently operands with the same data types are supported\n\n")
-    if Op0.dtype==np.float32:
-        DATA_TYPE=4
-    elif Op0.dtype==np.int16:
-        DATA_TYPE=2
-    elif Op0.dtype==np.int8:
-        DATA_TYPE=1
-
+def cdse1_top(MODEL_IN,DATA_TYPE):
+    
     total_ops = np.sum(np.multiply(np.multiply(np.multiply(MODEL_IN[:,0],MODEL_IN[:,1]),MODEL_IN[:,2]),MODEL_IN[:,3]))*2
 
     ################ Hardware Constraints ################
     portion=1
     force_assign=0
-    DDR_BANK=1
-    AIE_NUM=400
-    BRAM=(967-100) #100 for AXI bound consumpssion
-    URAM=(463-43)
-    PLIO_IN=100
-    PLIO_OUT=80
+    DDR_BANK=1*portion
+    AIE_NUM=400*portion
+    BRAM=(967-150)*portion #100 for AXI bound consumpssion
+    URAM=(463-43)*portion
+    PLIO_IN=100*portion
+    PLIO_OUT=80*portion
 
 
     ################ Hardware Setting ################
@@ -131,15 +115,16 @@ def cdse_top(Op0,Op1):
     num_design_best=50    #At most 50 choices reserved for the current best
     num_design_choice=50  #At most 50 choices reserved for the near best point
     temp_cycle=np.zeros([1,sample_num])
-    config=np.zeros([num_design_best+num_design_choice,num_term+sample_num-1])
+    config=np.zeros([num_design_best+num_design_choice,num_term+sample_num])
 
-    A,B,C,X,Y,Z,buf_sel=[12,4,8,4,1,4,1]
+    A,B,C,X,Y,Z,buf_sel=[8,4,8,2,1,2,1]
     ############################ DSE Kernel0 ###############################
 
     for c in range(1, 8+1):      ##Row Constaint
         print("DSE Processes ------------ " + str(12.5*c) + "%")
-        for b in range(1, 50+1): ##Col Constaint
-            for a in range(1, AIE_NUM//(c*b)+1): 
+        for b in range(1, 24+1): ##Col Constaint
+            for a in range(1, AIE_NUM//(b*c)+2):
+                
                 if (force_assign==1) and ((a!=A) or (b!=B) or (c!=C)):
                     continue
                 if kernel_type%2==1:
@@ -184,22 +169,23 @@ def cdse_top(Op0,Op1):
                             if (bram_use>BRAM or uram_use>URAM):
                                 break
 
+                            
+                            TILEL_SIZE=a*b*LEFT_SIZE*DATA_TYPE*NUM_PER_PORT_A
+                            TILER_SIZE=b*c*RIGHT_SIZE*DATA_TYPE*NUM_PER_PORT_B
+                            TILEO_SIZE=a*c*OUT_SIZE*DATA_TYPE*NUM_PER_PORT_C
+                            load_L_S  = math.ceil(TILEL_SIZE*x*y/BW_L_S)
+                            load_L_DR = math.ceil(TILEL_SIZE*x*y/BW_L_DR)
+                            load_L_DO = math.ceil(TILEL_SIZE*x*y/BW_L_DO)
+                            load_L_T  = math.ceil(TILEL_SIZE*x*y/BW_L_T)
+                            load_R_S  = math.ceil(TILER_SIZE*y*z/BW_R_S)
+                            load_R_DL = math.ceil(TILER_SIZE*y*z/BW_R_DL)
+                            load_R_DO = math.ceil(TILER_SIZE*y*z/BW_R_DO)
+                            load_R_T  = math.ceil(TILER_SIZE*y*z/BW_R_T)
+                            store_O_S = math.ceil(TILEO_SIZE*x*z/BW_O_S)
+                            store_O_D = math.ceil(TILEO_SIZE*x*z/BW_O_D)
+                            store_O_T = math.ceil(TILEO_SIZE*x*z/BW_O_T)
+                            AIE_CYCLE=math.ceil(max([(H1*W1*DATA_TYPE//4),(W1*W2*DATA_TYPE//4),COMPUTE_CYCLE]))*x*y*z+(H1*W1*DATA_TYPE//4)*PACK_IN+(H1*W2*DATA_TYPE//4)*PACK_OUT   
                             for large_t in range(sample_num):
-                                TILEL_SIZE=a*b*LEFT_SIZE*DATA_TYPE*NUM_PER_PORT_A
-                                TILER_SIZE=b*c*RIGHT_SIZE*DATA_TYPE*NUM_PER_PORT_B
-                                TILEO_SIZE=a*c*OUT_SIZE*DATA_TYPE*NUM_PER_PORT_C
-                                load_L_S  = math.ceil(TILEL_SIZE*x*y/BW_L_S)
-                                load_L_DR = math.ceil(TILEL_SIZE*x*y/BW_L_DR)
-                                load_L_DO = math.ceil(TILEL_SIZE*x*y/BW_L_DO)
-                                load_L_T  = math.ceil(TILEL_SIZE*x*y/BW_L_T)
-                                load_R_S  = math.ceil(TILER_SIZE*y*z/BW_R_S)
-                                load_R_DL = math.ceil(TILER_SIZE*y*z/BW_R_DL)
-                                load_R_DO = math.ceil(TILER_SIZE*y*z/BW_R_DO)
-                                load_R_T  = math.ceil(TILER_SIZE*y*z/BW_R_T)
-                                store_O_S = math.ceil(TILEO_SIZE*x*z/BW_O_S)
-                                store_O_D = math.ceil(TILEO_SIZE*x*z/BW_O_D)
-                                store_O_T = math.ceil(TILEO_SIZE*x*z/BW_O_T)
-                                AIE_CYCLE=math.ceil(max([(H1*W1*DATA_TYPE//4),(W1*W2*DATA_TYPE//4),COMPUTE_CYCLE]))*x*y*z+(H1*W1*DATA_TYPE//4)*PACK_IN+(H1*W2*DATA_TYPE//4)*PACK_OUT  
                                 M=MODEL_IN[large_t,0]
                                 K=MODEL_IN[large_t,1]
                                 N=MODEL_IN[large_t,2]
@@ -214,40 +200,38 @@ def cdse_top(Op0,Op1):
                                 else:
                                     temp_cycle[0,large_t]=max([load_L_DR,load_R_DL])+max([load_L_DR,load_R_DL,AIE_CYCLE])*((X_TILE*Y_TILE*Z_TILE-1)-(X_TILE*Z_TILE-1))+max([load_L_T,load_R_T,AIE_CYCLE,store_O_T])*(X_TILE*Z_TILE-1)+AIE_CYCLE+store_O_S
 
-                                temp0_cycle=np.multiply(temp_cycle,np.transpose(MODEL_IN[:,3]))
-                                total_cycle=np.sum(temp0_cycle)
+                            temp0_cycle=np.multiply(temp_cycle,np.transpose(MODEL_IN[:,3]))
+                            total_cycle=np.sum(temp0_cycle)
+                                
+                            if(total_cycle*0.85<=best_time): # Search design near the best time
+                                if total_cycle<best_time:   # If it is the current best
+                                    best_time=total_cycle
+                                    index=cnt_best%num_design_best
+                                    cnt_best=cnt_best+1
+                                else:
+                                    index=num_design_best+(cnt_choice%num_design_choice)
+                                    cnt_choice=cnt_choice+1
 
-                                if(total_cycle*0.85<=best_time): # Search design near the best time
-                                    if total_cycle<best_time:   # If it is the current best
-                                        best_time=total_cycle
-                                        index=cnt_best%num_design_best
-                                        cnt_best=cnt_best+1
-                                    else:
-                                        index=num_design_best+cnt_choice%num_design_choice
-                                        cnt_choice=cnt_choice+1
+                                config[index,0]=total_ops/total_cycle
+                                config[index,1]=a
+                                config[index,2]=b
+                                config[index,3]=c
+                                config[index,4]=A_BRO
+                                config[index,5]=C_BRO
+                                config[index,6]=x
+                                config[index,7]=y
+                                config[index,8]=z
+                                config[index,9]=length
+                                config[index,10]=height
+                                config[index,11]=plio_in
+                                config[index,12]=plio_out
+                                config[index,13]=a*b*c
+                                config[index,14]=bram_use
+                                config[index,15]=uram_use
+                                config[index,16]=buf_index
+                                config[index,num_term:num_term+sample_num]=temp0_cycle[:]
 
-                                    config[index,0]=total_ops/total_cycle
-                                    config[index,1]=a
-                                    config[index,2]=b
-                                    config[index,3]=c
-                                    config[index,4]=A_BRO
-                                    config[index,5]=C_BRO
-                                    config[index,6]=x
-                                    config[index,7]=y
-                                    config[index,8]=z
-                                    config[index,9]=length
-                                    config[index,10]=height
-                                    config[index,11]=plio_in
-                                    config[index,12]=plio_out
-                                    config[index,13]=a*b*c
-                                    config[index,14]=bram_use
-                                    config[index,15]=uram_use
-                                    config[index,16]=buf_index
-                                    config[index,num_term:num_term+sample_num-1]=temp0_cycle[:]
-
-    
     config = config[config[:,0].argsort()[::-1]]
-
     Versal_HW_temp=config[0,:]
     Versal_HW=np.zeros([1,15]) # h1,   w1,   w2,   A,   B,   C,  A_BRO, C_BRO,  PACK_IN, PACK_OUT, X,   Y,   Z,  data_type  kernel_type
     Versal_HW[0,0:3]=[H1,W1,W2]
@@ -274,6 +258,10 @@ def cdse_top(Op0,Op1):
     final_temp=np.concatenate((Versal_HW, placement), axis=1)
     final_config=np.concatenate((final_temp,BUFF_SEL),axis=1)
     bram_use,uram_use,buf_index=buff_count_0(BRAM,URAM,PART_A,PART_B,PART_C,PACK_IN,PACK_OUT,LEFT_SIZE,RIGHT_SIZE,OUT_SIZE,Versal_HW[0,3],Versal_HW[0,4],Versal_HW[0,5],Versal_HW[0,10],Versal_HW[0,11],Versal_HW[0,12],DBUFF_L,DBUFF_R,DBUFF_O,RAM_TYPE_A,RAM_TYPE_B,RAM_TYPE_C,DATA_TYPE,force_assign,buf_sel) 
-    return final_config
+    print(bram_use)   
+    print(uram_use)
+    print(buf_index)
+    print('Estimated Throughput is: ' + str(Versal_HW_temp[0]) + ' GOPS' )
+    return final_config,(total_ops/config[0,0]),config[0,num_term:num_term+sample_num]
         
             
