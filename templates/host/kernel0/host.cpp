@@ -27,6 +27,9 @@
 // Using the ADF API that call XRT API
 #include "adf/adf_api/XRTConfig.h"
 {% for acc in range(num_layer) -%}
+{% set A=Host_cfg[acc][3] -%} 
+{% set B=Host_cfg[acc][4] -%} 
+{% set C=Host_cfg[acc][5] -%} 
 mm_x{{A}}_x{{B}}_x{{C}}_graph{{acc}} mm_graph{{acc}};
 {% endfor-%}
 {% endif-%}
@@ -74,19 +77,33 @@ void sw_mm(std::vector<{{data_type}}> DataInput0,std::vector<{{data_type}}> Data
     }
 }
 
-const int H1={{h1}};
-const int W1={{w1}};
-const int W2={{w2}};
-const int A={{A}};
-const int B={{B}};
-const int C={{C}};
-const int X={{X}};
-const int Y={{Y}};
-const int Z={{Z}};
+{% for acc in range(num_layer) -%}
+{% set h1=Host_cfg[acc][0] -%} 
+{% set w1=Host_cfg[acc][1] -%} 
+{% set w2=Host_cfg[acc][2] -%} 
+{% set A=Host_cfg[acc][3] -%} 
+{% set B=Host_cfg[acc][4] -%} 
+{% set C=Host_cfg[acc][5] -%} 
+{% set X=Host_cfg[acc][10] -%} 
+{% set Y=Host_cfg[acc][11] -%} 
+{% set Z=Host_cfg[acc][12] -%} 
+const int H1_{{acc}}={{h1}};
+const int W1_{{acc}}={{w1}};
+const int W2_{{acc}}={{w2}};
+const int A{{acc}}={{A}};
+const int B{{acc}}={{B}};
+const int C{{acc}}={{C}};
+const int X{{acc}}={{X}};
+const int Y{{acc}}={{Y}};
+const int Z{{acc}}={{Z}};
+const int M_ACC{{acc}}=H1_{{acc}}*A{{acc}}*X{{acc}};
+const int K_ACC{{acc}}=W1_{{acc}}*B{{acc}}*Y{{acc}};
+const int N_ACC{{acc}}=W2_{{acc}}*C{{acc}}*Z{{acc}};
+{% endfor %}
+
 
 int main(int argc, char** argv) {
 
-    int TX,TY,TZ;
     int M1=4096,K1=4096,N1=4096;
     int iter=500,verify=0;
     char* xclbinFilename;
@@ -120,17 +137,17 @@ int main(int argc, char** argv) {
     {% if device == "vck190" %}
     adf::registerXRT(dhdl, top->m_header.uuid);
     {% endif %}
-
-    float temp_m=(float)(M1)/(float)(X*A*H1);
-    float temp_k=(float)(K1)/(float)(Y*B*W1);
-    float temp_n=(float)(N1)/(float)(Z*C*W2);
-    TX=ceil(temp_m);
-    TY=ceil(temp_k);
-    TZ=ceil(temp_n);
-    std::cout << TX << TY << TZ << std::endl;
-    int M =TX * X * A * H1;
-    int K =TY * Y * B * W1;
-    int N =TZ * Z * C * W2;
+    
+    float temp_m0=(float)(M1)/(float)(M_ACC0);
+    float temp_k0=(float)(K1)/(float)(K_ACC0);
+    float temp_n0=(float)(N1)/(float)(N_ACC0);
+    int TX0=ceil(temp_m0);
+    int TY0=ceil(temp_k0);
+    int TZ0=ceil(temp_n0);
+    
+    int M =TX0 * M_ACC0;
+    int K =TY0 * K_ACC0;
+    int N =TZ0 * N_ACC0;
     int sizeIn1 = M * K;
     int sizeIn2 = K * N;
     int sizeOut = M * N;
@@ -192,14 +209,22 @@ int main(int argc, char** argv) {
     memset(out_bomapped, 0xABCDEF00, sizeOut * sizeof({{data_type}}));
     
     {% if device == "vck190" %}
-    mm_graph0.init();
+    {% for acc in range(num_layer) -%}
+    mm_graph{{acc}}.init();
+    {% endfor-%}
     printf("graph run\n");
-    mm_graph0.run(-1);
+    {% for acc in range(num_layer) -%}
+    mm_graph{{acc}}.run(-1);
+    {% endfor-%}
     {% endif %}
 
     std::cout << "Kernel run\n";
-    xrtKernelHandle dma_khdl = xrtPLKernelOpen(dhdl, top->m_header.uuid, "dma0");
-    xrtRunHandle dma_rhdl;
+    {% for acc in range(num_layer) -%}
+    xrtKernelHandle dma_khdl{{acc}} = xrtPLKernelOpen(dhdl, top->m_header.uuid, "dma{{acc}}");
+    {% endfor-%}
+    {% for acc in range(num_layer) -%}
+    xrtRunHandle dma_rhdl{{acc}};
+    {% endfor-%}
     
     //profile aie mm 
     double kernel_time_in_sec = 0;
@@ -207,33 +232,45 @@ int main(int argc, char** argv) {
     auto kernel_start = std::chrono::high_resolution_clock::now();
     
     for (int i=0;i<iter;i++){
-    // start input kernels run handles
-    dma_rhdl = xrtKernelRun(dma_khdl, in_bohdl0, in_bohdl1,out_bohdl,
-            {% set num_lhs=A*NUM_TXL*(B//PACK_IN) -%}
-            {% set div_lhs=num_lhs//4 -%}
-            {% set left_lhs=num_lhs%4 -%}
-            {% for i in range(div_lhs) -%}
-            nullptr, nullptr, nullptr, nullptr,
-            {% endfor-%}
-            {% for i in range(left_lhs)%} nullptr,{% endfor-%}
+        // start input kernels run handles
+        {% for acc in range(num_layer) -%}
+        {% set A=Host_cfg[acc][3] -%} 
+        {% set B=Host_cfg[acc][4] -%} 
+        {% set C=Host_cfg[acc][5] -%}
+        {% set NUM_TXL=Host_cfg[acc][6] -%} 
+        {% set NUM_TXR=Host_cfg[acc][7] -%} 
+        {% set PACK_IN=Host_cfg[acc][8] -%}
+        {% set PACK_OUT=Host_cfg[acc][9] -%}
+        dma_rhdl{{acc}} = xrtKernelRun(dma_khdl{{acc}}, in_bohdl0, in_bohdl1,out_bohdl,
+                {% set num_lhs=A*NUM_TXL*(B//PACK_IN) -%}
+                {% set div_lhs=num_lhs//4 -%}
+                {% set left_lhs=num_lhs%4 -%}
+                {% for i in range(div_lhs) -%}
+                nullptr, nullptr, nullptr, nullptr,
+                {% endfor-%}
+                {% for i in range(left_lhs)%} nullptr,{% endfor-%}
 
-            {% set num_rhs=C*NUM_TXR*(B//PACK_IN) -%}
-            {% set div_rhs=num_rhs//4 -%}
-            {% set left_rhs=num_rhs%4 -%}
-            {% for i in range(div_rhs) -%}
-            nullptr, nullptr, nullptr, nullptr,
-            {% endfor-%}
-            {% for i in range(left_rhs)%} nullptr,{% endfor-%}
+                {% set num_rhs=C*NUM_TXR*(B//PACK_IN) -%}
+                {% set div_rhs=num_rhs//4 -%}
+                {% set left_rhs=num_rhs%4 -%}
+                {% for i in range(div_rhs) -%}
+                nullptr, nullptr, nullptr, nullptr,
+                {% endfor-%}
+                {% for i in range(left_rhs)%} nullptr,{% endfor-%}
 
-            {% set num_out=A*(C//PACK_OUT) -%}
-            {% set div_out=num_out//4 -%}
-            {% set left_out=num_out%4 -%}
-            {% for i in range(div_out) -%}
-            nullptr, nullptr, nullptr, nullptr,
-            {% endfor-%}
-            {% for i in range(left_out)%} nullptr,{% endfor-%}
-            TX,TY,TZ);
-        xrtRunWait(dma_rhdl);
+                {% set num_out=A*(C//PACK_OUT) -%}
+                {% set div_out=num_out//4 -%}
+                {% set left_out=num_out%4 -%}
+                {% for i in range(div_out) -%}
+                nullptr, nullptr, nullptr, nullptr,
+                {% endfor-%}
+                {% for i in range(left_out)%} nullptr,{% endfor-%}
+                TX{{acc}},TY{{acc}},TZ{{acc}});
+        {% endfor %}
+
+        {% for acc in range(num_layer) -%}
+        xrtRunWait(dma_rhdl{{acc}});
+        {% endfor-%}
     }
     auto kernel_end = std::chrono::high_resolution_clock::now();
     kernel_time = std::chrono::duration<double>(kernel_end - kernel_start);
@@ -248,9 +285,13 @@ int main(int argc, char** argv) {
 
     // sync output memory
     xrtBOSync(out_bohdl, XCL_BO_SYNC_BO_FROM_DEVICE , sizeOut* sizeof({{data_type}}),/*OFFSET=*/ 0);
-        
-    xrtRunClose(dma_rhdl);
-    xrtKernelClose(dma_khdl);
+    
+    {% for acc in range(num_layer) -%}
+    xrtRunClose(dma_rhdl{{acc}});
+    {% endfor-%}
+    {% for acc in range(num_layer) -%}
+    xrtKernelClose(dma_khdl{{acc}});
+    {% endfor-%}
 
     ////////////////////////////////////////////
     //// Comparing the execution data to the golden data
