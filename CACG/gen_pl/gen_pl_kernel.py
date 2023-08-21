@@ -25,7 +25,7 @@ def gen_pl_top(prj_dir,template_dir,hw_config,BUFF_SEL):
         
         BUFF_SEL_TEXT=['BRAM','BRAM','BRAM']
         for i in range(3):
-            if BUFF_SEL[0,i]==0:
+            if BUFF_SEL[acc,i]==0:
                 BUFF_SEL_TEXT[i]='BRAM'
             else:
                 BUFF_SEL_TEXT[i]='URAM'
