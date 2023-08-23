@@ -122,26 +122,26 @@
         },
         "RHS_in4_L0": {
             "shim": {
-                "column": 14,
-                "channel": 2
+                "column": 13,
+                "channel": 6
             }
         },
         "RHS_in5_L0": {
             "shim": {
-                "column": 17,
-                "channel": 2
+                "column": 16,
+                "channel": 6
             }
         },
         "RHS_in6_L0": {
             "shim": {
-                "column": 26,
-                "channel": 2
+                "column": 25,
+                "channel": 6
             }
         },
         "RHS_in7_L0": {
             "shim": {
-                "column": 29,
-                "channel": 2
+                "column": 28,
+                "channel": 6
             }
         },
         "RHS_in8_L0": {
@@ -170,26 +170,26 @@
         },
         "RHS_in12_L0": {
             "shim": {
-                "column": 23,
-                "channel": 2
+                "column": 24,
+                "channel": 6
             }
         },
         "RHS_in13_L0": {
             "shim": {
-                "column": 20,
-                "channel": 2
+                "column": 21,
+                "channel": 6
             }
         },
         "RHS_in14_L0": {
             "shim": {
-                "column": 35,
-                "channel": 2
+                "column": 36,
+                "channel": 6
             }
         },
         "RHS_in15_L0": {
             "shim": {
-                "column": 32,
-                "channel": 2
+                "column": 33,
+                "channel": 6
             }
         },
         "out0_L0": {

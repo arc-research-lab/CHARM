@@ -23,9 +23,11 @@ XSA	 = vck190_aie_base_graph_${TARGET}.xsa
 XPFM	 = vck190_xpfm
 HOST_EXE = hostexe
 HOST_SRCS := ./host/host.cpp
-SYSROOT=/opt/petalinux/2021.1/sysroots/cortexa72-cortexa53-xilinx-linux
+SYSROOT_PATH = ./
+SYSROOT = ${SYSROOT_PATH}/sysroots/cortexa72-cortexa53-xilinx-linux
 SDKTARGETSYSROOT = ${SYSROOT}
-EDGE_COMMON_SW=/home/pittzhou/Downloads/xilinx-versal-common-v2021.1
+EDGE_COMMON_SW_PATH = ./
+EDGE_COMMON_SW= ${EDGE_COMMON_SW_PATH}/xilinx-versal-common-v2021.1
 ROOTFS=${EDGE_COMMON_SW}/rootfs.ext4
 IMAGE=${EDGE_COMMON_SW}/Image
 
@@ -76,8 +78,7 @@ GCC_INCLUDES := -I$(SYSROOT)/usr/include/xrt \
 GCC_LIB := -lxaiengine -ladf_api_xrt -lxrt_core -lxrt_coreutil \
 		   -L$(SYSROOT)/usr/lib \
 		   --sysroot=$(SYSROOT) \
-		   -L${XILINX_VITIS}/aietools/lib/aarch64.o \
-		   -L/opt/petalinux/2021.1/sysroots/cortexa72-cortexa53-xilinx-linux/usr/lib \
+		   -L${XILINX_VITIS}/aietools/lib/aarch64.o
 
 
 CXX := $(XILINX_VITIS)/gnu/aarch64/lin/aarch64-linux/bin/aarch64-linux-gnu-g++

@@ -23,20 +23,21 @@ XSA	 = vck190_aie_base_graph_${TARGET}.xsa
 XPFM	 = vck190_xpfm
 HOST_EXE = hostexe
 HOST_SRCS := ./host/host.cpp
-SYSROOT=/opt/petalinux/2021.1/sysroots/cortexa72-cortexa53-xilinx-linux
+SYSROOT_PATH = ./
+SYSROOT = ${SYSROOT_PATH}/sysroots/cortexa72-cortexa53-xilinx-linux
 SDKTARGETSYSROOT = ${SYSROOT}
-EDGE_COMMON_SW=/home/pittzhou/Downloads/xilinx-versal-common-v2021.1
+EDGE_COMMON_SW_PATH = ./
+EDGE_COMMON_SW= ${EDGE_COMMON_SW_PATH}/xilinx-versal-common-v2021.1
 ROOTFS=${EDGE_COMMON_SW}/rootfs.ext4
 IMAGE=${EDGE_COMMON_SW}/Image
 
 FINAL_XCLBIN=mm_${TARGET}.xclbin
 TEMP_DIR := ./_x.$(TARGET).xilinx_vck190_base_202110_1
 BUILD_DIR := ./build_dir.$(TARGET).xilinx_vck190_base_202110_1
-
-KERNEL_XO := $(TEMP_DIR)/dma.xo
+KERNEL_XO :=$(TEMP_DIR)/dma0.xo 
 GRAPH   := aie/aie_top_all.cpp
 LIBADF  = libadf.a
-AIE_CMPL_CMD = aiecompiler -platform=${PLATFORM} --target=hw --stacksize=1024 --pl-register-threshold=250 --pl-freq=230  -include="./aie" -include="./aie/layer0" -include="./aie/layer1" -include="./aie/layer2" -include="./aie/layer3" -include="./aie/layer4" -include="./aie/layer5" -include="./aie/layer6" -include="./aie/layer7" -include="./aie/layer8" --constraints ./aie_top_all_aie_mapped.aiecst -workdir=./Work ${GRAPH}
+AIE_CMPL_CMD = aiecompiler -platform=${PLATFORM} --target=hw --stacksize=1024 --pl-register-threshold=250 --pl-freq=230  -include="./aie" -include="./aie/layer0"  --constraints ./aie_top_all_aie_mapped.aiecst -workdir=./Work ${GRAPH}
 AIE_SIM_CMD = aiesimulator --pkg-dir=./Work --dump-vcd foo --profile
 AIE_HOSTEXE = aie_control_xrt.o
 ifeq ($(PRE_BUILT),1)
@@ -137,12 +138,10 @@ aiesim: ${LIBADF}
 	@echo "COMPLETE: aiesim success."
 
 kernels:$(KERNEL_XO)
-$(TEMP_DIR)/dma.xo: kernel/dma.cpp kernel/dma.hpp
+$(TEMP_DIR)/dma0.xo: kernel0/dma0.cpp kernel0/dma0.hpp
 	mkdir -p $(TEMP_DIR)
-	$(VCC) $(VPP_XO_FLAGS) -k dma --hls.clock 300000000:dma $< -o $@ | tee $(TEMP_DIR)/dma.log
-	@echo "### ***** dma compilation done! *****"
-
-
+	$(VCC) $(VPP_XO_FLAGS) -k dma0 --hls.clock 300000000:dma0 $< -o $@ | tee $(TEMP_DIR)/dma0.log
+	@echo "### ***** dma0 compilation done! *****"
 build: $(BINARY_CONTAINERS)
 $(BUILD_DIR)/${XCLBIN}: ${KERNEL_XO} ${LIBADF}
 	mkdir -p $(BUILD_DIR)
