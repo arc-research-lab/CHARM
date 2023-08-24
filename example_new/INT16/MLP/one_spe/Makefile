@@ -23,11 +23,9 @@ XSA	 = vck190_aie_base_graph_${TARGET}.xsa
 XPFM	 = vck190_xpfm
 HOST_EXE = hostexe
 HOST_SRCS := ./host/host.cpp
-SYSROOT_PATH = ./
-SYSROOT = ${SYSROOT_PATH}/sysroots/cortexa72-cortexa53-xilinx-linux
+SYSROOT=/opt/petalinux/2021.1/sysroots/cortexa72-cortexa53-xilinx-linux
 SDKTARGETSYSROOT = ${SYSROOT}
-EDGE_COMMON_SW_PATH = ./
-EDGE_COMMON_SW= ${EDGE_COMMON_SW_PATH}/xilinx-versal-common-v2021.1
+EDGE_COMMON_SW=/home/pittzhou/Downloads/xilinx-versal-common-v2021.1
 ROOTFS=${EDGE_COMMON_SW}/rootfs.ext4
 IMAGE=${EDGE_COMMON_SW}/Image
 
@@ -137,15 +135,15 @@ aiesim: ${LIBADF}
 	${AIE_SIM_CMD}
 	@echo "COMPLETE: aiesim success."
 
-kernels:$(KERNEL_XO)
-$(TEMP_DIR)/dma0.xo: kernel0/dma0.cpp kernel0/dma0.hpp
-	mkdir -p $(TEMP_DIR)
-	$(VCC) $(VPP_XO_FLAGS) -k dma0 --hls.clock 300000000:dma0 $< -o $@ | tee $(TEMP_DIR)/dma0.log
-	@echo "### ***** dma0 compilation done! *****"
-build: $(BINARY_CONTAINERS)
-$(BUILD_DIR)/${XCLBIN}: ${KERNEL_XO} ${LIBADF}
-	mkdir -p $(BUILD_DIR)
-	v++ -l $(CLFLAGS) --temp_dir $(BUILD_DIR) $(LDCLFLAGS) -o'$@' $(+) | tee $(BUILD_DIR)/hpc_xclbin.log
+# kernels:$(KERNEL_XO)
+# $(TEMP_DIR)/dma0.xo: kernel0/dma0.cpp kernel0/dma0.hpp
+# 	mkdir -p $(TEMP_DIR)
+# 	$(VCC) $(VPP_XO_FLAGS) -k dma0 --hls.clock 300000000:dma0 $< -o $@ | tee $(TEMP_DIR)/dma0.log
+# 	@echo "### ***** dma0 compilation done! *****"
+# build: $(BINARY_CONTAINERS)
+# $(BUILD_DIR)/${XCLBIN}: ${KERNEL_XO} ${LIBADF}
+# 	mkdir -p $(BUILD_DIR)
+# 	v++ -l $(CLFLAGS) --temp_dir $(BUILD_DIR) $(LDCLFLAGS) -o'$@' $(+) | tee $(BUILD_DIR)/hpc_xclbin.log
 
 
 aiehost: $(AIE_HOSTEXE)

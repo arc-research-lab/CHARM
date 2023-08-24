@@ -18,7 +18,6 @@
 #include "../aie/layer7/aie_top_L7.h"
 
 // This is used for the PL Kernels
-#include "xrt/xrt.h"
 #include "xrt/experimental/xrt_kernel.h"
 
 // Using the ADF API that call XRT API
@@ -32,24 +31,6 @@ mm_x2_x3_x4_graph5 mm_graph5;
 mm_x2_x3_x4_graph6 mm_graph6;
 mm_x2_x3_x4_graph7 mm_graph7;
 using namespace std;
-
-static std::vector<char> load_xclbin(xrtDeviceHandle device, const std::string& fnm) {
-    if (fnm.empty()) throw std::runtime_error("No xclbin specified");
-
-    // load bit stream
-    std::ifstream stream(fnm);
-    stream.seekg(0, stream.end);
-    size_t size = stream.tellg();
-    stream.seekg(0, stream.beg);
-
-    std::vector<char> header(size);
-    stream.read(header.data(), size);
-
-    auto top = reinterpret_cast<const axlf*>(header.data());
-    if (xrtDeviceLoadXclbin(device, top)) throw std::runtime_error("Xclbin loading failed");
-
-    return header;
-}
 
 void post_pro(int16_t *Data_hw, std::vector<int16_t> final_result, const int M1, const int N1, const int M){
     for (int n = 0; n < N1; n++) {
@@ -117,12 +98,18 @@ int main(int argc, char** argv) {
     // Open xclbin
     //////////////////////////////////////////
     
-    auto dhdl = xrtDeviceOpen(0); // Open Device the local device
-    if (dhdl == nullptr) throw std::runtime_error("No valid device handle found. Make sure using right xclOpen index.");
-    auto xclbin = load_xclbin(dhdl, xclbinFilename);
-    auto top = reinterpret_cast<const axlf*>(xclbin.data());
-    
-    adf::registerXRT(dhdl, top->m_header.uuid);
+    auto device = xrt::device(0); //device index=0
+	auto uuid = device.load_xclbin(xclbinFilename);
+	auto dhdl = xrtDeviceOpenFromXcl(device);
+
+    auto dma0 = xrt::kernel(device, uuid, "dma0");
+    auto dma1 = xrt::kernel(device, uuid, "dma1");
+    auto dma2 = xrt::kernel(device, uuid, "dma2");
+    auto dma3 = xrt::kernel(device, uuid, "dma3");
+    auto dma4 = xrt::kernel(device, uuid, "dma4");
+    auto dma5 = xrt::kernel(device, uuid, "dma5");
+    auto dma6 = xrt::kernel(device, uuid, "dma6");
+    auto dma7 = xrt::kernel(device, uuid, "dma7");
     
     
     float temp_m0=(float)(M1)/(float)(M_ACC0);
@@ -174,92 +161,77 @@ int main(int argc, char** argv) {
     }
 
     //Allocate input mem
-    xrtBufferHandle in_bohdl0 = xrtBOAlloc(dhdl, sizeIn1 * sizeof(int16_t), 0, 0);
-    auto in_bomapped0 = reinterpret_cast<int16_t*>(xrtBOMap(in_bohdl0));
+    auto in_bohdl0 = xrt::bo(device, sizeIn1 * sizeof(int16_t), dma0.group_id(0));
+    auto in_bomapped0 = in_bohdl0.map<int16_t*>();
     for (int k = 0; k < sizeIn1; k++) {
         in_bomapped0 [k]= DataInput0[k];
     } 
 
-    xrtBufferHandle in_bohdl1 = xrtBOAlloc(dhdl, sizeIn2 * sizeof(int16_t), 0, 0);
-    auto in_bomapped1 = reinterpret_cast<int16_t*>(xrtBOMap(in_bohdl1));
+    auto in_bohdl1 = xrt::bo(device, sizeIn2 * sizeof(int16_t), dma0.group_id(0));
+    auto in_bomapped1 = in_bohdl1.map<int16_t*>();
     for (int k = 0; k < sizeIn2; k++) {
         in_bomapped1 [k]= DataInput1[k];
     } 
 
     // sync input memory
-    xrtBOSync(in_bohdl0, XCL_BO_SYNC_BO_TO_DEVICE , sizeIn1* sizeof(int16_t),0);
-    xrtBOSync(in_bohdl1, XCL_BO_SYNC_BO_TO_DEVICE , sizeIn2* sizeof(int16_t),0);
+    in_bohdl0.sync(XCL_BO_SYNC_BO_TO_DEVICE , sizeIn1* sizeof(int16_t),0);
+    in_bohdl1.sync(XCL_BO_SYNC_BO_TO_DEVICE , sizeIn2* sizeof(int16_t),0);
     
     //Allocate output buffer
-    //layer0
-    xrtBufferHandle out_bohdl0 = xrtBOAlloc(dhdl, sizeOut * sizeof(int16_t), 0, 0);
-    auto out_bomapped0 = reinterpret_cast<int16_t*>(xrtBOMap(out_bohdl0));
+    auto out_bohdl0 = xrt::bo(device, sizeOut* sizeof(int16_t), dma0.group_id(0));
+    auto out_bomapped0 = out_bohdl0.map<int16_t*>();
 
-    //layer1
-    xrtBufferHandle out_bohdl1 = xrtBOAlloc(dhdl, sizeOut * sizeof(int16_t), 0, 0);
-    auto out_bomapped1 = reinterpret_cast<int16_t*>(xrtBOMap(out_bohdl1));
+    auto out_bohdl1 = xrt::bo(device, sizeOut* sizeof(int16_t), dma1.group_id(0));
+    auto out_bomapped1 = out_bohdl1.map<int16_t*>();
 
-    //layer2
-    xrtBufferHandle out_bohdl2 = xrtBOAlloc(dhdl, sizeOut * sizeof(int16_t), 0, 0);
-    auto out_bomapped2 = reinterpret_cast<int16_t*>(xrtBOMap(out_bohdl2));
+    auto out_bohdl2 = xrt::bo(device, sizeOut* sizeof(int16_t), dma2.group_id(0));
+    auto out_bomapped2 = out_bohdl2.map<int16_t*>();
 
-    //layer3
-    xrtBufferHandle out_bohdl3 = xrtBOAlloc(dhdl, sizeOut * sizeof(int16_t), 0, 0);
-    auto out_bomapped3 = reinterpret_cast<int16_t*>(xrtBOMap(out_bohdl3));
+    auto out_bohdl3 = xrt::bo(device, sizeOut* sizeof(int16_t), dma3.group_id(0));
+    auto out_bomapped3 = out_bohdl3.map<int16_t*>();
 
-    //layer4
-    xrtBufferHandle out_bohdl4 = xrtBOAlloc(dhdl, sizeOut * sizeof(int16_t), 0, 0);
-    auto out_bomapped4 = reinterpret_cast<int16_t*>(xrtBOMap(out_bohdl4));
+    auto out_bohdl4 = xrt::bo(device, sizeOut* sizeof(int16_t), dma4.group_id(0));
+    auto out_bomapped4 = out_bohdl4.map<int16_t*>();
 
-    //layer5
-    xrtBufferHandle out_bohdl5 = xrtBOAlloc(dhdl, sizeOut * sizeof(int16_t), 0, 0);
-    auto out_bomapped5 = reinterpret_cast<int16_t*>(xrtBOMap(out_bohdl5));
+    auto out_bohdl5 = xrt::bo(device, sizeOut* sizeof(int16_t), dma5.group_id(0));
+    auto out_bomapped5 = out_bohdl5.map<int16_t*>();
 
-    //layer6
-    xrtBufferHandle out_bohdl6 = xrtBOAlloc(dhdl, sizeOut * sizeof(int16_t), 0, 0);
-    auto out_bomapped6 = reinterpret_cast<int16_t*>(xrtBOMap(out_bohdl6));
+    auto out_bohdl6 = xrt::bo(device, sizeOut* sizeof(int16_t), dma6.group_id(0));
+    auto out_bomapped6 = out_bohdl6.map<int16_t*>();
 
-    //layer7
-    xrtBufferHandle out_bohdl7 = xrtBOAlloc(dhdl, sizeOut * sizeof(int16_t), 0, 0);
-    auto out_bomapped7 = reinterpret_cast<int16_t*>(xrtBOMap(out_bohdl7));
+    auto out_bohdl7 = xrt::bo(device, sizeOut* sizeof(int16_t), dma7.group_id(0));
+    auto out_bomapped7 = out_bohdl7.map<int16_t*>();
     
     
-    mm_graph0.init();
-    mm_graph1.init();
-    mm_graph2.init();
-    mm_graph3.init();
-    mm_graph4.init();
-    mm_graph5.init();
-    mm_graph6.init();
-    mm_graph7.init();
+    auto ghdl0=xrt::graph(device,uuid,"mm_graph0");
+    auto ghdl1=xrt::graph(device,uuid,"mm_graph1");
+    auto ghdl2=xrt::graph(device,uuid,"mm_graph2");
+    auto ghdl3=xrt::graph(device,uuid,"mm_graph3");
+    auto ghdl4=xrt::graph(device,uuid,"mm_graph4");
+    auto ghdl5=xrt::graph(device,uuid,"mm_graph5");
+    auto ghdl6=xrt::graph(device,uuid,"mm_graph6");
+    auto ghdl7=xrt::graph(device,uuid,"mm_graph7");
     printf("graph run\n");
-    mm_graph0.run(-1);
-    mm_graph1.run(-1);
-    mm_graph2.run(-1);
-    mm_graph3.run(-1);
-    mm_graph4.run(-1);
-    mm_graph5.run(-1);
-    mm_graph6.run(-1);
-    mm_graph7.run(-1);
+    ghdl0.run(-1);
+    ghdl1.run(-1);
+    ghdl2.run(-1);
+    ghdl3.run(-1);
+    ghdl4.run(-1);
+    ghdl5.run(-1);
+    ghdl6.run(-1);
+    ghdl7.run(-1);
     
 
     std::cout << "Kernel run\n";
-    xrtKernelHandle dma_khdl0 = xrtPLKernelOpen(dhdl, top->m_header.uuid, "dma0");
-    xrtKernelHandle dma_khdl1 = xrtPLKernelOpen(dhdl, top->m_header.uuid, "dma1");
-    xrtKernelHandle dma_khdl2 = xrtPLKernelOpen(dhdl, top->m_header.uuid, "dma2");
-    xrtKernelHandle dma_khdl3 = xrtPLKernelOpen(dhdl, top->m_header.uuid, "dma3");
-    xrtKernelHandle dma_khdl4 = xrtPLKernelOpen(dhdl, top->m_header.uuid, "dma4");
-    xrtKernelHandle dma_khdl5 = xrtPLKernelOpen(dhdl, top->m_header.uuid, "dma5");
-    xrtKernelHandle dma_khdl6 = xrtPLKernelOpen(dhdl, top->m_header.uuid, "dma6");
-    xrtKernelHandle dma_khdl7 = xrtPLKernelOpen(dhdl, top->m_header.uuid, "dma7");
-    xrtRunHandle dma_rhdl0;
-    xrtRunHandle dma_rhdl1;
-    xrtRunHandle dma_rhdl2;
-    xrtRunHandle dma_rhdl3;
-    xrtRunHandle dma_rhdl4;
-    xrtRunHandle dma_rhdl5;
-    xrtRunHandle dma_rhdl6;
-    xrtRunHandle dma_rhdl7;
+    xrt::run dma_run0;
+    xrt::run dma_run1;
+    xrt::run dma_run2;
+    xrt::run dma_run3;
+    xrt::run dma_run4;
+    xrt::run dma_run5;
+    xrt::run dma_run6;
+    xrt::run dma_run7;
+
     //profile aie mm 
     double kernel_time_in_sec = 0;
     std::chrono::duration<double> kernel_time(0);
@@ -267,56 +239,56 @@ int main(int argc, char** argv) {
     
     for (int i=0;i<iter;i++){
         // start input kernels run handles
-        dma_rhdl0 = xrtKernelRun(dma_khdl0, in_bohdl0, in_bohdl1,out_bohdl0,
+        dma_run0 = dma0(in_bohdl0, in_bohdl1,out_bohdl0,
                 nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
                 TX0,TY0,TZ0);
-        dma_rhdl1 = xrtKernelRun(dma_khdl1, in_bohdl0, in_bohdl1,out_bohdl1,
+        dma_run1 = dma1(in_bohdl0, in_bohdl1,out_bohdl1,
                 nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
                 TX0,TY0,TZ0);
-        dma_rhdl2 = xrtKernelRun(dma_khdl2, in_bohdl0, in_bohdl1,out_bohdl2,
+        dma_run2 = dma2(in_bohdl0, in_bohdl1,out_bohdl2,
                 nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
                 TX0,TY0,TZ0);
-        dma_rhdl3 = xrtKernelRun(dma_khdl3, in_bohdl0, in_bohdl1,out_bohdl3,
+        dma_run3 = dma3(in_bohdl0, in_bohdl1,out_bohdl3,
                 nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
                 TX0,TY0,TZ0);
-        dma_rhdl4 = xrtKernelRun(dma_khdl4, in_bohdl0, in_bohdl1,out_bohdl4,
+        dma_run4 = dma4(in_bohdl0, in_bohdl1,out_bohdl4,
                 nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
                 TX0,TY0,TZ0);
-        dma_rhdl5 = xrtKernelRun(dma_khdl5, in_bohdl0, in_bohdl1,out_bohdl5,
+        dma_run5 = dma5(in_bohdl0, in_bohdl1,out_bohdl5,
                 nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
                 TX0,TY0,TZ0);
-        dma_rhdl6 = xrtKernelRun(dma_khdl6, in_bohdl0, in_bohdl1,out_bohdl6,
+        dma_run6 = dma6(in_bohdl0, in_bohdl1,out_bohdl6,
                 nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
                 TX0,TY0,TZ0);
-        dma_rhdl7 = xrtKernelRun(dma_khdl7, in_bohdl0, in_bohdl1,out_bohdl7,
+        dma_run7 = dma7(in_bohdl0, in_bohdl1,out_bohdl7,
                 nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
                 TX0,TY0,TZ0);
         
 
-        xrtRunWait(dma_rhdl0);
-        xrtRunWait(dma_rhdl1);
-        xrtRunWait(dma_rhdl2);
-        xrtRunWait(dma_rhdl3);
-        xrtRunWait(dma_rhdl4);
-        xrtRunWait(dma_rhdl5);
-        xrtRunWait(dma_rhdl6);
-        xrtRunWait(dma_rhdl7);
+        dma_run0.wait();
+        dma_run1.wait();
+        dma_run2.wait();
+        dma_run3.wait();
+        dma_run4.wait();
+        dma_run5.wait();
+        dma_run6.wait();
+        dma_run7.wait();
         }
     auto kernel_end = std::chrono::high_resolution_clock::now();
     kernel_time = std::chrono::duration<double>(kernel_end - kernel_start);
@@ -332,32 +304,15 @@ int main(int argc, char** argv) {
     std::cout << std::endl;
 
     // sync output memory
-    xrtBOSync(out_bohdl0, XCL_BO_SYNC_BO_FROM_DEVICE , sizeOut* sizeof(int16_t),/*OFFSET=*/ 0);
-    xrtBOSync(out_bohdl1, XCL_BO_SYNC_BO_FROM_DEVICE , sizeOut* sizeof(int16_t),/*OFFSET=*/ 0);
-    xrtBOSync(out_bohdl2, XCL_BO_SYNC_BO_FROM_DEVICE , sizeOut* sizeof(int16_t),/*OFFSET=*/ 0);
-    xrtBOSync(out_bohdl3, XCL_BO_SYNC_BO_FROM_DEVICE , sizeOut* sizeof(int16_t),/*OFFSET=*/ 0);
-    xrtBOSync(out_bohdl4, XCL_BO_SYNC_BO_FROM_DEVICE , sizeOut* sizeof(int16_t),/*OFFSET=*/ 0);
-    xrtBOSync(out_bohdl5, XCL_BO_SYNC_BO_FROM_DEVICE , sizeOut* sizeof(int16_t),/*OFFSET=*/ 0);
-    xrtBOSync(out_bohdl6, XCL_BO_SYNC_BO_FROM_DEVICE , sizeOut* sizeof(int16_t),/*OFFSET=*/ 0);
-    xrtBOSync(out_bohdl7, XCL_BO_SYNC_BO_FROM_DEVICE , sizeOut* sizeof(int16_t),/*OFFSET=*/ 0);
+    out_bohdl0.sync(XCL_BO_SYNC_BO_FROM_DEVICE , sizeOut* sizeof(int16_t),/*OFFSET=*/ 0);
+    out_bohdl1.sync(XCL_BO_SYNC_BO_FROM_DEVICE , sizeOut* sizeof(int16_t),/*OFFSET=*/ 0);
+    out_bohdl2.sync(XCL_BO_SYNC_BO_FROM_DEVICE , sizeOut* sizeof(int16_t),/*OFFSET=*/ 0);
+    out_bohdl3.sync(XCL_BO_SYNC_BO_FROM_DEVICE , sizeOut* sizeof(int16_t),/*OFFSET=*/ 0);
+    out_bohdl4.sync(XCL_BO_SYNC_BO_FROM_DEVICE , sizeOut* sizeof(int16_t),/*OFFSET=*/ 0);
+    out_bohdl5.sync(XCL_BO_SYNC_BO_FROM_DEVICE , sizeOut* sizeof(int16_t),/*OFFSET=*/ 0);
+    out_bohdl6.sync(XCL_BO_SYNC_BO_FROM_DEVICE , sizeOut* sizeof(int16_t),/*OFFSET=*/ 0);
+    out_bohdl7.sync(XCL_BO_SYNC_BO_FROM_DEVICE , sizeOut* sizeof(int16_t),/*OFFSET=*/ 0);
 
-    
-    xrtRunClose(dma_rhdl0);
-    xrtRunClose(dma_rhdl1);
-    xrtRunClose(dma_rhdl2);
-    xrtRunClose(dma_rhdl3);
-    xrtRunClose(dma_rhdl4);
-    xrtRunClose(dma_rhdl5);
-    xrtRunClose(dma_rhdl6);
-    xrtRunClose(dma_rhdl7);
-    xrtKernelClose(dma_khdl0);
-    xrtKernelClose(dma_khdl1);
-    xrtKernelClose(dma_khdl2);
-    xrtKernelClose(dma_khdl3);
-    xrtKernelClose(dma_khdl4);
-    xrtKernelClose(dma_khdl5);
-    xrtKernelClose(dma_khdl6);
-    xrtKernelClose(dma_khdl7);
     ////////////////////////////////////////////
     //// Comparing the execution data to the golden data
     ////////////////////////////////////////////
@@ -387,25 +342,5 @@ int main(int argc, char** argv) {
 
     std::cout << "Releasing remaining XRT objects...\n";
     
-    xrtBOFree(out_bohdl0);
-    xrtBOFree(out_bohdl1);
-    xrtBOFree(out_bohdl2);
-    xrtBOFree(out_bohdl3);
-    xrtBOFree(out_bohdl4);
-    xrtBOFree(out_bohdl5);
-    xrtBOFree(out_bohdl6);
-    xrtBOFree(out_bohdl7);
-    xrtBOFree(in_bohdl0);
-    xrtBOFree(in_bohdl1);
-
-    mm_graph0.wait();
-    mm_graph1.wait();
-    mm_graph2.wait();
-    mm_graph3.wait();
-    mm_graph4.wait();
-    mm_graph5.wait();
-    mm_graph6.wait();
-    mm_graph7.wait();
-    xrtDeviceClose(dhdl);
     return 0;
 }

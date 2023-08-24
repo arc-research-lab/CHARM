@@ -15,7 +15,7 @@
 
 // Using the ADF API that call XRT API
 #include "adf/adf_api/XRTConfig.h"
-mm_x12_x3_x8_graph0 mm_graph0;
+mm_x16_x3_x6_graph0 mm_graph0;
 using namespace std;
 
 void sw_mm(std::vector<int16_t> DataInput0,std::vector<int16_t> DataInput1,int16_t *golden,const int M,const int K,const int N){
@@ -570,6 +570,8 @@ int main(int argc, char** argv) {
                 nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
                 (layer[0][0]/(M_ACC0)),(layer[0][1]/K_ACC0),(layer[0][2]/N_ACC0));
         dma_run.wait();
         auto kernel_end0 = std::chrono::high_resolution_clock::now();
@@ -578,6 +580,8 @@ int main(int argc, char** argv) {
 
         auto kernel_start1 = std::chrono::high_resolution_clock::now();
         dma_run = dma0(bohdl_layer1_in0, bohdl_layer1_in1,bohdl_layer1_out,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
@@ -646,6 +650,8 @@ int main(int argc, char** argv) {
                 nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
                 (layer[2][0]/(M_ACC0)),(layer[2][1]/K_ACC0),(layer[2][2]/N_ACC0));
         dma_run.wait();
         auto kernel_end2 = std::chrono::high_resolution_clock::now();
@@ -654,6 +660,8 @@ int main(int argc, char** argv) {
 
         auto kernel_start3 = std::chrono::high_resolution_clock::now();
         dma_run = dma0(bohdl_layer3_in0, bohdl_layer3_in1,bohdl_layer3_out,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
@@ -722,6 +730,8 @@ int main(int argc, char** argv) {
                 nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
                 (layer[4][0]/(M_ACC0)),(layer[4][1]/K_ACC0),(layer[4][2]/N_ACC0));
         dma_run.wait();
         auto kernel_end4 = std::chrono::high_resolution_clock::now();
@@ -732,35 +742,37 @@ int main(int argc, char** argv) {
         auto kernel_start5 = std::chrono::high_resolution_clock::now();
         dma_run = dma0(bohdl_layer5_in0, bohdl_layer5_in1,bohdl_layer5_out,
             nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
             (layer[5][0]/(M_ACC0)),(layer[5][1]/K_ACC0),(layer[5][2]/N_ACC0));
         dma_run.wait();
         auto kernel_end5 = std::chrono::high_resolution_clock::now();
@@ -770,35 +782,37 @@ int main(int argc, char** argv) {
         auto kernel_start6 = std::chrono::high_resolution_clock::now();
         dma_run = dma0(bohdl_layer6_in0, bohdl_layer6_in1,bohdl_layer6_out,
             nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
-            nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
             (layer[6][0]/(M_ACC0)),(layer[6][1]/K_ACC0),(layer[6][2]/N_ACC0));
         dma_run.wait();
         auto kernel_end6 = std::chrono::high_resolution_clock::now();
@@ -837,6 +851,8 @@ int main(int argc, char** argv) {
                 nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
                 (layer[7][0]/(M_ACC0)),(layer[7][1]/K_ACC0),(layer[7][2]/N_ACC0));
         dma_run.wait();
         auto kernel_end7 = std::chrono::high_resolution_clock::now();
@@ -845,6 +861,8 @@ int main(int argc, char** argv) {
 
         auto kernel_start8 = std::chrono::high_resolution_clock::now();
         dma_run = dma0(bohdl_layer8_in0, bohdl_layer8_in1,bohdl_layer8_out,
+                nullptr, nullptr, nullptr, nullptr,
+                nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
                 nullptr, nullptr, nullptr, nullptr,
