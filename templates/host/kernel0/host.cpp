@@ -15,7 +15,6 @@
 
 {% if device == "vck190" %}
 // This is used for the PL Kernels
-#include "xrt/xrt.h"
 #include "xrt/experimental/xrt_kernel.h"
 {% elif device == "vck5000" %}
 // This is used for the PL Kernels
@@ -35,24 +34,6 @@ mm_x{{A}}_x{{B}}_x{{C}}_graph{{acc}} mm_graph{{acc}};
 {% endif-%}
 
 using namespace std;
-
-static std::vector<char> load_xclbin(xrtDeviceHandle device, const std::string& fnm) {
-    if (fnm.empty()) throw std::runtime_error("No xclbin specified");
-
-    // load bit stream
-    std::ifstream stream(fnm);
-    stream.seekg(0, stream.end);
-    size_t size = stream.tellg();
-    stream.seekg(0, stream.beg);
-
-    std::vector<char> header(size);
-    stream.read(header.data(), size);
-
-    auto top = reinterpret_cast<const axlf*>(header.data());
-    if (xrtDeviceLoadXclbin(device, top)) throw std::runtime_error("Xclbin loading failed");
-
-    return header;
-}
 
 void post_pro({{data_type}} *Data_hw, std::vector<{{data_type}}> final_result, const int M1, const int N1, const int M){
     for (int n = 0; n < N1; n++) {
@@ -99,7 +80,7 @@ const int Z{{acc}}={{Z}};
 const int M_ACC{{acc}}=H1_{{acc}}*A{{acc}}*X{{acc}};
 const int K_ACC{{acc}}=W1_{{acc}}*B{{acc}}*Y{{acc}};
 const int N_ACC{{acc}}=W2_{{acc}}*C{{acc}}*Z{{acc}};
-{% endfor %}
+{% endfor -%}
 
 
 int main(int argc, char** argv) {
@@ -130,13 +111,13 @@ int main(int argc, char** argv) {
     // Open xclbin
     //////////////////////////////////////////
     
-    auto dhdl = xrtDeviceOpen(0); // Open Device the local device
-    if (dhdl == nullptr) throw std::runtime_error("No valid device handle found. Make sure using right xclOpen index.");
-    auto xclbin = load_xclbin(dhdl, xclbinFilename);
-    auto top = reinterpret_cast<const axlf*>(xclbin.data());
-    {% if device == "vck190" %}
-    adf::registerXRT(dhdl, top->m_header.uuid);
-    {% endif %}
+    auto device = xrt::device(0); //device index=0
+	auto uuid = device.load_xclbin(xclbinFilename);
+	auto dhdl = xrtDeviceOpenFromXcl(device);
+
+    {% for acc in range(num_layer) -%}
+    auto dma{{acc}} = xrt::kernel(device, uuid, "dma{{acc}}");
+    {% endfor-%}
     
     float temp_m0=(float)(M1)/(float)(M_ACC0);
     float temp_k0=(float)(K1)/(float)(K_ACC0);
@@ -187,43 +168,39 @@ int main(int argc, char** argv) {
     }
 
     //Allocate input mem
-    xrtBufferHandle in_bohdl0 = xrtBOAlloc(dhdl, sizeIn1 * sizeof({{data_type}}), 0, 0);
-    auto in_bomapped0 = reinterpret_cast<{{data_type}}*>(xrtBOMap(in_bohdl0));
+    auto in_bohdl0 = xrt::bo(device, sizeIn1 * sizeof({{data_type}}), dma0.group_id(0));
+    auto in_bomapped0 = in_bohdl0.map<{{data_type}}*>();
     for (int k = 0; k < sizeIn1; k++) {
         in_bomapped0 [k]= DataInput0[k];
     } 
 
-    xrtBufferHandle in_bohdl1 = xrtBOAlloc(dhdl, sizeIn2 * sizeof({{data_type}}), 0, 0);
-    auto in_bomapped1 = reinterpret_cast<{{data_type}}*>(xrtBOMap(in_bohdl1));
+    auto in_bohdl1 = xrt::bo(device, sizeIn2 * sizeof({{data_type}}), dma0.group_id(0));
+    auto in_bomapped1 = in_bohdl1.map<{{data_type}}*>();
     for (int k = 0; k < sizeIn2; k++) {
         in_bomapped1 [k]= DataInput1[k];
     } 
 
     // sync input memory
-    xrtBOSync(in_bohdl0, XCL_BO_SYNC_BO_TO_DEVICE , sizeIn1* sizeof({{data_type}}),0);
-    xrtBOSync(in_bohdl1, XCL_BO_SYNC_BO_TO_DEVICE , sizeIn2* sizeof({{data_type}}),0);
+    in_bohdl0.sync(XCL_BO_SYNC_BO_TO_DEVICE , sizeIn1* sizeof({{data_type}}),0);
+    in_bohdl1.sync(XCL_BO_SYNC_BO_TO_DEVICE , sizeIn2* sizeof({{data_type}}),0);
     
     //Allocate output buffer
-    xrtBufferHandle out_bohdl = xrtBOAlloc(dhdl, sizeOut* sizeof({{data_type}}), 0, 0);
-    auto out_bomapped = reinterpret_cast<{{data_type}}*>(xrtBOMap(out_bohdl));
-    memset(out_bomapped, 0xABCDEF00, sizeOut * sizeof({{data_type}}));
+    auto out_bohdl = xrt::bo(device, sizeOut* sizeof({{data_type}}), dma0.group_id(0));
+    auto out_bomapped = out_bohdl.map<{{data_type}}*>();
     
     {% if device == "vck190" %}
     {% for acc in range(num_layer) -%}
-    mm_graph{{acc}}.init();
+    auto ghdl{{acc}}=xrt::graph(device,uuid,"mm_graph{{acc}}");
     {% endfor-%}
     printf("graph run\n");
     {% for acc in range(num_layer) -%}
-    mm_graph{{acc}}.run(-1);
+    ghdl{{acc}}.run(-1);
     {% endfor-%}
     {% endif %}
 
     std::cout << "Kernel run\n";
     {% for acc in range(num_layer) -%}
-    xrtKernelHandle dma_khdl{{acc}} = xrtPLKernelOpen(dhdl, top->m_header.uuid, "dma{{acc}}");
-    {% endfor-%}
-    {% for acc in range(num_layer) -%}
-    xrtRunHandle dma_rhdl{{acc}};
+    xrt::run dma_run{{acc}};
     {% endfor-%}
     
     //profile aie mm 
@@ -241,7 +218,7 @@ int main(int argc, char** argv) {
         {% set NUM_TXR=Host_cfg[acc][7] -%} 
         {% set PACK_IN=Host_cfg[acc][8] -%}
         {% set PACK_OUT=Host_cfg[acc][9] -%}
-        dma_rhdl{{acc}} = xrtKernelRun(dma_khdl{{acc}}, in_bohdl0, in_bohdl1,out_bohdl,
+        dma_run{{acc}} = dma{{acc}}(in_bohdl0, in_bohdl1,out_bohdl,
                 {% set num_lhs=A*NUM_TXL*(B//PACK_IN) -%}
                 {% set div_lhs=num_lhs//4 -%}
                 {% set left_lhs=num_lhs%4 -%}
@@ -269,7 +246,7 @@ int main(int argc, char** argv) {
         {% endfor %}
 
         {% for acc in range(num_layer) -%}
-        xrtRunWait(dma_rhdl{{acc}});
+        dma_run{{acc}}.wait();
         {% endfor-%}
     }
     auto kernel_end = std::chrono::high_resolution_clock::now();
@@ -284,14 +261,7 @@ int main(int argc, char** argv) {
     std::cout << std::endl;
 
     // sync output memory
-    xrtBOSync(out_bohdl, XCL_BO_SYNC_BO_FROM_DEVICE , sizeOut* sizeof({{data_type}}),/*OFFSET=*/ 0);
-    
-    {% for acc in range(num_layer) -%}
-    xrtRunClose(dma_rhdl{{acc}});
-    {% endfor-%}
-    {% for acc in range(num_layer) -%}
-    xrtKernelClose(dma_khdl{{acc}});
-    {% endfor-%}
+    out_bohdl.sync(XCL_BO_SYNC_BO_FROM_DEVICE , sizeOut* sizeof({{data_type}}),/*OFFSET=*/ 0);
 
     ////////////////////////////////////////////
     //// Comparing the execution data to the golden data
@@ -322,10 +292,6 @@ int main(int argc, char** argv) {
 
     std::cout << "Releasing remaining XRT objects...\n";
     
-    xrtBOFree(out_bohdl);
-    xrtBOFree(in_bohdl0);
-    xrtBOFree(in_bohdl1);
-    xrtDeviceClose(dhdl);
     return 0;
 }
 

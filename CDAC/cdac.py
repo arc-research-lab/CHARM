@@ -17,7 +17,7 @@ def cdac_top(MODEL_IN,DATA_TYPE,num_acc):
     AIE_NUM=400
     PLIO_IN=100
     PLIO_OUT=80
-    BRAM=(967-150) #100 for AXI bound consumpssion
+    BRAM=(967-199) #100 for AXI bound consumpssion
     URAM=(463-43)
 
     HW_Part=[DDR_BANK,AIE_NUM,PLIO_IN,PLIO_OUT,BRAM,URAM]
@@ -29,11 +29,11 @@ def cdac_top(MODEL_IN,DATA_TYPE,num_acc):
     comb=list(combination)
 
     if num_acc==1:
-        final_config,best_cycle,HW_Used=cdse_top(MODEL_IN,HW_Part,DATA_TYPE)
+        final_config,best_cycle,time_layer,HW_Used=cdse_top(MODEL_IN,HW_Part,DATA_TYPE)
         print('Estimated Throughput is: ' + str(total_ops/best_cycle) + ' GOPS' )
         part_final=0
         print(final_config)
-        return part_final, final_config
+        return part_final, final_config, time_layer
     else:
         round=len(comb)
         best_cycle=1e30
@@ -48,6 +48,7 @@ def cdac_top(MODEL_IN,DATA_TYPE,num_acc):
             total_ops_nxt=total_ops
             temp_config = np.zeros((num_acc,22))
             temp_cycle = np.zeros((num_acc,1))
+            layer_cycle_temp = np.zeros((num_layer))
             ### Create the Partitions of the Model
             for acc in range(num_acc):
                 if acc==num_acc-1:
@@ -56,7 +57,8 @@ def cdac_top(MODEL_IN,DATA_TYPE,num_acc):
                 else:
                     comb_part_nxt=comb_sel[acc]+1
                     compensation=[20,20,20,50,40]
-                index_origin.append(index[comb_part_cur:comb_part_nxt])
+                index_temp=index[comb_part_cur:comb_part_nxt]
+                index_origin.append(index_temp)
                 MODEL_PART=MODEL_SORT[comb_part_cur:comb_part_nxt,:]
                 comb_part_cur=comb_part_nxt
 
@@ -64,7 +66,8 @@ def cdac_top(MODEL_IN,DATA_TYPE,num_acc):
                 comp_ratio=total_ops_cur/total_ops_nxt
                 total_ops_nxt=total_ops-total_ops_cur
                 HW_Cur[1:6]=np.add(np.multiply(HW_LEFT,comp_ratio),compensation)
-                temp_config[acc,:],temp_cycle[acc,0],HW_Used=cdse_top(MODEL_PART,HW_Cur,DATA_TYPE)
+                temp_config[acc,:],temp_cycle[acc,0],time_layer,HW_Used=cdse_top(MODEL_PART,HW_Cur,DATA_TYPE)
+                layer_cycle_temp[index_temp]=time_layer
                 print(HW_Cur)
                 print(MODEL_PART)
                 print(temp_config[acc,:])
@@ -78,6 +81,7 @@ def cdac_top(MODEL_IN,DATA_TYPE,num_acc):
                 
             max_cycle=np.max(temp_cycle)
             if max_cycle<=best_cycle:
+                layer_cycle=layer_cycle_temp
                 part_final=index_origin
                 best_cycle=max_cycle
                 final_config=temp_config
@@ -88,8 +92,9 @@ def cdac_top(MODEL_IN,DATA_TYPE,num_acc):
         print("Final Solution for Partition is",end=" ")
         print(part_final)
         print(final_config)
+        print(layer_cycle)
         print('Estimated Throughput is: ' + str(total_ops/best_cycle) + ' GOPS' )
-        return part_final, final_config
+        return part_final, final_config, layer_cycle
             
 
 

@@ -1,0 +1,244 @@
+{
+    "NodeConstraints": {
+        "LHS_in0_L0": {
+            "shim": {
+                "column": 13,
+                "channel": 2
+            }
+        },
+        "LHS_in1_L0": {
+            "shim": {
+                "column": 16,
+                "channel": 2
+            }
+        },
+        "LHS_in2_L0": {
+            "shim": {
+                "column": 18,
+                "channel": 2
+            }
+        },
+        "LHS_in3_L0": {
+            "shim": {
+                "column": 15,
+                "channel": 2
+            }
+        },
+        "LHS_in4_L0": {
+            "shim": {
+                "column": 19,
+                "channel": 2
+            }
+        },
+        "LHS_in5_L0": {
+            "shim": {
+                "column": 22,
+                "channel": 2
+            }
+        },
+        "LHS_in6_L0": {
+            "shim": {
+                "column": 24,
+                "channel": 2
+            }
+        },
+        "LHS_in7_L0": {
+            "shim": {
+                "column": 21,
+                "channel": 2
+            }
+        },
+        "LHS_in8_L0": {
+            "shim": {
+                "column": 25,
+                "channel": 2
+            }
+        },
+        "LHS_in9_L0": {
+            "shim": {
+                "column": 28,
+                "channel": 2
+            }
+        },
+        "LHS_in10_L0": {
+            "shim": {
+                "column": 30,
+                "channel": 2
+            }
+        },
+        "LHS_in11_L0": {
+            "shim": {
+                "column": 27,
+                "channel": 2
+            }
+        },
+        "LHS_in12_L0": {
+            "shim": {
+                "column": 31,
+                "channel": 2
+            }
+        },
+        "LHS_in13_L0": {
+            "shim": {
+                "column": 34,
+                "channel": 2
+            }
+        },
+        "LHS_in14_L0": {
+            "shim": {
+                "column": 36,
+                "channel": 2
+            }
+        },
+        "LHS_in15_L0": {
+            "shim": {
+                "column": 33,
+                "channel": 2
+            }
+        },
+        "RHS_in0_L0": {
+            "shim": {
+                "column": 13,
+                "channel": 4
+            }
+        },
+        "RHS_in1_L0": {
+            "shim": {
+                "column": 16,
+                "channel": 4
+            }
+        },
+        "RHS_in2_L0": {
+            "shim": {
+                "column": 25,
+                "channel": 4
+            }
+        },
+        "RHS_in3_L0": {
+            "shim": {
+                "column": 28,
+                "channel": 4
+            }
+        },
+        "RHS_in4_L0": {
+            "shim": {
+                "column": 13,
+                "channel": 6
+            }
+        },
+        "RHS_in5_L0": {
+            "shim": {
+                "column": 16,
+                "channel": 6
+            }
+        },
+        "RHS_in6_L0": {
+            "shim": {
+                "column": 25,
+                "channel": 6
+            }
+        },
+        "RHS_in7_L0": {
+            "shim": {
+                "column": 28,
+                "channel": 6
+            }
+        },
+        "RHS_in8_L0": {
+            "shim": {
+                "column": 24,
+                "channel": 4
+            }
+        },
+        "RHS_in9_L0": {
+            "shim": {
+                "column": 21,
+                "channel": 4
+            }
+        },
+        "RHS_in10_L0": {
+            "shim": {
+                "column": 36,
+                "channel": 4
+            }
+        },
+        "RHS_in11_L0": {
+            "shim": {
+                "column": 33,
+                "channel": 4
+            }
+        },
+        "RHS_in12_L0": {
+            "shim": {
+                "column": 24,
+                "channel": 6
+            }
+        },
+        "RHS_in13_L0": {
+            "shim": {
+                "column": 21,
+                "channel": 6
+            }
+        },
+        "RHS_in14_L0": {
+            "shim": {
+                "column": 36,
+                "channel": 6
+            }
+        },
+        "RHS_in15_L0": {
+            "shim": {
+                "column": 33,
+                "channel": 6
+            }
+        },
+        "out0_L0": {
+            "shim": {
+                "column": 18,
+                "channel": 2
+            }
+        },
+        "out1_L0": {
+            "shim": {
+                "column": 13,
+                "channel": 2
+            }
+        },
+        "out2_L0": {
+            "shim": {
+                "column": 24,
+                "channel": 2
+            }
+        },
+        "out3_L0": {
+            "shim": {
+                "column": 19,
+                "channel": 2
+            }
+        },
+        "out4_L0": {
+            "shim": {
+                "column": 30,
+                "channel": 2
+            }
+        },
+        "out5_L0": {
+            "shim": {
+                "column": 25,
+                "channel": 2
+            }
+        },
+        "out6_L0": {
+            "shim": {
+                "column": 36,
+                "channel": 2
+            }
+        },
+        "out7_L0": {
+            "shim": {
+                "column": 31,
+                "channel": 2
+            }
+        }
+    }
+}

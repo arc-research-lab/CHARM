@@ -133,7 +133,7 @@ def cdse_top(MODEL_IN,HW_Part,DATA_TYPE):
     ############################ DSE Kernel0 ###############################
 
     for c in range(1, 8+1):      ##Row Constaint
-        for b in range(1, 24+1): ##Col Constaint
+        for b in range(1, PACK_IN*2+1): ##Col Constaint
             for a in range(1, AIE_NUM//(b*c)+2):
                 if (force_assign==1) and ((a!=A) or (b!=B) or (c!=C)):
                     continue
@@ -271,6 +271,6 @@ def cdse_top(MODEL_IN,HW_Part,DATA_TYPE):
     final_config=np.concatenate((final_temp,BUFF_SEL),axis=1)
     bram_use,uram_use,buf_index=buff_count_0(BRAM,URAM,PART_A,PART_B,PART_C,PACK_IN,PACK_OUT,LEFT_SIZE,RIGHT_SIZE,OUT_SIZE,Versal_HW[0,3],Versal_HW[0,4],Versal_HW[0,5],Versal_HW[0,10],Versal_HW[0,11],Versal_HW[0,12],DBUFF_L,DBUFF_R,DBUFF_O,RAM_TYPE_A,RAM_TYPE_B,RAM_TYPE_C,DATA_TYPE,force_assign,buf_sel) 
     HW_Used=[config[0,13],config[0,11],config[0,12],bram_use,uram_use]#AIE,PLIO_IN,PLIO_OUT,BRAM_URAM
-    return final_config,best_cycle,HW_Used
+    return final_config,best_cycle,config[0,num_term:num_term+sample_num],HW_Used
         
             
