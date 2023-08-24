@@ -5,19 +5,19 @@ from .broadcast_tuning import *
 from .buffer_sel import *
 
 
-def cdse1_top(MODEL_IN,DATA_TYPE):
+def cdse1_top(MODEL_IN,DATA_TYPE,part):
     
     total_ops = np.sum(np.multiply(np.multiply(np.multiply(MODEL_IN[:,0],MODEL_IN[:,1]),MODEL_IN[:,2]),MODEL_IN[:,3]))*2
 
     ################ Hardware Constraints ################
-    portion=1
+    portion=1/part
     force_assign=0
     DDR_BANK=1*portion
-    AIE_NUM=400*portion
-    BRAM=(967-150)*portion #100 for AXI bound consumpssion
-    URAM=(463-43)*portion
-    PLIO_IN=100*portion
-    PLIO_OUT=80*portion
+    AIE_NUM=math.floor(400*portion)
+    BRAM=math.floor((967-199)*portion) #100 for AXI bound consumpssion
+    URAM=math.floor((463-43)*portion)
+    PLIO_IN=math.floor(120*portion)
+    PLIO_OUT=math.floor(100*portion)
 
 
     ################ Hardware Setting ################
@@ -260,6 +260,8 @@ def cdse1_top(MODEL_IN,DATA_TYPE):
     bram_use,uram_use,buf_index=buff_count_0(BRAM,URAM,PART_A,PART_B,PART_C,PACK_IN,PACK_OUT,LEFT_SIZE,RIGHT_SIZE,OUT_SIZE,Versal_HW[0,3],Versal_HW[0,4],Versal_HW[0,5],Versal_HW[0,10],Versal_HW[0,11],Versal_HW[0,12],DBUFF_L,DBUFF_R,DBUFF_O,RAM_TYPE_A,RAM_TYPE_B,RAM_TYPE_C,DATA_TYPE,force_assign,buf_sel) 
     print(bram_use)   
     print(uram_use)
+    print(config[0,11])
+    print(config[0,12])
     print(buf_index)
     print('Estimated Throughput is: ' + str(Versal_HW_temp[0]) + ' GOPS' )
     return final_config,(total_ops/config[0,0]),config[0,num_term:num_term+sample_num]
