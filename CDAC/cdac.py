@@ -64,7 +64,7 @@ def cdac_top(MODEL_IN,DATA_TYPE,num_acc):
 
                 total_ops_cur = np.sum(np.multiply(np.multiply(np.multiply(MODEL_PART[:,0],MODEL_PART[:,1]),MODEL_PART[:,2]),MODEL_PART[:,3]))*2
                 comp_ratio=total_ops_cur/total_ops_nxt
-                total_ops_nxt=total_ops-total_ops_cur
+                total_ops_nxt=total_ops_nxt-total_ops_cur
                 HW_Cur[1:6]=np.add(np.multiply(HW_LEFT,comp_ratio),compensation)
                 temp_config[acc,:],temp_cycle[acc,0],time_layer,HW_Used=cdse_top(MODEL_PART,HW_Cur,DATA_TYPE)
                 layer_cycle_temp[index_temp]=time_layer
