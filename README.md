@@ -1,3 +1,5 @@
+PI Contact: Prof. Peipei Zhou, https://peipeizhou-eecs.github.io/
+
 [![DOI](https://zenodo.org/badge/558491173.svg)](https://zenodo.org/badge/latestdoi/558491173)
 
 # CHARM: Composing Heterogeneous AcceleRators for Matrix Multiply on Versal ACAP Architecture (FPGA'23)
