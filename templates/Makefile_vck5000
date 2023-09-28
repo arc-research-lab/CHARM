@@ -17,7 +17,7 @@ BUILD_DIR := ./build_dir.$(TARGET).${PLATFORM_NAME}
 KERNEL_XO := {%- for acc in range(num_layer) -%}$(TEMP_DIR)/dma{{acc}}.xo {% endfor%}
 GRAPH   := aie/aie_top_all.cpp
 LIBADF  = libadf.a
-AIE_CMPL_CMD = aiecompiler -platform=${PLATFORM} --target=hw --stacksize=1024 --pl-register-threshold=250 --pl-freq=230  -include="./aie" {% for acc in range(num_layer) -%} -include="./aie/layer{{acc}}" {% endfor%} --constraints ./aie_top_all_aie_mapped.aiecst -workdir=./Work ${GRAPH}
+AIE_CMPL_CMD = aiecompiler -platform=${PLATFORM} --target=hw --stacksize=1024 --pl-register-threshold=250 --pl-freq=230  -include="./aie" {% for acc in range(num_layer) -%} -include="./aie/layer{{acc}}" {% endfor%} --constraints ./aie_top_all_aie_mapped.aiecst --disable-transform-broadcast-split=false -workdir=./Work ${GRAPH}
 AIE_SIM_CMD = aiesimulator --pkg-dir=./Work --dump-vcd foo --profile
 AIE_HOSTEXE = aie_control_xrt.o
 
