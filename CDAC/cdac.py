@@ -81,10 +81,10 @@ def cdac_top(MODEL_IN,DATA_TYPE,num_acc):
                 
             max_cycle=np.max(temp_cycle)
             if max_cycle<=best_cycle:
-                layer_cycle=layer_cycle_temp
-                part_final=index_origin
+                layer_cycle=layer_cycle_temp.copy()
+                part_final=index_origin.copy()
                 best_cycle=max_cycle
-                final_config=temp_config
+                final_config=temp_config.copy()
             print('Partition ' + str(i) + ' out of ' + str(round) + ' finish')
             print('Estimated Throughput is: ' + str(total_ops/max_cycle) + ' GOPS\n\n' )
             print('##################################')

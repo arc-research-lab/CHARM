@@ -240,17 +240,17 @@ def cdse_top(MODEL_IN,HW_Part,DATA_TYPE):
                                 config[index,14]=bram_use
                                 config[index,15]=uram_use
                                 config[index,16]=buf_index
-                                config[index,num_term:num_term+sample_num]=temp0_cycle[:]
+                                config[index,num_term:num_term+sample_num]=temp0_cycle[:].copy()
 
     config = config[config[:,0].argsort()]
     best_cycle=config[0,0]
-    Versal_HW_temp=config[0,:]
+    Versal_HW_temp=config[0,:].copy()
     Versal_HW=np.zeros([1,15]) # h1,   w1,   w2,   A,   B,   C,  A_BRO, C_BRO,  PACK_IN, PACK_OUT, X,   Y,   Z,  data_type  kernel_type
     Versal_HW[0,0:3]=[H1,W1,W2]
-    Versal_HW[0,3:8]=Versal_HW_temp[1:6]
+    Versal_HW[0,3:8]=Versal_HW_temp[1:6].copy()
     Versal_HW[0,8]=PACK_IN
     Versal_HW[0,9]=PACK_OUT
-    Versal_HW[0,10:13]=Versal_HW_temp[6:9]
+    Versal_HW[0,10:13]=Versal_HW_temp[6:9].copy()
     Versal_HW[0,13]=DATA_TYPE
     Versal_HW[0,14]=kernel_type  
 
