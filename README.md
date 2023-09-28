@@ -1,8 +1,12 @@
 # Team
 Principal Investigator: Prof. Peipei Zhou, https://peipeizhou-eecs.github.io/
+
 Ph.D. Students: Jinming Zhuang and Zhuoping Yang
+
 Other Faculty: Drs. Jingtong Hu, Alex Jones, Deming Chen, and Jason Cong
+
 Student Collaborators: Jason Lau and Hanchen Ye
+
 AMD Collaborators: Stephen Neuendorffer, Jack Lo, and Kristof Denolf
 
 
