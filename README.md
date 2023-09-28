@@ -1,4 +1,10 @@
-PI Contact: Prof. Peipei Zhou, https://peipeizhou-eecs.github.io/
+# Team
+Principal Investigator: Prof. Peipei Zhou, https://peipeizhou-eecs.github.io/
+Ph.D. Students: Jinming Zhuang and Zhuoping Yang
+Other Faculty: Drs. Jingtong Hu, Alex Jones, Deming Chen, and Jason Cong
+Student Collaborators: Jason Lau and Hanchen Ye
+AMD Collaborators: Stephen Neuendorffer, Jack Lo, and Kristof Denolf
+
 
 [![DOI](https://zenodo.org/badge/558491173.svg)](https://zenodo.org/badge/latestdoi/558491173)
 
