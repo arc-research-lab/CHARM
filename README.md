@@ -1,5 +1,5 @@
 # Team
-Principal Investigator: Prof. Peipei Zhou, https://peipeizhou-eecs.github.io/
+Principal Investigator: Dr. Peipei Zhou, https://peipeizhou-eecs.github.io/
 
 Ph.D. Students: Jinming Zhuang and Zhuoping Yang
 
