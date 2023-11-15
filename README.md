@@ -14,6 +14,7 @@ AMD Collaborators: Stephen Neuendorffer, Jack Lo, and Kristof Denolf
 
 # CHARM: Composing Heterogeneous AcceleRators for Matrix Multiply on Versal ACAP Architecture (FPGA'23)
 # High Performance, Low Power Matrix Multiply Design on ACAP: from Architecture, Design Challenges and DSE Perspectives (DAC'23). 
+# ESWEEK 2023 ESSC DEMO: https://drive.google.com/file/d/1wWn7R_l-Sfbg818Hmvg2448l9WvGy-YK/view?usp=sharing
 
 ## ACM/IEEE Reference Format
 1. Jinming Zhuang, Jason Lau, Hanchen Ye, Zhuoping Yang, Yubo Du, Jack Lo, Kristof Denolf, Stephen Neuendorffer, Alex Jones, Jingtong Hu, Deming
