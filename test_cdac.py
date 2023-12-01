@@ -3,11 +3,19 @@ import math
 import sys
 from CDAC import *
 
-num_acc=1
-model='bert'
+num_acc=2
+model='new1'
 DATA_TYPE=1
 run_mode='mul'
 part=1
+
+batch=72
+seq=192
+heads=12
+head_dim=64
+embed_dim=heads*head_dim
+mlp_ratio=4
+mlp_dim=embed_dim*mlp_ratio
 
 if model=='bert':
     MODEL_IN=np.array([
@@ -46,7 +54,25 @@ elif model=='mlp':
     [3072,4096,4096,1],  
     [3072,4096,4096,1],
     [3072,4096,1024,1],
+    ])
+elif model=='new':
+    MODEL_IN=np.array([
+    [192*1,192,576,1],     
+    [192*1,64,192,3],
+    [192*1,192,64,3],
+    [192*1,192,192,1],
+    [192*1,192,768,1],
+    [192*1,768,192,1],
     ]) 
+elif model=='new1':
+    MODEL_IN=np.array([
+    [seq*batch,embed_dim,embed_dim*3,1],
+    [seq*batch,head_dim,seq,heads],
+    [seq*batch,seq,head_dim,heads],
+    [seq*batch,embed_dim,embed_dim,1],
+    [seq*batch,embed_dim,mlp_dim,1],
+    [seq*batch,mlp_dim,embed_dim,1],
+    ])
 else:
     MODEL_IN=np.array([
     [3072,4096,4096,1],   
