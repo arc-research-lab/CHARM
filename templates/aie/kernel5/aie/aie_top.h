@@ -35,9 +35,9 @@ public:
     {% else -%}
     {% set j_pos = j_div + c_div + c_left -%}
     {% endif -%}
-    mm_k1_B{{B}}_L{{layer}} <{{col}}, {{row}}>  mm_{{i}}_{{j_pos}};
+    mm_k5_B{{B}}_L{{layer}} <{{col}}, {{row}}>  mm_{{i}}_{{j_pos}};
     {% else -%}
-    mm_k1_B{{B}}_L{{layer}} <{{col}}, {{row}}>  mm_{{i}}_{{j}};
+    mm_k5_B{{B}}_L{{layer}} <{{col}}, {{row}}>  mm_{{i}}_{{j}};
     {% endif -%}
     {% endfor -%}
     {% endfor %}

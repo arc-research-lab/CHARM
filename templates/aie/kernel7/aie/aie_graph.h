@@ -8,7 +8,7 @@ using namespace adf;
 
 
 template <int COL_OFFSET, int ROW_OFFSET>
-class mm_k1_B{{B}}_L{{layer}}: public graph {
+class mm_k7_B{{B}}_L{{layer}}: public graph {
   private:
     kernel mm[L{{layer}}_NUM_KERNEL];
     adf::pktsplit<L{{layer}}_NUM_KERNELS_PER_PAC>  sp_a0[L{{layer}}_NUM_PACK_IN];
@@ -18,7 +18,7 @@ class mm_k1_B{{B}}_L{{layer}}: public graph {
     port<input> in0[L{{layer}}_NUM_PACK_IN],in1[L{{layer}}_NUM_PACK_IN];
     port<output> out;
     
-    mm_k1_B{{B}}_L{{layer}}() {
+    mm_k7_B{{B}}_L{{layer}}() {
       
       for (int j=0; j<L{{layer}}_NUM_PACK_IN; j++){
         sp_a0[j]  = adf::pktsplit<L{{layer}}_NUM_KERNELS_PER_PAC>::create();
