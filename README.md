@@ -22,7 +22,7 @@ Chen, Jason Cong, Peipei Zhou. 2023. CHARM: Composing Heterogeneous Accelerators
 
 Author Version PDF: https://peipeizhou-eecs.github.io/publication/fpga23/
 
-2. Jinming Zhuang, Zhuoping Yang, Peipei Zhou. 2023. High Performance, Low Power Matrix Multiply Design on ACAP: from Architecture, Design Challenges and DSE Perspectives. In Proceedings of the 60th ACM/IEEE Design Automation Conference, San Francisco, California, USA, (DAC ’23), July 9–13, 2023, San Francisco, CA, USA. 
+2. Jinming Zhuang, Zhuoping Yang, Peipei Zhou. 2023. High Performance, Low Power Matrix Multiply Design on ACAP: from Architecture, Design Challenges and DSE Perspectives. In Proceedings of the 60th ACM/IEEE Design Automation Conference, San Francisco, California, USA, (DAC ’23), July 9–13, 2023, San Francisco, CA, USA. https://doi.org/10.1109/DAC56929.2023.10247981
 
 Author Version PDF: https://arxiv.org/pdf/2305.18698.pdf
 
