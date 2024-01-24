@@ -217,33 +217,33 @@ def cdse_top(Op0,Op1):
                                 temp0_cycle=np.multiply(temp_cycle,np.transpose(MODEL_IN[:,3]))
                                 total_cycle=np.sum(temp0_cycle)
 
-                                if(total_cycle*0.85<=best_time): # Search design near the best time
-                                    if total_cycle<best_time:   # If it is the current best
-                                        best_time=total_cycle
-                                        index=cnt_best%num_design_best
-                                        cnt_best=cnt_best+1
-                                    else:
-                                        index=num_design_best+cnt_choice%num_design_choice
-                                        cnt_choice=cnt_choice+1
+                            if(total_cycle*0.85<=best_time): # Search design near the best time
+                                if total_cycle<best_time:   # If it is the current best
+                                    best_time=total_cycle
+                                    index=cnt_best%num_design_best
+                                    cnt_best=cnt_best+1
+                                else:
+                                    index=num_design_best+cnt_choice%num_design_choice
+                                    cnt_choice=cnt_choice+1
 
-                                    config[index,0]=total_ops/total_cycle
-                                    config[index,1]=a
-                                    config[index,2]=b
-                                    config[index,3]=c
-                                    config[index,4]=A_BRO
-                                    config[index,5]=C_BRO
-                                    config[index,6]=x
-                                    config[index,7]=y
-                                    config[index,8]=z
-                                    config[index,9]=length
-                                    config[index,10]=height
-                                    config[index,11]=plio_in
-                                    config[index,12]=plio_out
-                                    config[index,13]=a*b*c
-                                    config[index,14]=bram_use
-                                    config[index,15]=uram_use
-                                    config[index,16]=buf_index
-                                    config[index,num_term:num_term+sample_num-1]=temp0_cycle[:].copy()
+                                config[index,0]=total_ops/total_cycle
+                                config[index,1]=a
+                                config[index,2]=b
+                                config[index,3]=c
+                                config[index,4]=A_BRO
+                                config[index,5]=C_BRO
+                                config[index,6]=x
+                                config[index,7]=y
+                                config[index,8]=z
+                                config[index,9]=length
+                                config[index,10]=height
+                                config[index,11]=plio_in
+                                config[index,12]=plio_out
+                                config[index,13]=a*b*c
+                                config[index,14]=bram_use
+                                config[index,15]=uram_use
+                                config[index,16]=buf_index
+                                config[index,num_term:num_term+sample_num]=temp0_cycle[:].copy()
 
     
     config = config[config[:,0].argsort()[::-1]]
