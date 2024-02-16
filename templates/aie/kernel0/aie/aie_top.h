@@ -45,7 +45,7 @@ public:
 
         {% for i in range(A) -%}
         {% for j in range(C) -%}
-        connect<window<L{{layer}}_h1*L{{layer}}_w2*4,stream>(mm_{{i}}_{{j}}.out,out[{{j+i*C}}]);
+        connect<window<L{{layer}}_h1*L{{layer}}_w2*4>,stream>(mm_{{i}}_{{j}}.out,out[{{j+i*C}}]);
         {% endfor -%}
         {% endfor %}
     }
