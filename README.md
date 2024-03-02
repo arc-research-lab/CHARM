@@ -14,6 +14,7 @@ AMD Collaborators: Stephen Neuendorffer, Jack Lo, and Kristof Denolf
 
 # CHARM: Composing Heterogeneous AcceleRators for Matrix Multiply on Versal ACAP Architecture (FPGA'23)
 # High Performance, Low Power Matrix Multiply Design on ACAP: from Architecture, Design Challenges and DSE Perspectives (DAC'23). 
+# SSR: Spatial Sequential Hybrid Architecture for Latency Throughput Tradeoff in Transformer Acceleration (FPGA'24) 
 # ESWEEK 2023 and DAC 2023 Video Demos: https://drive.google.com/file/d/1wWn7R_l-Sfbg818Hmvg2448l9WvGy-YK/view?usp=sharing
 
 ## ACM/IEEE Reference Format
@@ -25,6 +26,10 @@ Author Version PDF: https://peipeizhou-eecs.github.io/publication/fpga23/
 2. Jinming Zhuang, Zhuoping Yang, Peipei Zhou. 2023. High Performance, Low Power Matrix Multiply Design on ACAP: from Architecture, Design Challenges and DSE Perspectives. In Proceedings of the 60th ACM/IEEE Design Automation Conference, San Francisco, California, USA, (DAC ’23), July 9–13, 2023, San Francisco, CA, USA. https://doi.org/10.1109/DAC56929.2023.10247981
 
 Author Version PDF: https://arxiv.org/pdf/2305.18698.pdf
+
+3. Jinming Zhuang, Zhuoping Yang, Shixin Ji, Heng Huang, Alex K. Jones, Jingtong Hu, Yiyu Shi, Peipei Zhou. 2024. SSR: Spatial Sequential Hybrid Architecture for Latency Throughput Tradeoff in Transformer Acceleration (FPGA'24) 
+
+arXiv PDF: https://arxiv.org/abs/2401.10417
 
 # **New Release  ! &emsp;  !  &emsp; !** 2023.05.29
 ## **PyACAP 1.0: Python Based Automatic Code Generation for Versal ACAP**:<br> 
