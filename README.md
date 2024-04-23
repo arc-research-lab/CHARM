@@ -30,7 +30,7 @@ Author Version PDF: https://arxiv.org/pdf/2305.18698.pdf
 
 3. Jinming Zhuang, Zhuoping Yang, Shixin Ji, Heng Huang, Alex K. Jones, Jingtong Hu, Yiyu Shi, Peipei Zhou. 2024. SSR: Spatial Sequential Hybrid Architecture for Latency Throughput Tradeoff in Transformer Acceleration (FPGA'24) 
 
-ACM PDF: [https://dl.acm.org/doi/10.1145/3626202.3637569](https://doi.org/10.1145/3626202.3637569)
+ACM PDF: https://doi.org/10.1145/3626202.3637569
 
 # **New Release  ! &emsp;  !  &emsp; !** 2023.05.29
 ## **PyACAP 1.0: Python Based Automatic Code Generation for Versal ACAP**:<br> 
