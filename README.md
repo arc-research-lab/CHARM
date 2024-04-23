@@ -19,8 +19,9 @@ AMD Collaborators: Stephen Neuendorffer, Jack Lo, and Kristof Denolf
 
 ## ACM/IEEE Reference Format
 1. Jinming Zhuang, Jason Lau, Hanchen Ye, Zhuoping Yang, Yubo Du, Jack Lo, Kristof Denolf, Stephen Neuendorffer, Alex Jones, Jingtong Hu, Deming
-Chen, Jason Cong, Peipei Zhou. 2023. CHARM: Composing Heterogeneous Accelerators for Matrix Multiply on Versal ACAP Architecture. In Proceedings of the 2023 ACM/SIGDA International Symposium on Field Programmable Gate Arrays (FPGA ’23), February 12–14, 2023, Monterey, CA, USA. ACM, New York, NY, USA, 12 pages. https://doi.org/10.1145/3543622.3573210
+Chen, Jason Cong, Peipei Zhou. 2023. CHARM: Composing Heterogeneous Accelerators for Matrix Multiply on Versal ACAP Architecture. In Proceedings of the 2023 ACM/SIGDA International Symposium on Field Programmable Gate Arrays (FPGA ’23), February 12–14, 2023, Monterey, CA, USA. ACM, New York, NY, USA, 12 pages.
 
+ACM PDF: https://doi.org/10.1145/3543622.3573210
 Author Version PDF: https://peipeizhou-eecs.github.io/publication/fpga23/
 
 2. Jinming Zhuang, Zhuoping Yang, Peipei Zhou. 2023. High Performance, Low Power Matrix Multiply Design on ACAP: from Architecture, Design Challenges and DSE Perspectives. In Proceedings of the 60th ACM/IEEE Design Automation Conference, San Francisco, California, USA, (DAC ’23), July 9–13, 2023, San Francisco, CA, USA. https://doi.org/10.1109/DAC56929.2023.10247981
@@ -29,7 +30,7 @@ Author Version PDF: https://arxiv.org/pdf/2305.18698.pdf
 
 3. Jinming Zhuang, Zhuoping Yang, Shixin Ji, Heng Huang, Alex K. Jones, Jingtong Hu, Yiyu Shi, Peipei Zhou. 2024. SSR: Spatial Sequential Hybrid Architecture for Latency Throughput Tradeoff in Transformer Acceleration (FPGA'24) 
 
-arXiv PDF: https://arxiv.org/abs/2401.10417
+ACM PDF: [https://dl.acm.org/doi/10.1145/3626202.3637569](https://doi.org/10.1145/3626202.3637569)
 
 # **New Release  ! &emsp;  !  &emsp; !** 2023.05.29
 ## **PyACAP 1.0: Python Based Automatic Code Generation for Versal ACAP**:<br> 
