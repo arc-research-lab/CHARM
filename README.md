@@ -134,7 +134,7 @@ cd /mnt/sd-mmcblk0p1
 By default, CHARM targets the `xilinx_vck5000_gen3x16_xdma_1_202120_1` platform
 for VCK5000.
 To target the `xilinx_vck5000_gen4x8_qdma_2_202220_1` platform,
-we require Vitis 2022.2 and the `PLATFORM_NAME` variable to be defined for
+we require Vitis 2022.2-2023.1 and the `PLATFORM_NAME` variable to be defined for
 the build process, i.e.:
 
 ```bash
