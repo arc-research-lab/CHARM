@@ -35,7 +35,7 @@ mm_x{{A}}_x{{B}}_x{{C}}_graph{{acc}} mm_graph{{acc}};
 
 using namespace std;
 
-void post_pro({{data_type}} *Data_hw, std::vector<{{data_type}}> final_result, const int M1, const int N1, const int M){
+void post_pro({{data_type}} *Data_hw, std::vector<{{data_type}}> &final_result, const int M1, const int N1, const int M){
     for (int n = 0; n < N1; n++) {
         for (int m = 0; m < M1; m++) { 
             int pos0=m+n*M;
@@ -45,7 +45,7 @@ void post_pro({{data_type}} *Data_hw, std::vector<{{data_type}}> final_result, c
     }
 }
 
-void sw_mm(std::vector<{{data_type}}> DataInput0,std::vector<{{data_type}}> DataInput1,{{data_type}} *golden,const int M,const int K,const int N){
+void sw_mm(std::vector<{{data_type}}> const &DataInput0,std::vector<{{data_type}}> const &DataInput1,{{data_type}} *golden,const int M,const int K,const int N){
     {{data_type}} sum = 0;
     for (int m = 0; m < M; m++) {
         for (int n = 0; n < N; n++) {
@@ -137,8 +137,8 @@ int main(int argc, char** argv) {
     std::vector<{{data_type}}> DataInput0(sizeIn1,1);
     std::vector<{{data_type}}> DataInput1(sizeIn2,1);
     {{data_type}}* golden = new {{data_type}}[sizeOut];
-    std::vector<{{data_type}}> final_result_sw(sizeOut1,1);
-    std::vector<{{data_type}}> final_result_hw(sizeOut1,1);
+    std::vector<{{data_type}}> final_result_sw(sizeOut1,2);
+    std::vector<{{data_type}}> final_result_hw(sizeOut1,3);
 
     srand (time(0));
     for (int k = 0; k < K; k++) {
