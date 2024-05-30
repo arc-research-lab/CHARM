@@ -137,8 +137,8 @@ int main(int argc, char** argv) {
     std::vector<{{data_type}}> DataInput0(sizeIn1,1);
     std::vector<{{data_type}}> DataInput1(sizeIn2,1);
     {{data_type}}* golden = new {{data_type}}[sizeOut];
-    std::vector<{{data_type}}> final_result_sw(sizeOut1,1);
-    std::vector<{{data_type}}> final_result_hw(sizeOut1,1);
+    std::vector<{{data_type}}> final_result_sw(sizeOut1,2);
+    std::vector<{{data_type}}> final_result_hw(sizeOut1,3);
 
     srand (time(0));
     for (int k = 0; k < K; k++) {
