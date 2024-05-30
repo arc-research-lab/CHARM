@@ -78,7 +78,9 @@ To play with the Charming Accelerators, the following software and hardware depe
 + **AMD/Xilinx Vitis 2021.1** (Version 2021.1 guarantees the designs in the example folder to be compiled correctly)
 + AMD/Xilinx XRT Library
 + AMD/Xilinx Versal VCK190 (Vitis 2021.1)
-+ AMD/Xilinx Versal VCK5000 (Python Interface Vitis 2021.2)
++ AMD/Xilinx Versal VCK5000 (`xilinx_vck5000_gen3x16_xdma_1_202120_1`, Vitis 2021.2)
++ AMD/Xilinx Versal VCK5000 (`xilinx_vck5000_gen4x8_qdma_2_202220_1`, Vitis 2022.2-2023.1)
+
 ## Environment Setup <br/>
 
 ### 1. To quickly boost and run experiments on the board instead of building the platform and Linux from scratch, users can download the platform package (VCK190 Base 2021.1) and petalinux common image(Versal common image) from the following link:<br/>
@@ -121,18 +123,37 @@ cd ${Project_DIR}
 make all PLATFORM=${PATH} EDGE_COMMON_SW_PATH=${PATH} SYSROOT_PATH={PATH}
 ```
 ### 7. On Board Execution for MM with Arbitrary Sizes
-After copy the sd card image to micro sd card and boot up the system run the following commands to get the execution results. {M}, {K}, {N} refers to the size of MM. In order to reduce the effect of overhead of calling API when runnning the kernel, users can specify the number of {iteration} of running the MM then it provides the average throughput. To verify the correctness of the MM kernel, {verify} should be assigned to 1, otherwise 0. One example of running MM with 1024\*1024*\1024 for 100 iterations without verify the result can be: **./hostexe mm_hw.xclbin 1024 1024 1024 100 0**
+After copy the sd card image to micro sd card and boot up the system run the following commands to get the execution results. {M}, {K}, {N} refers to the size of MM. In order to reduce the effect of overhead of calling API when runnning the kernel, users can specify the number of {iteration} of running the MM then it provides the average throughput. To verify the correctness of the MM kernel, {verify} should be assigned to 1, otherwise 0. One example of running MM with 1024\*1024\*1024 for 100 iterations without verify the result can be: **./hostexe mm_hw.xclbin 1024 1024 1024 100 0**
 ```bash
 cd /mnt/sd-mmcblk0p1
 ./hostexe mm_hw.xclbin {M} {K} {N} {iteration} {verify}
 ```
 
+### Targeting VCK5000
 
+By default, CHARM targets the `xilinx_vck5000_gen3x16_xdma_1_202120_1` platform
+for VCK5000.
+To target the `xilinx_vck5000_gen4x8_qdma_2_202220_1` platform,
+we require Vitis 2022.2 and the `PLATFORM_NAME` variable to be defined for
+the build process, i.e.:
+
+```bash
+make all PLATFORM_NAME=xilinx_vck5000_gen4x8_qdma_2_202220_1
+```
+
+Note: with higher total off-chip bandwidth, the VCK5000
+can show better QoR than the VCK190, e.g. for single square MM kernels:
+
+| Size | Paper (GFlop/s) | Observed (GFlop/s) |
+|:----:|:---------------:|:------------------:|
+| 1024 |         1103.46 |            1598.24 |
+| 4096 |         2718.42 |            4081.14 |
+| 6144 |         3277.99 |            4518.02 |
 
 ## Step-by-Step Tutorial
 In this part, we first introduce the overall MM tiling strategy including four levels of tilings. Then in the later parts, we illustrate the methodology of how we handle each of these level of tilings.<br>
 ### Overall MM Tiling Strategy:<br>
-Given a large Matrix Multiplication(MM) with size (M\*K) * (K\*N) refer as M\*K\*N, the listing bellow shows four level of tilings to handle this MM (from innermost to outermost):<br>
+Given a large Matrix Multiplication(MM) with size (M\*K) * (K\*N) refer as M\*K\*N, the listing below shows four level of tilings to handle this MM (from innermost to outermost):<br>
 + Line 16-20: MM calculated on a **single AIE core**. 
 + Line 12-14: The spatial distribution unrolled across different AIE cores in **AIE Array**.
 + Line 7-9: The sequential processing of data stored in **PL on-chip memories**. 

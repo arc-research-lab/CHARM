@@ -5,9 +5,10 @@ MODE	 = linux
 HOST_ARCH = x86
 Frequency = 230
 PLATFORM_REPO_PATHS=/opt/xilinx/platforms
-PLATFORM_NAME=xilinx_vck5000_gen3x16_xdma_1_202120_1
+PLATFORM_NAME ?= xilinx_vck5000_gen3x16_xdma_1_202120_1
 PLATFORM = ${PLATFORM_REPO_PATHS}/${PLATFORM_NAME}/${PLATFORM_NAME}.xpfm
 XCLBIN   = ${PLATFORM_NAME}${TARGET}.xclbin
+XSA      = ${PLATFORM_NAME}${TARGET}.xsa
 HOST_EXE = hostexe
 HOST_SRCS := ./host/host.cpp
 
@@ -29,9 +30,14 @@ RMDIR = rm -rf
 ### DO NOT MODIFY BELOW THIS LINE UNLESS NECESSARY
 ################################################################################################################################################
 
+ifeq ($(PLATFORM_NAME),xilinx_vck5000_gen4x8_qdma_2_202220_1)
+	BINARY_CONTAINER = $(BUILD_DIR)/$(XSA)
+else
+	BINARY_CONTAINER = $(BUILD_DIR)/${XCLBIN}
+endif
+
 CUR_DIR := $(patsubst %/,%,$(dir $(mkfile_dir)))
 PACKET_IDS_C_H :=./Work/temp/packet_ids_c.h
-BINARY_CONTAINERS += $(BUILD_DIR)/${XCLBIN}
 VCC      = v++
 VPP_XO_FLAGS += -c --platform $(PLATFORM) --save-temps --optimize 2 -g
 VPP_XO_FLAGS += --hls.jobs 8
@@ -48,15 +54,13 @@ GCC_INCLUDES := -I $(SYSROOT)/usr/include/xrt \
 				-I ./  \
 				-I ${XILINX_VITIS}/aietools/include \
 				-I ${XILINX_VITIS}/include \
-				-I /opt/xilinx/xrt/include \
-				-I /usr/bin/boost_1_63_0
+				-I ${XILINX_XRT}/include \
+				-I ${XILINX_VITIS}/tps/boost_1_72_0
 
 GCC_LIB := -lxrt_coreutil -lxrt_core -lxrt_coreutil \
-		   -L$(XILINX_XRT)/usr/lib \
+		   -L${XILINX_XRT}/lib \
 		   --sysroot=$(SYSROOT) \
-		   -L${XILINX_VITIS}/aietools/lib/lnx64.o/
-
-
+		   -L${XILINX_VITIS}/aietools/lib/lnx64.o
 
 CLFLAGS += -t $(TARGET) --platform $(PLATFORM) --save-temps --optimize 2
 ifneq ($(TARGET), hw)
@@ -109,8 +113,8 @@ $(TEMP_DIR)/dma{{acc}}.xo: kernel{{acc}}/dma{{acc}}.cpp kernel{{acc}}/dma{{acc}}
 {% endfor-%}
 
 
-build: $(BINARY_CONTAINERS)
-$(BUILD_DIR)/${XCLBIN}: ${KERNEL_XO} ${LIBADF}
+build: $(BINARY_CONTAINER)
+$(BINARY_CONTAINER): ${KERNEL_XO} ${LIBADF}
 	mkdir -p $(BUILD_DIR)
 	v++ -l $(CLFLAGS) --temp_dir $(BUILD_DIR) $(LDCLFLAGS) -o $@ ${KERNEL_XO} ${LIBADF}
 
@@ -121,8 +125,8 @@ $(HOST_EXE):
 	@echo "COMPLETE: Host application created."
 
 package:${FINAL_XCLBIN}
-${FINAL_XCLBIN}: $(BINARY_CONTAINERS) $(LIBADF) 
-	v++ -p -t $(TARGET) -f $(PLATFORM) $(BINARY_CONTAINERS) $(LIBADF) -o ${FINAL_XCLBIN} --package.boot_mode=ospi
+${FINAL_XCLBIN}: $(BINARY_CONTAINER) $(LIBADF) 
+	v++ -p -t $(TARGET) -f $(PLATFORM) $(BINARY_CONTAINER) $(LIBADF) -o ${FINAL_XCLBIN} --package.boot_mode=ospi
 	@echo "COMPLETE: package created."
 
 
