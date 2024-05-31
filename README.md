@@ -141,7 +141,7 @@ the build process, i.e.:
 make all PLATFORM_NAME=xilinx_vck5000_gen4x8_qdma_2_202220_1
 ```
 
-Note: with higher total off-chip bandwidth, the VCK5000
+Note: with higher total off-chip bandwidth and AIE clock frequency, the VCK5000
 can show better QoR than the VCK190, e.g. for single square MM kernels:
 
 | Size | Paper (GFlop/s) | Observed (GFlop/s) |
