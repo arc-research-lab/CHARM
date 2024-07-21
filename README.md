@@ -1,9 +1,9 @@
 # Team
-Principal Investigator: Dr. Peipei Zhou, https://peipeizhou-eecs.github.io/
+Principal Investigator: Prof. Peipei Zhou, https://peipeizhou-eecs.github.io/
 
 Ph.D. Students: Jinming Zhuang (Lead), Zhuoping Yang, Shixin Ji
 
-Faculty Collaborators: Drs. Jingtong Hu, Alex Jones, Deming Chen, and Jason Cong
+Faculty Collaborators: Profs. Jingtong Hu, Alex Jones, Deming Chen, and Jason Cong
 
 Student Collaborators: Jason Lau and Hanchen Ye
 
