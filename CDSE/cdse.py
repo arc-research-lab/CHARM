@@ -142,6 +142,8 @@ def cdse_top(Op0,Op1):
             for a in range(1, AIE_NUM//(c*b)+1): 
                 if (force_assign==1) and ((a!=A) or (b!=B) or (c!=C)):
                     continue
+                if (DATA_TYPE==2) and (a%2!=0):
+                  continue
                 if kernel_type%2==1:
                     A_BRO = c//2
                     height=min(c,8)
