@@ -40,6 +40,11 @@ Chen, Jason Cong, Peipei Zhou. CHARM 2.0: Composing Heterogeneous Accelerators f
 
 ACM PDF: https://dl.acm.org/doi/10.1145/3686163
 
+5. Dong, Peiyan, Jinming Zhuang, Zhuoping Yang, Shixin Ji, Yanyu Li, Dongkuan Xu, Heng Huang et al. "EQ-ViT: Algorithm-Hardware Co-Design for End-to-End Acceleration of Real-Time Vision Transformer Inference on Versal ACAP Architecture." IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems 43, no. 11 (2024): 3949-3960.
+
+IEEE PDF: https://doi.org/10.1109/TCAD.2024.3443692
+Author Version PDF: https://peipeizhou-eecs.github.io/publication/2024_esweek_eqvit/2024_esweek_eqvit.pdf
+
 # **New Release  ! &emsp;  !  &emsp; !** 2023.05.29
 ## **PyACAP 1.0: Python Based Automatic Code Generation for Versal ACAP**:<br> 
 + **What's new ?:** In this release we create an entire python interface for matrix multiply under floating-point 32 data type for Versal ACAP VCK190 and VCK5000 Platforms.
