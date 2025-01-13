@@ -5,7 +5,7 @@ Ph.D. Students: Jinming Zhuang (Student Lead), Zhuoping Yang, Shixin Ji
 
 Faculty Collaborators: Professors Jingtong Hu (Pitt), Alex Jones (Syracuse), Deming Chen (UIUC), Yiyu Shi (Notre Dame), Yanzhi Wang (Northeastern) and Jason Cong (UCLA)
 
-Student Collaborators: Jason Lau and Hanchen Ye
+Student Collaborators: Jason Lau (UCLA) and Hanchen Ye (UIUC)
 
 AMD Collaborators: Stephen Neuendorffer, Jack Lo, and Kristof Denolf
 
