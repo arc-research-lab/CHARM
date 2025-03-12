@@ -1,0 +1,49 @@
+name: TrafficPlot Auto Generation
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Runs everyday at 00:00 UTC
+  workflow_dispatch:  # Allow manual triggering of workflows
+jobs:
+  generate_image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3  
+
+      - name: Check if the repo is the original one
+        run: |
+          if [[ "${{ github.repository }}" != "arc-research-lab/CHARM" ]]; then
+            echo "Not the original repo, skipping workflow."
+            exit 0
+          fi
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.12' 
+
+      - name: Install PyGithub version 2.6.1
+        run: pip install PyGithub==2.6.1  
+
+      - name: Install dependencies
+        run: |
+          pip3 install pandas matplotlib PyGithub pillow seaborn
+
+      - name: Run image generation script
+        run: python3 plot/GithubTrafficPlot.py token:${{ secrets.GH_PAT }} plot/repo.txt plot/   # 
+
+      - name: Commit and push generated image
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          
+          git add -f ./plot/*_traffic_plot.png ./plot/*.csv  
+          git commit -m "Auto-generated traffic_plot.png and plot_data.csv" || echo "No changes to commit"
+          git pull --rebase 
+          
+          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git
