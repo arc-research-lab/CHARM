@@ -9,8 +9,14 @@ Student Collaborators: Jason Lau (UCLA) and Hanchen Ye (UIUC)
 
 AMD Collaborators: Stephen Neuendorffer, Jack Lo, and Kristof Denolf
 
-
 [![DOI](https://zenodo.org/badge/558491173.svg)](https://zenodo.org/badge/latestdoi/558491173)
+
+## 🚀 Thank You for Using CHARM! ! !
+### Your support and growing engagement inspire us to continually improve and enhance the project.
++ Total Views since 02/13/2025: 502
++ Total Downloads since 02/13/2025: 52
+<img src="./plot/CHARM_traffic_plot.png" width="600" />
+
 
 # CHARM: Composing Heterogeneous AcceleRators for Matrix Multiply on Versal ACAP Architecture (FPGA'23)
 # High Performance, Low Power Matrix Multiply Design on ACAP: from Architecture, Design Challenges and DSE Perspectives (DAC'23). 
