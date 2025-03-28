@@ -36,13 +36,25 @@ jobs:
       - name: Run image generation script
         run: python3 plot/GithubTrafficPlot.py token:${{ secrets.GH_PAT }} plot/repo.txt plot/   # 
 
+      - name: Update total review number
+        run: |
+          # Extract the second row (Total row) from csv
+          TOTAL_ROW=$(grep "^Total" ./plot/CHARM_sum.csv)
+
+          # Extract Clones and Views using awk
+          CLONES=$(echo $TOTAL_ROW | awk -F',' '{print $2}')
+          VIEWS=$(echo $TOTAL_ROW | awk -F',' '{print $3}')
+
+          sed -i "s/<!--CLONES-->.*<!--\/CLONES-->/<!--CLONES-->$CLONES<!--\/CLONES-->/" README.md
+          sed -i "s/<!--VIEWS-->.*<!--\/VIEWS-->/<!--VIEWS-->$VIEWS<!--\/VIEWS-->/" README.md
+
       - name: Commit and push generated image
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           
           
-          git add -f ./plot/*_traffic_plot.png ./plot/*.csv  
+          git add -f ./plot/*_traffic_plot.png ./plot/*.csv ./README.md
           git commit -m "Auto-generated traffic_plot.png and plot_data.csv" || echo "No changes to commit"
           git pull --rebase 
           
