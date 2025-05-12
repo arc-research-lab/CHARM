@@ -13,8 +13,8 @@ AMD Collaborators: Stephen Neuendorffer, Jack Lo, and Kristof Denolf
 
 ## 🚀 Thank You for Using CHARM! ! !
 ### Your support and growing engagement inspire us to continually improve and enhance the project.
-+ Total Views since 02/13/2025: <!--VIEWS-->2155<!--/VIEWS-->
-+ Total Downloads since 02/13/2025: <!--CLONES-->301<!--/CLONES-->
++ Total Views since 02/13/2025: <!--VIEWS-->2184<!--/VIEWS-->
++ Total Downloads since 02/13/2025: <!--CLONES-->309<!--/CLONES-->
 <img src="./plot/CHARM_traffic_plot.png" width="600" />
 
 
