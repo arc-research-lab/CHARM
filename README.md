@@ -25,6 +25,9 @@ AMD Collaborators: Stephen Neuendorffer, Jack Lo, and Kristof Denolf
 
 # ESWEEK 2023 and DAC 2023 Video Demos: https://drive.google.com/file/d/1wWn7R_l-Sfbg818Hmvg2448l9WvGy-YK/view?usp=sharing
 
+# Notes for FPGA testing for ASIC development flow: 
+[fpga_testing_flow](./FPGA_testing_for_ASIC_development_flow/flow.md)
+
 ## ACM/IEEE Reference Format
 1. Jinming Zhuang, Jason Lau, Hanchen Ye, Zhuoping Yang, Yubo Du, Jack Lo, Kristof Denolf, Stephen Neuendorffer, Alex Jones, Jingtong Hu, Deming
 Chen, Jason Cong, Peipei Zhou. 2023. CHARM: Composing Heterogeneous Accelerators for Matrix Multiply on Versal ACAP Architecture. In Proceedings of the 2023 ACM/SIGDA International Symposium on Field Programmable Gate Arrays (FPGA ’23), February 12–14, 2023, Monterey, CA, USA. ACM, New York, NY, USA, 12 pages.
